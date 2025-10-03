@@ -1,0 +1,199 @@
+\apendice{Especificación de Requisitos}
+
+\section{Introducción}
+
+En este anaexo se especifican los requisitos que debe cumplir el proyecto para considerarse completado, así como los casos de uso que se espera que los usarios hagan de este sistema.
+
+\section{Objetivos generales}
+\begin{itemize}
+  \item Comprender el funcionamiento del proceso de compilación de los compiladores modernos.
+  \item Diseñar un lenguaje de programación con un enfoque específico.
+  \item Utilizar la herramienta ANTLR para crear analizadores léxicos y sintácticos.
+  \item Utilizar la herramienta LLVM para pasar un AST a un IR.
+\end{itemize}
+
+\section{Requisitos funcionales}
+A continuación se listan los RF (requisitos funcionales) necesarios para completar el proyecto:
+
+\begin{enumerate}
+\item[\textbf{RF-1}] \textbf{Capacidad de analizar un texto en el lenguaje fuente:} El programa debe ser capaz de aceptar entradas válidas en el lenguaje fuente.
+	\begin{enumerate}
+		\item[\textbf{RF-1.1}] \textbf{Gestión de errores léxicos:} el programa debe mostrar casos donde se encuentran errores léxicos al analizar la entrada.
+		\item[\textbf{RF-1.2}] \textbf{Información de debug léxica:} el programa debe ser capaz de ofrecer información sobre los tokens que ha encontrado en el programa mediante un argumento.
+	\end{enumerate}
+\item[\textbf{RF-2}] \textbf{Capacidad para analisis sintáctico:} El programa debe poder analizar sintácticamente el texto recibido siguiendo las reglas de producción definidas.
+	\begin{enumerate}
+		\item[\textbf{RF-2.1}] \textbf{Gestión de errores sintácticos:} El programa mostrará un error frente a errores sintácticos, mostrando la fuente del error por pantalla.
+		\item[\textbf{RF-2.2}] \textbf{Información de debug sintáctica:}  
+	\end{enumerate}
+\item[\textbf{RF-3}] \textbf{Creación del AST:} El programa generará la AST a partir de la información obtenida en los pasos de análisis léxico y sintáctico.
+	\begin{enumerate}	
+		\item[\textbf{RF-3.1}] \textbf{Recorrido con patrón visitor:}
+		\item[\textbf{RF-3.2}] \textbf{Recolecta de información de cada estructura:}
+		\item[\textbf{RF-3.3}] \textbf{Impresión por pantalla del resultado de la AST:}
+	\end{enumerate}	
+\item[\textbf{RF-4}] \textbf{Análisis semántico:} El programa creará la tabla de símbolos y comprobará los tipos en asignaciones y declaraciones.
+	\begin{enumerate}	
+		\item[\textbf{RF-4.1}] \textbf{Inserción de variables y funciones en la tabla de símbolos:}
+		\item[\textbf{RF-4.2}] \textbf{Gestión de los scopes:}
+		\item[\textbf{RF-4.3}] \textbf{Comprobaciones de tipos y compatibilidad en operaciones:}
+	\end{enumerate}	
+\item[\textbf{RF-5}] \textbf{Generación de código IR:} 
+	\begin{enumerate}	
+		\item[\textbf{RF-5.1}] \textbf{}
+		\item[\textbf{RF-5.2}] \textbf{}
+		\item[\textbf{RF-5.3}] \textbf{}
+	\end{enumerate}	
+\end{enumerate}
+
+
+\section{Casos de uso}
+\subsubsection{Actores}
+Los actores principales son los usuarios, que parten de un lenguaje fuente el cual desean ejecutar en un sistema con una determinada arquitectura. Se podría considerar el sistema de archivos como un actor secundario, parte del sistema operativo que interactuaría directamente con los archivos fuente y los ejecutables.
+
+\subsubsection{Especificación de los CU}
+% Caso de Uso 1 -> Traducción a código ejecutable
+\begin{table}[p]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU-1}    & \textbf{Traducción a código ejecutable}\\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Autor}                & Adrián Zamora Sánchez \\
+		\textbf{Requisitos asociados} & RF-5\\
+		\textbf{Descripción}          & El programa parte de un código fuente y devuelve un programa ejecutable \\
+		\textbf{Precondición}         & Existe un fichero con código fuente el cual es correcto léxica y sintácticamente \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Escribir un código fuente
+			\item Ejecutar el compilador
+			\item Recibir errores (en este caso hay que volver al paso nº1) o un fichero de salida 
+			\item Se puede ejecutar el fichero de salida
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Un fichero ejecutable o un error de compilación y sus detalles \\
+		\textbf{Excepciones}          & El fichero con el código de entrada no existe, el código fuente es incorrecto \\
+		\textbf{Importancia}          & Alta \\ 
+		\bottomrule
+	\end{tabularx}
+	\caption{CU-1 Traducción a código ejecutable}
+\end{table}
+
+% Caso de Uso 2 -> Traducción a código IR
+\begin{table}[p]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU-2}    & \textbf{Traducción a código ejecutable}\\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Autor}                & Adrián Zamora Sánchez \\
+		\textbf{Requisitos asociados} & RF-5\\
+		\textbf{Descripción}          & El programa parte de un código fuente y devuelve un fichero con IR \\
+		\textbf{Precondición}         & Existe un fichero con código fuente el cual es correcto léxica y sintácticamente \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Escribir un código fuente
+			\item Ejecutar el compilador
+			\item Utilizar el argumento -IR
+			\item Recibir errores (en este caso hay que volver al paso nº1) o un fichero de salida 
+			\item Se puede abrir y leer el fichero con código IR
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Un fichero con IR o un error de compilación y sus detalles \\
+		\textbf{Excepciones}          & El fichero con el código de entrada no existe, el código fuente es incorrecto \\
+		\textbf{Importancia}          & Alta \\ 
+		\bottomrule
+	\end{tabularx}
+	\caption{CU-2 Traducción a código IR}
+\end{table}
+
+% Caso de Uso 3 -> Comprobación de la validez léxica de un código
+\begin{table}[p]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU-3}    & \textbf{Comprobación de la validez léxica de un código}\\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Autor}                & Adrián Zamora Sánchez \\
+		\textbf{Requisitos asociados} & RF-5\\
+		\textbf{Descripción}          & El programa parte de un código fuente y devuelve una cadena con los lexemas detectados \\
+		\textbf{Precondición}         & Existe un fichero con código fuente \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Escribir un código fuente
+			\item Ejecutar el compilador
+			\item Utilizar el argumento -lex
+			\item Recibir errores (en este caso hay que volver al paso nº1) o una lista de lexemas en la salida principal
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Una lista de lexemas o un error durante el análisis léxico y sus detalles \\
+		\textbf{Excepciones}          & El fichero con el código de entrada no existe \\
+		\textbf{Importancia}          & Media \\ 
+		\bottomrule
+	\end{tabularx}
+	\caption{CU-3 Comprobación de la validez léxica de un código}
+\end{table}
+
+% Caso de Uso 4 -> Comprobación de la validez sintáctica de un código
+\begin{table}[p]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU-4}    & \textbf{Comprobación de la validez sintáctica de un código}\\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Autor}                & Adrián Zamora Sánchez \\
+		\textbf{Requisitos asociados} & RF-5\\
+		\textbf{Descripción}          & El programa parte de un código fuente y devuelve una visualización del AST \\
+		\textbf{Precondición}         & Existe un fichero con código fuente \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Escribir un código fuente
+			\item Ejecutar el compilador
+			\item Utilizar el argumento -par
+			\item Recibir errores (en este caso hay que volver al paso nº1) o un AST lista en la salida principal
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Un AST o un error durante el análisis léxico o léxico y sus detalles \\
+		\textbf{Excepciones}          & El fichero con el código de entrada no existe \\
+		\textbf{Importancia}          & Media \\ 
+		\bottomrule
+	\end{tabularx}
+	\caption{CU-4 Comprobación de la validez sintáctica de un código}
+\end{table}
+
+% Caso de Uso 5 -> Compilar sin optimizar
+\begin{table}[p]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU-5}    & \textbf{Compilar sin optimizar}\\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Autor}                & Adrián Zamora Sánchez \\
+		\textbf{Requisitos asociados} & RF-5\\
+		\textbf{Descripción}          & El programa parte de un código fuente y devuelve un fichero IR no optimizadom, el cual sirve para poder comparar con uno optimizado y analizar este proceso \\
+		\textbf{Precondición}         & Existe un fichero con código fuente y este es correcto léxica y sintácticamente \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Escribir un código fuente
+			\item Ejecutar el compilador
+			\item Utilizar el argumento -basic
+			\item Recibir errores (en este caso hay que volver al paso nº1) o un fichro IR sin optimizar
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Un fichero con código IR \\
+		\textbf{Excepciones}          & El fichero con el código de entrada no existe o contiene errores \\
+		\textbf{Importancia}          & Baja \\ 
+		\bottomrule
+	\end{tabularx}
+	\caption{CU-5 Compilar sin optimizar}
+\end{table}

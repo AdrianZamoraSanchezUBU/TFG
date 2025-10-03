@@ -1,0 +1,20 @@
+\capitulo{2}{Objetivos del proyecto}
+
+\subsection{Requisitos software}
+\begin{itemize}
+    \item \textbf{Diseñar un lenguaje}:
+    \item \textbf{Compilador capaz de reconocer el lenguaje}:
+    \item \textbf{Generación de errores encontrados en la entrada}:
+    \item \textbf{Herramienta de análisis (debug) visual}:
+    \item \textbf{Compilación desde IR}:
+    \item \textbf{Utilidades temporales propias del lenguaje}:
+\end{itemize}
+
+\subsection{Objetivos técnicos}
+Utilizar ANTLR, puesto que es una herramienta moderna y reconocida entre los programas generadores de reconocedores de lenguajes.
+
+Utilizar LLVM, también una de las herramientas más actuales y utilizadas en compiladores reales, capaz de generar un IR que permite crear un compilador extremadamente portable independientemente de la arquitectura.
+
+Utilizar C++ como entorno, pues tiene buena integración con ANTLR (C++ ANTLR Runtime Environment) y con LLVM, además de una gran capacidad para manejar OOP.
+
+Crear al menos una funcionalidad con la que se permita al usuario visualizar el programa escrito junto a algunos detalles minimos, por ejemplo, mediante la representación del AST en un grafo que se pueda guardar como una imagen del programa. Sirviendo tanto como una funcionalidad de debug visual como una característica interesante desde el punto de vista academico.

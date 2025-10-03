@@ -1,0 +1,57 @@
+\apendice{Plan de Proyecto Software}
+
+\section{Introducción}
+En este apartado se tiene como objetivo definir y estructurar el plan de proyecto para el desarrollo de un lenguaje de programación y el compilador del mismo, de forma que queden satisfechas sus necesidades y requerimientos tecnicos, garantizando la calidad, eficiencia y cumplimiento de unos plazos establecidos. Este plan proporciona un marco de referencia para la gestión del proyecto, incluyendo la planificación temporal así como un estudio de la viabilidad tanto económica como legal.
+
+\section{Planificación temporal}
+En este apartado se explica de que forma se aplicará la metodología ágil por excelencia, Scrum, para el control temporal de este proyecto, cabe destacar que al ser un trabajo unipersonal con fin académico puede no reflejar a la perfección el trabajo habitual de esta metodología. 
+
+A continuación se muestra una planificación organizada por sprints, donde se prioriza la mejora de un producto minimo viable (MVP por sus siglas en inglés), de forma que en los primeros sprints se obtiene este MVP y se añaden nuevas funcionalidades incrementalmente con cada sprint. Al menos cada dos sprints se realiza una reunión con el tutor, para evaluar el trabajo realizado y planificar los siguientes sprints, teniendo en cuenta lo aprendido anteriormente y las posibles dificutaldes encontradas.
+
+Así mismo, para mantener un orden durante el desarrollo, se integrará en Github la herramienta ZenHub, la cual ayudará a mantener la planificación en un tablero estilo Kanban, el cual se integra con las issues y milestones definidas.
+
+A continuación se citan los sprints realizados:
+
+\textbf{Sprint 1 (22/09/2025 - 28/09/2025):} Se investiga y sobre herramientas y conceptos relacionados con los lenguajes y compiladores.
+
+\textbf{Sprint 2 (29/09/2025 - 08/10/2025):} Primera reunión con el tutor. Se inicia el repositorio y se crea el frontend de la primera versión del compilador.
+
+\textbf{Sprint 3 (09/09/2025 - 15/10/2025):} Se trabaja en el backend de la primera versión del compilador. 
+
+\textbf{Sprint 4 (16/09/2025 - 20/10/2025):} Segunda reunión con el tutor. Se evalua el trabajo de los dos sprints anteriores y se añaden nuevas funcionalidades. 
+
+\section{Estudio de viabilidad}
+En este apartado analizaremos la viabilidad vista desde el punto de vista de recursos económicos y requisitos para llevarlo a cabo dentro del marco legal. Este análisis puede parecer poco necesario en un proyecto académico, sin embargo, sería vital en un proyecto privado real.
+
+\subsection{Viabilidad económica}
+A continuación analizaremos que costes deben ser tenidos en cuenta para el desarrollo de este proyecto, así como una determinación aproximada de los costes específicos y totales.
+
+\textbf{Coste humano:} es el coste del salario que se requiere para el equipo que programará durante el proyecto. Puesto que es un proyecto con un único desarrollador, se estima un sueldo mensual de unos 1500€ brutos.
+
+\textbf{Coste hardware:} este coste representa todo el material que requiere el equipo para funcionar correctamente, este comprende materiales como ordenadores, teclados, ratones, etc. Dando por hecho que en los 5 meses de proyecto solo se alquila el material necesario, podría estimarse un alquiler mensual de 200€ por hardware.
+
+\textbf{Coste software:} estos son costos asociados comunmente a desarrollos software, sin embargo, con la elección de software libre vamos a evitar este gasto tan común.
+
+\subsection{Coste total}
+En este caso de un proyecto de 5 meses, los costes los podemos aproximar de la siguiente forma:
+\tablaSmallSinColores{Costes totales}{lcr}{3}{Tipo de coste & Precio aproximado \\}{
+  Coste humano & 7500€ \\
+  Coste hardware & 1000€  \\
+  Coste software & 0€ \\
+  \midrule
+  \textbf{Coste total} & \textbf{8500€} \\
+}
+
+\subsection{Viabilidad legal}
+A continuación se citan todos las herramientas utilizadas y las licencias que estan contemplan de cara a su uso en proyectos:
+
+\tablaSmallSinColores{Licencias}{lcr}{3}{Herramienta & Licencia \\}{
+  Ubuntu & GPL \\
+  ANTLR & BDS  \\
+  LLVM & UIUC \\
+  GCC & GPLv3 \\
+  CMake & BSD \\
+  Doxygen & GPL \\
+}
+
+Como podemos observar, todas las licencias de estas herramientas permiten el uso \textbf{gratuito} de las mismas, sin restricciones adicionales que afecten a este proyecto.

@@ -1,0 +1,15 @@
+# Aceptando cambios en la documentación solo para .tex, pdfs e imagenes
+doc/*
+doc/tex/*.aux
+doc/tex/*.log
+doc/tex/*.out
+doc/tex/*.toc
+doc/img/*:Zone*
+
+!doc/*.pdf
+!doc/*.tex
+!doc/tex/
+!doc/tex/*.tex
+!doc/img/
+!doc/img/*.png
+!doc/img/*.pdf

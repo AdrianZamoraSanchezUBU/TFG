@@ -1,0 +1,41 @@
+\apendice{Documentación técnica de programación}
+
+\section{Introducción}
+En esta sección se analizará la estructura del trabajo de programación, cómo se estructuran los ficheros de código, cómo se instalan los requisitos, cómo compilar el proyecto, etc.
+
+\section{Estructura de directorios}
+A continuación se muestra un diagrama con los principales directorios y ficheros presentes en el proyecto.
+\imagen{diagramaDirectorios}{Diagrama de directorios}
+
+\section{Manual del programador}
+El objetivo de este manual es ofrecer una visión técnica del código fuente, de manera que cualquier desarrollador que necesite mantener, extender o comprender el sistema pueda hacerlo.
+
+\subsection{Requisitos previos}
+Instalación de ANTLR y LLVM %TODO
+
+\subsection{Lenguaje de programación y estilo}
+El compilador está desarrollado en C++17, empleando un estilo de programación modular y orientado a objetos. Se sigue la convención de nombres en \textit{camelCase} para métodos y variables, y como es estándar de C++, \textit{PascalCase} para clases. El código está documentado con comentarios en formato Doxygen para la generación automática de documentación.
+
+\subsection{Convenciones internas}
+\begin{itemize}
+  \item Los ficheros de cabecera se ubican en el directorio \texttt{include/}, y las implementaciones en \texttt{src/}.
+  \item La definición del lenguaje de ANTLR se encuentra en el directorio \texttt{src/grammar/}.
+  \item El AST y las clases de nodos se implementan en \texttt{src/ast/}.
+  \item El análisis semántico se implementa en \texttt{src/semantic/}.
+  \item El generador de código intermedio se localiza en \texttt{src/LLVM/}.
+  \item El sistema de tests se encuentra en el directorio \texttt{test/}.
+  \item La documentación del proyecto se encuentra en \texttt{doc/}.
+\end{itemize}
+
+\section{Compilación, instalación y ejecución del proyecto}
+\subsection{Compilación}
+El fichero CMakeLists.txt será el responsable de compilar el proyecto, mediante CMake, herramienta la cual tiene muy buena integración con C++. 
+
+\subsection{Instalación}
+
+\subsection{Ejecución}
+
+\section{Pruebas del sistema}
+Para un desarrollo de calidad, debemos asegurarnos que cuando introducimos cambios en el sistema, las características anteriores se mantengan funcionales. Para ello se aportan tests unitarios mediante GoogleTest, un framework diseñado por Google para hacer tests unitarios sobre código C++.
+
+Los tests se encuentran en el directorio "test" y se encargan de comprobar la correcta aceptación de código fuente, generación de AST, tablas de símbolos y algunos casos de generación de código IR.

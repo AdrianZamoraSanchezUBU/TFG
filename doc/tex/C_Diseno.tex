@@ -1,0 +1,40 @@
+\apendice{Especificación de diseño} %TODO
+
+\section{Introducción}
+En esta sección se describe cómo se construirá el sistema desde el punto de vista del diseño. El objetivo es definir la estructura general de la aplicación, los modelos de datos que la sustentan y los procedimientos que regirán su funcionamiento. De esta manera se establece un puente entre los requisitos previamente definidos y la posterior implementación, garantizando que el desarrollo siga una organización clara y coherente.
+
+\section{Diseño de datos} 
+\subsection{Estructuras de datos utilizadas}
+AST
+
+Tabla de simbolos
+
+\subsection{Diagramas UML de los objetos del sistema}
+
+\subsection{Tipos de datos del lenguaje}
+
+
+\section{Diseño arquitectónico} 
+A continuación se lista los módulos principales:
+
+Analizador léxico o lexer
+
+Analizador sintáctico o parser
+
+Analizador semántico
+
+Generador de código IR
+
+El siguiente diagrama muestra linealmente una ejecución sin errores, donde se puede visualizar el estado de los datos en cada capa:
+\imagen{diagramaFasesCompilador}{Diagrama fases del compilador}
+
+\section{Diseño procedimental} 
+A continuación se explican de qué formas realizan sus tareas los elementos del diseño arquitectónico visto anteriormente:
+
+Algoritmo del lexer (NFA → DFA)
+
+Algoritmo parser (Adaptive LL()* / ALL(*)) que primero intenta decisiones con bajo lookahead (SLL), y si falla, usa contexto completo (modo LL)
+
+Algoritmo generador de la AST y análisis semántico (visitor pattern)
+
+Algoritmo que genera IR (LLVM...) 
