@@ -13,3 +13,9 @@ doc/img/*:Zone*
 !doc/img/
 !doc/img/*.png
 !doc/img/*.pdf
+
+# Rechazo de los archivos generados por ANTLR
+src/grammar/*.interp
+src/grammar/*.tokens
+src/grammar/*Listener.*
+src/grammar/*Visitor.*
