@@ -16,9 +16,19 @@ stmt
 expr
 	: expr op=(MUL|DIV) expr
 	| expr op=(PLUS|MINUS) expr
+	| expr comparisonOperator expr
   	| operand
   	| LPAREN expr RPAREN
   	;
+
+comparisonOperator
+	: EQ 
+   	| NE
+	| LT 
+  	| LE 
+   	| GT
+   	| GE
+   	;
 
 operand
 	: literal
