@@ -14,8 +14,10 @@ doc/img/*:Zone*
 !doc/img/*.png
 !doc/img/*.pdf
 
-# Rechazo de los archivos generados por ANTLR
-src/grammar/*.interp
-src/grammar/*.tokens
-src/grammar/*Listener.*
-src/grammar/*Visitor.*
+# Ignorar todo en grammar menos los .g4
+src/grammar/*
+!src/grammar/*.g4
+
+
+# Rechazo de los archivos que genera CMake
+build/*

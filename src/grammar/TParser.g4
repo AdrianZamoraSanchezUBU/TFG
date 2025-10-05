@@ -10,7 +10,7 @@ program: stmt*;
 block: LBRACE stmt* RBRACE;
 
 stmt
-	: block
+	: expr
 	;
 
 expr
