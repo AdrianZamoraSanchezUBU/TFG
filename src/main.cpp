@@ -4,6 +4,7 @@
 #include "antlr4-runtime.h"
 #include "TLexer.h"
 #include "TParser.h"
+#include "AST.h"
 
 std::string readFile(std::string fileName){
 	std::string line;
@@ -56,6 +57,6 @@ int main(int argc, char* argv[]){
 
 	// TODO: remove debug
 	std::cout << tree->toStringTree(&parser) << std::endl;
-
+	
 	return 0;
 }

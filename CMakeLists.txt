@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 # Including header files
 include_directories(
     ${PROJECT_SOURCE_DIR}/src/grammar
+    ${PROJECT_SOURCE_DIR}/src/AST
     /usr/local/include/antlr4-runtime
 )
 
