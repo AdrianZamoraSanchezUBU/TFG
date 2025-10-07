@@ -18,6 +18,7 @@ add_executable(TCompiler
     src/main.cpp
     src/grammar/TLexer.cpp
     src/grammar/TParser.cpp
+    src/AST/ASTBuilder.cpp
 )
 
 # Linking with antlr4-runtime

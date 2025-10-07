@@ -14,11 +14,11 @@ stmt
 	;
 
 expr
-	: expr op=(MUL|DIV) expr
-	| expr op=(PLUS|MINUS) expr
-	| expr comparisonOperator expr
-  	| operand
-  	| LPAREN expr RPAREN
+	: expr op=(MUL|DIV) expr		# arithmeticExpr
+	| expr op=(PLUS|MINUS) expr		# arithmeticExpr
+	| expr comparisonOperator expr	# logicalExpr
+  	| operand						# operandExpr
+  	| LPAREN expr RPAREN			# parenExpr
   	;
 
 comparisonOperator

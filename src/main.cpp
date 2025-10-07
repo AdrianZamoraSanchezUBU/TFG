@@ -5,6 +5,7 @@
 #include "TLexer.h"
 #include "TParser.h"
 #include "AST.h"
+#include "ASTBuilder.h"
 
 std::string readFile(std::string fileName){
 	std::string line;
@@ -46,17 +47,22 @@ int main(int argc, char* argv[]){
 	tokens.fill();
 	
 	// TODO: remove debug
+	/*
 	for (auto token : tokens.getTokens()) {
 	    std::cout << token->toString() << std::endl;
 	}	
-
+	*/
+	
 	// Parsing process
 	TParser parser(&tokens);
 
 	TParser::ProgramContext* tree = parser.program();
 
 	// TODO: remove debug
-	std::cout << tree->toStringTree(&parser) << std::endl;
+	// std::cout << tree->toStringTree(&parser) << std::endl;
+
+	ASTBuilder builder;
+    auto ast = builder.visit(tree);
 	
 	return 0;
 }
