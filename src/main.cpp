@@ -6,6 +6,8 @@
 #include "TParser.h"
 #include "AST.h"
 #include "ASTBuilder.h"
+#include "LexerErrorListener.h"
+#include "ParserErrorListener.h"
 
 std::string readFile(std::string fileName){
 	std::string line;
@@ -23,7 +25,7 @@ std::string readFile(std::string fileName){
 	  	testFile.close();
 	} 
 	else {
-		std::cerr << "No se pudo abrir el fichero" << std::endl;
+		std::cerr << "Unable to open file" << std::endl;
 		return NULL;
 	} 
 
@@ -33,7 +35,7 @@ std::string readFile(std::string fileName){
 int main(int argc, char* argv[]){
 	// Arguments check
 	if(argc < 1){
-		std::cerr << "No se ha pasado un fichero objetivo" << std::endl;
+		std::cerr << "A file name is needed" << std::endl;
 	}
 
 	// File reading
@@ -42,6 +44,10 @@ int main(int argc, char* argv[]){
 	// Lexical analysis
 	antlr4::ANTLRInputStream input(fileContent);
 	TLexer lexer(&input);
+
+	// Modified lexer error listener
+	lexer.removeErrorListeners();
+    lexer.addErrorListener(new LexerErrorListener()); 
 
 	antlr4::CommonTokenStream tokens(&lexer);
 	tokens.fill();
@@ -56,13 +62,25 @@ int main(int argc, char* argv[]){
 	// Parsing process
 	TParser parser(&tokens);
 
+	// Modified parser error listener
+	parser.removeErrorListeners();
+    parser.addErrorListener(new ParserErrorListener()); 
+
 	TParser::ProgramContext* tree = parser.program();
 
 	// TODO: remove debug
 	// std::cout << tree->toStringTree(&parser) << std::endl;
 
+	// AST build process
 	ASTBuilder builder;
-    auto ast = builder.visit(tree);
+
+	try{
+		auto ast = builder.visit(tree);
+	}
+	catch(const std::exception& e){
+		std::cerr << "Error during AST build process: " << e.what() << '\n';
+	}
+    
 	
 	return 0;
 }

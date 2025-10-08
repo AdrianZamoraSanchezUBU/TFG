@@ -3,7 +3,6 @@ set -e # Stop in case of error
 
 # Grammar cpp target generation
 cd ./src/grammar/
-rm *.tokens *.cpp *.h
 java -Xmx500M -cp "$HOME/tools/antlr/antlr-4.13.1-complete.jar" org.antlr.v4.Tool -Dlanguage=Cpp TLexer.g4
 java -Xmx500M -cp "$HOME/tools/antlr/antlr-4.13.1-complete.jar" org.antlr.v4.Tool -visitor -Dlanguage=Cpp TParser.g4
 cd ../..

@@ -5,11 +5,18 @@
 #include "TParserBaseVisitor.h"
 #include "AST.h"
 #include "ASTBuilder.h"
+#include <vector>
 
 // Root of the program
-std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ProgramContext* ctx) {
-	// TODO Visit the list of stmt		
-    return visit(ctx->stmt(0));	
+std::vector<std::unique_ptr<ASTNode>> ASTBuilder::visit(TParser::ProgramContext* ctx) {
+	std::vector<std::unique_ptr<ASTNode>> AST;
+
+	// Visits all the stmts
+	for(int i = 0; i < ctx->stmt().size(); i++){
+		AST.push_back(visit(ctx->stmt(i)));
+	}
+		
+    return AST;	
 }
 
 // Dispatcher for STMT
@@ -19,7 +26,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::StmtContext* ctx) {
         return visit(ctx->expr());
     }
 		
-    return nullptr;	
+    throw std::runtime_error("Not a valid stmt");	
 }
 
 /* Expr management*/
@@ -40,7 +47,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ExprContext *ctx) {
     }
     
     
-   	return nullptr;
+   	throw std::runtime_error("Not a valid expr");
 }
 
 // Arithmetic Expr
@@ -82,7 +89,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::OperandExprContext *ctx) {
         return visit(operand->literal());
     }
 
-    return nullptr;
+    throw std::runtime_error("Not a valid operand");
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
@@ -101,5 +108,5 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
 	    return node;
 	}
 
-    return nullptr;
+    throw std::runtime_error("Not a valid literal");
 }

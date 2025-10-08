@@ -5,7 +5,7 @@
 
 class ASTBuilder {
 public:
-	std::unique_ptr<ASTNode> visit(TParser::ProgramContext* ctx);
+	std::vector<std::unique_ptr<ASTNode>> visit(TParser::ProgramContext* ctx);
 
 	std::unique_ptr<ASTNode> visit(TParser::StmtContext* ctx);
 	
