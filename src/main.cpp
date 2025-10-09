@@ -9,28 +9,20 @@
 #include "LexerErrorListener.h"
 #include "ParserErrorListener.h"
 
-std::string readFile(std::string fileName){
-	std::string line;
-	std::string fileContent = "";
 
+std::string readFile(const std::string fileName){
 	std::ifstream testFile(fileName);
+	// Opens the file
+    if (!testFile.is_open()) {
+    	// Throw error if couldnt open the file
+        throw std::runtime_error("Unable to open file: " + fileName);
+    }
 
-	// File check
-	if (testFile.is_open()) {
-		// Adding all the lines to a string 
-	  	while (getline (testFile,line)) {
-	    	fileContent += line + '\n';
-	  	}
-
-	  	testFile.close();
-	} 
-	else {
-		std::cerr << "Unable to open file" << std::endl;
-		return NULL;
-	} 
-
-	return fileContent;
+    std::ostringstream buffer;
+    buffer << testFile.rdbuf(); // Reads all the file content
+    return buffer.str();
 }
+
 
 int main(int argc, char* argv[]){
 	// Arguments check
