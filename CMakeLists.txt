@@ -11,14 +11,6 @@ include_directories(
 )
 link_directories(/usr/local/lib)
 
-# CPP executables
-#add_executable(TCompiler
-#    src/main.cpp
-#    src/grammar/TLexer.cpp
-#    src/grammar/TParser.cpp
-#    src/AST/ASTBuilder.cpp
-#)
-
 add_library(compilerLib STATIC
     src/grammar/TLexer.cpp
     src/grammar/TParser.cpp
@@ -32,12 +24,22 @@ add_executable(TCompiler src/main.cpp)
 target_link_libraries(TCompiler PRIVATE compilerLib)
 
 ### Google test ###
-add_definitions(-DTEST_FILES_DIR="${CMAKE_SOURCE_DIR}/tests/input/")
-
+include(GoogleTest)
 enable_testing()
 
-add_executable(runLexerTests tests/testLexer.cpp)
-target_link_libraries(runLexerTests PRIVATE compilerLib gtest gtest_main pthread)
+# Inputs for tests
+add_definitions(-DTEST_FILES_DIR="${CMAKE_SOURCE_DIR}/tests/input/")
 
-include(GoogleTest)
-gtest_discover_tests(runLexerTests)
+# Tests souce
+set(TEST_SOURCES
+    tests/testLexer.cpp
+    tests/testParser.cpp
+)
+
+# Build each test
+foreach(test_src ${TEST_SOURCES})
+    get_filename_component(test_name ${test_src} NAME_WE)
+    add_executable(${test_name} ${test_src})
+    target_link_libraries(${test_name} PRIVATE compilerLib gtest gtest_main pthread)
+    gtest_discover_tests(${test_name})
+endforeach()

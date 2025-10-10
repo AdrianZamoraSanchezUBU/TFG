@@ -23,6 +23,8 @@ RPAREN : ')' ;
 LBRACE : '{' ;
 RBRACE : '}' ;
 
+SEMICOLON : ';' ;
+
 /* COMPONENTS */
 fragment DIGIT  : [0-9] ;
 fragment LETTER : [a-zA-Z] ;

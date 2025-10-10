@@ -10,7 +10,7 @@ program: stmt*;
 block: LBRACE stmt* RBRACE;
 
 stmt
-	: expr
+	: expr SEMICOLON
 	;
 
 expr

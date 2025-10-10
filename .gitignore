@@ -21,4 +21,3 @@ src/grammar/*
 # Rechazo de los archivos que genera CMake y tests
 build/*
 Testing/*
-tests/input/*

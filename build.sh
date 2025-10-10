@@ -8,6 +8,6 @@ java -Xmx500M -cp "$HOME/tools/antlr/antlr-4.13.1-complete.jar" org.antlr.v4.Too
 cd ../..
 
 # Compiler build process
-cd build
-cmake ..
+cd build 
+cmake .. 
 make -j$(nproc) # Using all cores
