@@ -34,6 +34,7 @@ add_definitions(-DTEST_FILES_DIR="${CMAKE_SOURCE_DIR}/tests/input/")
 set(TEST_SOURCES
     tests/testLexer.cpp
     tests/testParser.cpp
+    tests/testAST.cpp
 )
 
 # Build each test

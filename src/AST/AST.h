@@ -5,8 +5,8 @@ class ASTNode{
 private:
 public:
 	virtual ~ASTNode() = default;
-
-	virtual std::string getValue(){return "";};
+	virtual std::string getValue() const { return ""; };
+	virtual bool equals(const ASTNode* other) const = 0;
 };
 
 class LiteralIntNode : public ASTNode{
@@ -14,23 +14,31 @@ class LiteralIntNode : public ASTNode{
 public:
 	LiteralIntNode(int val) : value(val) {}
 	
-	std::string getValue() const{ return std::to_string(value); }
+	std::string getValue() const { return std::to_string(value); }
+
+	bool equals(const ASTNode* other) const override {  
+		// TODO
+	}
 };
 
-class LiteralFloatNode : public ASTNode{
+class LiteralFloatNode : public ASTNode {
 	float value;
 public:
 	LiteralFloatNode(float val) : value(val) {}
 
-	std::string getValue() const{ return std::to_string(value); }
+	std::string getValue() const { return std::to_string(value); }
 };
 
-class LiteralStringNode : public ASTNode{
+class LiteralStringNode : public ASTNode {
 	std::string value;
 public:
 	LiteralStringNode(std::string val) : value(val) {}
 
-	std::string getValue() const{ return value; }
+	std::string getValue() const { return value; }
+
+	bool equals(const ASTNode* other) const override {  
+		// TODO
+	}
 };
 
 class LiteralBooleanNode : public ASTNode{
@@ -45,6 +53,10 @@ public:
 
 		return "false";
 	}
+
+	bool equals(const ASTNode* other) const override {  
+		// TODO
+	}
 };
 
 class BinaryExprNode : public ASTNode {
@@ -58,7 +70,11 @@ public:
                    std::unique_ptr<ASTNode> rhs)
         		   : op(op), left(std::move(lhs)), right(std::move(rhs)) {}
 
-    std::string getOperator() const{ return op; }
+    std::string getOperator() const { return op; }
    	ASTNode* getLeft() const { return left.get(); }
    	ASTNode* getRight() const { return right.get(); }
+
+   	bool equals(const ASTNode* other) const override {  
+		// TODO
+	}
 };
