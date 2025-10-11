@@ -16,8 +16,13 @@ public:
 	
 	std::string getValue() const { return std::to_string(value); }
 
-	bool equals(const ASTNode* other) const override {  
-		// TODO
+	bool equals(const ASTNode* other) const override {
+		// Dynamic cast to LiteralIntNode and value check 
+		if (auto o = dynamic_cast<const LiteralIntNode*>(other)) {
+            return getValue() == o->getValue();
+        }
+
+        return false;
 	}
 };
 
@@ -27,6 +32,15 @@ public:
 	LiteralFloatNode(float val) : value(val) {}
 
 	std::string getValue() const { return std::to_string(value); }
+
+	bool equals(const ASTNode* other) const override {
+		// Dynamic cast to LiteralFloatNode and value check 
+		if (auto o = dynamic_cast<const LiteralFloatNode*>(other)) {
+            return getValue() == o->getValue();
+        }
+
+        return false;
+	}
 };
 
 class LiteralStringNode : public ASTNode {
@@ -36,8 +50,13 @@ public:
 
 	std::string getValue() const { return value; }
 
-	bool equals(const ASTNode* other) const override {  
-		// TODO
+	bool equals(const ASTNode* other) const override {
+		// Dynamic cast to LiteralStringNode and value check 
+		if (auto o = dynamic_cast<const LiteralStringNode*>(other)) {
+            return getValue() == o->getValue();
+        }
+
+        return false;
 	}
 };
 
@@ -54,8 +73,13 @@ public:
 		return "false";
 	}
 
-	bool equals(const ASTNode* other) const override {  
-		// TODO
+	bool equals(const ASTNode* other) const override {
+		// Dynamic cast to LiteralBooleanNode and value check 
+		if (auto o = dynamic_cast<const LiteralBooleanNode*>(other)) {
+            return getValue() == o->getValue();
+        }
+
+        return false;
 	}
 };
 
@@ -74,7 +98,14 @@ public:
    	ASTNode* getLeft() const { return left.get(); }
    	ASTNode* getRight() const { return right.get(); }
 
-   	bool equals(const ASTNode* other) const override {  
-		// TODO
-	}
+   	bool equals(const ASTNode* other) const override {
+   		// Dynamic cast to BinaryExprNode and value check
+        if (auto o = dynamic_cast<const BinaryExprNode*>(other)) {
+			// Returns a comparison of their operator, lhs and rhs
+            return getOperator() == o->getOperator() &&
+                   left->equals(o->getLeft()) && 
+                   right->equals(o->getRight());
+        }
+        return false;
+    }
 };

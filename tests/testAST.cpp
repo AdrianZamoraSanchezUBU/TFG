@@ -32,20 +32,20 @@ std::unique_ptr<ASTNode> runASTTest(const std::string& fileName){
 
     parser.removeErrorListeners();
     auto* errorListener = new ParserErrorListener();
-    parser.addErrorListener(errorListener);
+   	parser.addErrorListener(errorListener);
 
-    TParser::ProgramContext* tree = parser.program();
+   	TParser::ProgramContext* tree = parser.program();
 
-    // AST build process
-   	ASTBuilder builder;
-   
-   	try{
-   		auto nodes = builder.visit(tree);
-   		return std::move(nodes[0]);
-   	}
-   	catch(const std::exception& e){
-   		std::cerr << "Error during AST build process: " << e.what() << '\n';
-   	}
+	// AST build process
+	ASTBuilder builder;
+  
+	try{
+ 		auto nodes = builder.visit(tree);
+ 		return std::move(nodes[0]);
+ 	}
+ 	catch(const std::exception& e){
+ 		std::cerr << "Error during AST build process: " << e.what() << '\n';
+ 	}
 
     return nullptr;
 }
@@ -53,8 +53,10 @@ std::unique_ptr<ASTNode> runASTTest(const std::string& fileName){
 TEST(ASTTest, Expr){
         const std::string fileName = std::string(TEST_FILES_DIR) + "complexExpr.T";
 
+		// Result of the ASTBuilder
         auto result = runASTTest(fileName);
 
+		/* Expected result */
         auto leftOperation = std::make_unique<BinaryExprNode>(
             "+",
             std::make_unique<LiteralIntNode>(3),
@@ -73,7 +75,7 @@ TEST(ASTTest, Expr){
             std::move(rightOperation)
         );
 
-        EXPECT_TRUE(result.equals(root)) << "Unexpected AST result with: " << fileName;
+        EXPECT_TRUE(result->equals(root.get())) << "Unexpected AST result with: " << fileName;
 }
 
 int main(int argc, char **argv){

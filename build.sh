@@ -11,3 +11,10 @@ cd ../..
 cd build 
 cmake .. 
 make -j$(nproc) # Using all cores
+
+# Checks if param $1 is -test
+if [[ $1 == "-test" ]];
+then 
+	# Runs all the tests in build/
+	ctest --output-on-failure -T
+fi
