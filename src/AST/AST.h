@@ -1,5 +1,6 @@
 #include <string>
 #include <memory>
+#include <variant>
 
 class ASTNode{
 private:
@@ -9,80 +10,41 @@ public:
 	virtual bool equals(const ASTNode* other) const = 0;
 };
 
-class LiteralIntNode : public ASTNode{
-	int value;
+// Class for literals
+class literalNode : public ASTNode {
+private:
+	std::variant<int, float, char, std::string, bool> value;
 public:
-	LiteralIntNode(int val) : value(val) {}
-	
-	std::string getValue() const { return std::to_string(value); }
+	explicit literalNode(std::variant<int, float, char, std::string, bool> val) 
+	: value(std::move(val)) {}
+
+	std::string getValue() const override {
+		// Tries casting to every possible type
+		if (auto p = std::get_if<int>(&value))
+	    	return std::to_string(*p);
+		if (auto p = std::get_if<float>(&value))
+		    return std::to_string(*p);
+		if (auto p = std::get_if<char>(&value))
+		    return std::string(1, *p);
+		if (auto p = std::get_if<std::string>(&value))
+		    return *p;
+		if (auto p = std::get_if<bool>(&value))
+		    return *p ? "true" : "false";
+
+		return ""; // Unreachable
+    }
 
 	bool equals(const ASTNode* other) const override {
-		// Dynamic cast to LiteralIntNode and value check 
-		if (auto o = dynamic_cast<const LiteralIntNode*>(other)) {
-            return getValue() == o->getValue();
+		// Dynamic cast to literalNode and value check 
+		if (auto o = dynamic_cast<const literalNode*>(other)) {
+            return value == o->value;
         }
 
         return false;
 	}
 };
 
-class LiteralFloatNode : public ASTNode {
-	float value;
-public:
-	LiteralFloatNode(float val) : value(val) {}
-
-	std::string getValue() const { return std::to_string(value); }
-
-	bool equals(const ASTNode* other) const override {
-		// Dynamic cast to LiteralFloatNode and value check 
-		if (auto o = dynamic_cast<const LiteralFloatNode*>(other)) {
-            return getValue() == o->getValue();
-        }
-
-        return false;
-	}
-};
-
-class LiteralStringNode : public ASTNode {
-	std::string value;
-public:
-	LiteralStringNode(std::string val) : value(val) {}
-
-	std::string getValue() const { return value; }
-
-	bool equals(const ASTNode* other) const override {
-		// Dynamic cast to LiteralStringNode and value check 
-		if (auto o = dynamic_cast<const LiteralStringNode*>(other)) {
-            return getValue() == o->getValue();
-        }
-
-        return false;
-	}
-};
-
-class LiteralBooleanNode : public ASTNode{
-	bool value;
-public:
-	LiteralBooleanNode(bool val) : value(val) {}
-
-	std::string getValue() const {
-		if(value){
-			return "true";
-		} 
-
-		return "false";
-	}
-
-	bool equals(const ASTNode* other) const override {
-		// Dynamic cast to LiteralBooleanNode and value check 
-		if (auto o = dynamic_cast<const LiteralBooleanNode*>(other)) {
-            return getValue() == o->getValue();
-        }
-
-        return false;
-	}
-};
-
+// Class for binary expressions (arithmetic and logical expressions)
 class BinaryExprNode : public ASTNode {
     std::string op;
     std::unique_ptr<ASTNode> left;
@@ -102,10 +64,11 @@ public:
    		// Dynamic cast to BinaryExprNode and value check
         if (auto o = dynamic_cast<const BinaryExprNode*>(other)) {
 			// Returns a comparison of their operator, lhs and rhs
-            return getOperator() == o->getOperator() &&
+            return op == o->op &&
                    left->equals(o->getLeft()) && 
                    right->equals(o->getRight());
         }
+        
         return false;
     }
 };

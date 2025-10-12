@@ -97,13 +97,13 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
 	if(ctx->NUMBER_LITERAL()) {
 		std::cout << ctx->NUMBER_LITERAL()->getText() << std::endl; // TODO remove
 		int value = stoi(ctx->NUMBER_LITERAL()->getText());
-		auto node = std::make_unique<LiteralIntNode>(value);
+		auto node = std::make_unique<literalNode>(value);
 
         return node;
 	}if(ctx->FLOAT_LITERAL()) {
 		std::cout << ctx->FLOAT_LITERAL()->getText() << std::endl; // TODO remove
 		float value = stof(ctx->FLOAT_LITERAL()->getText());
-	    auto node = std::make_unique<LiteralFloatNode>(value);
+	    auto node = std::make_unique<literalNode>(value);
 
 	    return node;
 	}

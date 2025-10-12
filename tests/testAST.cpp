@@ -59,14 +59,14 @@ TEST(ASTTest, Expr){
 		/* Expected result */
         auto leftOperation = std::make_unique<BinaryExprNode>(
             "+",
-            std::make_unique<LiteralIntNode>(3),
-            std::make_unique<LiteralIntNode>(2)
+            std::make_unique<literalNode>(3),
+            std::make_unique<literalNode>(2)
         );
         
         auto rightOperation = std::make_unique<BinaryExprNode>(
             "+",
-            std::make_unique<LiteralIntNode>(2),
-            std::make_unique<LiteralIntNode>(1)
+            std::make_unique<literalNode>(2),
+            std::make_unique<literalNode>(1)
         );
         
         auto root = std::make_unique<BinaryExprNode>(
