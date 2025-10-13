@@ -9,7 +9,16 @@
 #include "LexerErrorListener.h"
 #include "ParserErrorListener.h"
 
-
+/**
+ * @brief Devuelve el texto contenido en un archivo.
+ * 
+ * Devuelve el texto contenido en un archivo o lanza un runtime_error 
+ * en caso de no poder abrir el archivo para su lectura.
+ *
+ * @param fileName Nombre del fichero que se quiere leer.
+ * @return String del contenido del fichero.
+ * @throw std::runtime_error Si el fichero no existe.
+ */
 std::string readFile(const std::string fileName){
 	std::ifstream testFile(fileName);
 	// Opens the file
@@ -23,7 +32,15 @@ std::string readFile(const std::string fileName){
     return buffer.str();
 }
 
-
+/**
+ * @brief Punto de entrada del compilador.
+ *
+ * Esta función realiza el proceso completo de compilado.
+ *
+ * @param argc Número de argumentos.
+ * @param argv Vector con los argumentos.
+ * @return Código de salida del programa (0 si todo fue correcto).
+ */
 int main(int argc, char* argv[]){
 	// Arguments check
 	if(argc < 1){

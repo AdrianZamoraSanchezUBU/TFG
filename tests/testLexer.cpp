@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 
+/// copydoc readFile
 std::string readFile(const std::string fileName){
 	std::ifstream testFile(fileName);
     if (!testFile.is_open()) {
@@ -16,6 +17,12 @@ std::string readFile(const std::string fileName){
     return buffer.str();
 }
 
+/**
+ * @brief Ejecuta un test del lexer para un caso concreto.
+ *
+ * @param fileName Nombre del fichero con el código a probar.
+ * @return `true` si el lexer ha aceptado el código, `false` en caso contrario.
+ */
 bool runLexerTest(const std::string& fileName){
 	std::string fileContent = readFile(fileName);
 	
@@ -55,6 +62,9 @@ TEST(LexerTest, ComplexExpr){
 	EXPECT_TRUE(runLexerTest(fileName)) << "Lexer fault at analizing the file:" << fileName;
 }
 
+/**
+ * @brief Ejecuta los tests asociados al lexer.
+ */
 int main(int argc, char **argv){
 	::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

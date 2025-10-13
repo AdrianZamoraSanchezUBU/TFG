@@ -21,3 +21,7 @@ src/grammar/*
 # Rechazo de los archivos que genera CMake y tests
 build/*
 Testing/*
+
+# Rechazo de los ficheros autogenerados por Doxygen
+doc/doxygen_es
+doc/doxygen_en

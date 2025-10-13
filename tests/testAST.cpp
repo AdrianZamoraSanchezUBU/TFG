@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 
+/// copydoc readFile
 std::string readFile(const std::string fileName){
     std::ifstream testFile(fileName);
     if (!testFile.is_open()) {
@@ -19,15 +20,23 @@ std::string readFile(const std::string fileName){
     return buffer.str();
 }
 
+/**
+ * @brief Ejecuta un test del ASTBuilder para un caso concreto.
+ *
+ * @param fileName Nombre del fichero con el código a probar.
+ * @return Nodo base del AST generado.
+ */
 std::unique_ptr<ASTNode> runASTTest(const std::string& fileName){
     std::string fileContent = readFile(fileName);
 
+	// Lexing process
     antlr4::ANTLRInputStream input(fileContent);
     TLexer lexer(&input);
 
     antlr4::CommonTokenStream tokens(&lexer);
     tokens.fill();
 
+	// Parsing process
     TParser parser(&tokens);
 
     parser.removeErrorListeners();
@@ -78,6 +87,11 @@ TEST(ASTTest, Expr){
         EXPECT_TRUE(result->equals(root.get())) << "Unexpected AST result with: " << fileName;
 }
 
+/**
+ * @brief Ejecuta los tests asociados al ASTBuilder.
+ * @see ASTNode
+ * @see ASTBuilder
+ */
 int main(int argc, char **argv){
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

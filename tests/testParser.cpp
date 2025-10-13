@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 
+/// copydoc readFile
 std::string readFile(const std::string fileName){
     std::ifstream testFile(fileName);
     if (!testFile.is_open()) {
@@ -17,6 +18,12 @@ std::string readFile(const std::string fileName){
     return buffer.str();
 }
 
+/**
+ * @brief Ejecuta un test del parser para un caso concreto.
+ *
+ * @param fileName Nombre del fichero con el código a probar.
+ * @return `true` si el parser ha aceptado el código, `false` en caso contrario.
+ */
 bool runParserTest(const std::string& fileName){
     std::string fileContent = readFile(fileName);
 
@@ -59,6 +66,9 @@ TEST(ParserTest, ComplexExpr){
 	EXPECT_TRUE(runParserTest(fileName)) << "Parser fault at analizing the file:" << fileName;
 }
 
+/**
+ * @brief Ejecuta los tests asociados al parser.
+ */
 int main(int argc, char **argv){
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
