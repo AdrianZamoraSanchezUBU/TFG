@@ -1,13 +1,21 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+
+// ANTLR
 #include "antlr4-runtime.h"
 #include "TLexer.h"
 #include "TParser.h"
-#include "AST.h"
-#include "ASTBuilder.h"
 #include "LexerErrorListener.h"
 #include "ParserErrorListener.h"
+
+// AST
+#include "AST.h"
+#include "ASTBuilder.h"
+
+// LLVM
+#include "CodegenContext.h"
+#include <llvm/Support/raw_ostream.h>
 
 /**
  * @brief Devuelve el texto contenido en un archivo.
@@ -50,7 +58,7 @@ int main(int argc, char* argv[]){
 	// File reading
 	std::string fileContent = readFile(argv[1]);
 
-	// Lexical analysis
+	/* Lexical analysis */
 	antlr4::ANTLRInputStream input(fileContent);
 	TLexer lexer(&input);
 
@@ -68,7 +76,7 @@ int main(int argc, char* argv[]){
 	}	
 	*/
 	
-	// Parsing process
+	/* Parsing process */
 	TParser parser(&tokens);
 
 	// Modified parser error listener
@@ -80,16 +88,38 @@ int main(int argc, char* argv[]){
 	// TODO: remove debug
 	// std::cout << tree->toStringTree(&parser) << std::endl;
 
-	// AST build process
+	/* AST build process */
 	ASTBuilder builder;
+	std::vector<std::unique_ptr<ASTNode>> ast;
 
 	try{
-		auto ast = builder.visit(tree);
+		ast = builder.visit(tree);
 	}
 	catch(const std::exception& e){
 		std::cerr << "Error during AST build process: " << e.what() << '\n';
 	}
-    
+
+	/* LLVM */
+	CodegenContext ctx;
+
+	// Program main function set up
+	llvm::FunctionType *FT = llvm::FunctionType::get(
+	    llvm::Type::getInt32Ty(ctx.IRContext), false
+	);
+	llvm::Function *F = llvm::Function::Create(
+	    FT, llvm::Function::ExternalLinkage, "main", ctx.IRModule.get()
+	);
+
+	// Basic block set up TODO: include in AST.h and ASTbuilder program block
+	llvm::BasicBlock *BB = llvm::BasicBlock::Create(ctx.IRContext, "entry", F);
+	ctx.IRBuilder.SetInsertPoint(BB);
+
+	// Codegen
+	llvm::Value* result = ast[0]->codegen(ctx);
+	ctx.IRBuilder.CreateRet(result);
+
+	// TODO: remove debug
+	ctx.IRModule->print(llvm::outs(), nullptr);
 	
 	return 0;
 }

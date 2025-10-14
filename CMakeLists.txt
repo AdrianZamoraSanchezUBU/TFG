@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 include_directories(
     ${PROJECT_SOURCE_DIR}/src/grammar
     ${PROJECT_SOURCE_DIR}/src/AST
+    ${PROJECT_SOURCE_DIR}/src/LLVM
     /usr/local/include/antlr4-runtime
 )
 link_directories(/usr/local/lib)
@@ -16,7 +17,18 @@ add_library(compilerLib STATIC
     src/grammar/TParser.cpp
     src/AST/ASTBuilder.cpp
 )
-target_link_libraries(compilerLib PUBLIC antlr4-runtime)
+
+# Libs LLVM
+find_package(LLVM REQUIRED CONFIG)
+include_directories(${LLVM_INCLUDE_DIRS})
+add_definitions(${LLVM_DEFINITIONS})
+
+# Linking all the dependencies in one lib
+target_link_libraries(compilerLib PUBLIC 
+	antlr4-runtime
+	LLVMCore
+	LLVMSupport
+)
 
 add_executable(TCompiler src/main.cpp)
 

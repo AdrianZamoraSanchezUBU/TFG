@@ -2,6 +2,8 @@
 #include <memory>
 #include <variant>
 
+#include "CodegenContext.h"
+
 /**
  * @class ASTNode
  * @brief Representa un nodo genérico del AST.
@@ -26,6 +28,12 @@ public:
 	 * @return `true` si son iguales, `false` en caso contrario.
 	 */
 	virtual bool equals(const ASTNode* other) const = 0;
+
+	/**
+	 * @brief Genera el LLVM IR asociado a este nodo.
+	 * @return Un valor de LLVM (llvm::Value*).
+	 */
+	 virtual llvm::Value* codegen(CodegenContext& ctx) const = 0;
 };
 
 /**
@@ -73,6 +81,41 @@ public:
         }
 
         return false;
+	}
+
+	/// @copydoc ASTNode::codegen
+	llvm::Value* codegen(CodegenContext& ctx) const override {
+		if(std::holds_alternative<int>(value)) {
+			int v = std::get<int>(value);
+
+			// INT: signed 32 bits integer
+			return llvm::ConstantInt::get(ctx.IRContext, llvm::APInt(32, v, true));
+		} 
+
+		if(std::holds_alternative<float>(value)) {
+			float v = std::get<float>(value);
+
+			// FLOAT
+			return llvm::ConstantFP::get(ctx.IRContext, llvm::APFloat(v));
+		} 
+
+		if(std::holds_alternative<char>(value)) {
+			char v = std::get<char>(value);
+
+			// CHAR: unsigned 8 bits integer
+			return llvm::ConstantInt::get(ctx.IRContext, llvm::APInt(8, v, false));
+		} 
+
+		if(std::holds_alternative<std::string>(value)) {
+			// TODO: string handler
+		} 
+
+		if(std::holds_alternative<bool>(value)) {
+			bool v = std::get<bool>(value);
+
+			// BOOL: unsigned 1 bit integer
+			return llvm::ConstantInt::get(ctx.IRContext, llvm::APInt(1, v ? 1 : 0, false));
+		}
 	}
 };
 
@@ -124,4 +167,61 @@ public:
         
         return false;
     }
+
+    /// @copydoc ASTNode::codegen
+   	llvm::Value* codegen(CodegenContext& ctx) const override {
+		// left and right LLVM Values
+		llvm::Value* L = left->codegen(ctx);
+	    llvm::Value* R = right->codegen(ctx);
+
+		// left and right LLVM Types
+	    llvm::Type* LT = L->getType();
+	    llvm::Type* RT = R->getType();
+
+		/* 
+		Type domination: float over int
+
+		If one side of the operation is float and the other is int,
+		the int will be cast into a float and then proceed with
+		the operation.
+		*/
+		if (LT->isIntegerTy() && RT->isFloatingPointTy()) {
+		    L = ctx.IRBuilder.CreateSIToFP(L, RT, "inttofloat");
+		}
+		else if (LT->isFloatingPointTy() && RT->isIntegerTy()) {
+		    R = ctx.IRBuilder.CreateSIToFP(R, LT, "inttofloat");
+		}
+
+		/* Arithmetic operations */
+		// FLOAT
+		if (L->getType()->isFloatingPointTy()) {
+		    if (op == "+") return ctx.IRBuilder.CreateFAdd(L, R, "addtmp");
+		    if (op == "-") return ctx.IRBuilder.CreateFSub(L, R, "subtmp");
+		    if (op == "*") return ctx.IRBuilder.CreateFMul(L, R, "multmp");
+		    if (op == "/") return ctx.IRBuilder.CreateFDiv(L, R, "divtmp");
+		}
+		// INT
+		else if (L->getType()->isIntegerTy()) {
+		    if (op == "+") return ctx.IRBuilder.CreateAdd(L, R, "addtmp");
+		    if (op == "-") return ctx.IRBuilder.CreateSub(L, R, "subtmp");
+		    if (op == "*") return ctx.IRBuilder.CreateMul(L, R, "multmp");
+		    if (op == "/") return ctx.IRBuilder.CreateSDiv(L, R, "divtmp");
+		}
+
+		/* Logical operations */
+		// FLOAT
+		if (L->getType()->isFloatingPointTy()) {
+		    if (op == "==") return ctx.IRBuilder.CreateFCmpOEQ(L, R, "eqtmp");
+		    if (op == "!=") return ctx.IRBuilder.CreateFCmpONE(L, R, "netmp");
+		    if (op == "<")  return ctx.IRBuilder.CreateFCmpOLT(L, R, "lttmp");
+		    if (op == ">")  return ctx.IRBuilder.CreateFCmpOGT(L, R, "gttmp");
+		}
+		// INT
+		else {
+		    if (op == "==") return ctx.IRBuilder.CreateICmpEQ(L, R, "eqtmp");
+		    if (op == "!=") return ctx.IRBuilder.CreateICmpNE(L, R, "netmp");
+		    if (op == "<")  return ctx.IRBuilder.CreateICmpSLT(L, R, "lttmp");
+		    if (op == ">")  return ctx.IRBuilder.CreateICmpSGT(L, R, "gttmp");
+		}
+   	}
 };
