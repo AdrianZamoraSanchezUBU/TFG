@@ -1,4 +1,4 @@
-# Aceptando cambios en la documentación solo para .tex, pdfs e imagenes
+# Ignora todo de la documentación excepto los .tex, pdfs e imagenes
 doc/*
 doc/tex/*.aux
 doc/tex/*.log
@@ -14,14 +14,20 @@ doc/img/*:Zone*
 !doc/img/*.png
 !doc/img/*.pdf
 
-# Ignorar todo en grammar menos los .g4
+# Ignora todo en grammar/ menos los .g4
 src/grammar/*
 !src/grammar/*.g4
 
-# Rechazo de los archivos que genera CMake y tests
+# Ignora los archivos que genera CMake y tests
 build/*
 Testing/*
 
-# Rechazo de los ficheros autogenerados por Doxygen
+# Ignora los ficheros autogenerados por Doxygen
 doc/doxygen_es
 doc/doxygen_en
+
+# Ignora ficheros temporales
+*.ll
+
+# Ignora archivos de configuración
+.vscode/

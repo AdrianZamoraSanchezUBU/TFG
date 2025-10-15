@@ -30,6 +30,7 @@ fragment DIGIT  : [0-9] ;
 fragment LETTER : [a-zA-Z] ;
 
 IDENTIFIER     : LETTER+ DIGIT* LETTER* ;
+STRING_LITERAL : '"' ~["]* '"';
 NUMBER_LITERAL : DIGIT+ ;
 FLOAT_LITERAL  : DIGIT+ '.' DIGIT+ ;
 

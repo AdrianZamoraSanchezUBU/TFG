@@ -36,6 +36,7 @@ operand
 	;
 
 literal
-	: NUMBER_LITERAL   	
+	: NUMBER_LITERAL	
 	| FLOAT_LITERAL	
+	| STRING_LITERAL
    	;

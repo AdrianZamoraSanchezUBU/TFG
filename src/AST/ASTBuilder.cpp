@@ -95,15 +95,22 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::OperandExprContext *ctx) {
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
 	// Checks for a number or float context
 	if(ctx->NUMBER_LITERAL()) {
-		std::cout << ctx->NUMBER_LITERAL()->getText() << std::endl; // TODO remove
+		// std::cout << ctx->NUMBER_LITERAL()->getText() << std::endl; // TODO remove
 		int value = stoi(ctx->NUMBER_LITERAL()->getText());
 		auto node = std::make_unique<literalNode>(value);
 
         return node;
-	}if(ctx->FLOAT_LITERAL()) {
-		std::cout << ctx->FLOAT_LITERAL()->getText() << std::endl; // TODO remove
+	}
+	if(ctx->FLOAT_LITERAL()) {
+		// std::cout << ctx->FLOAT_LITERAL()->getText() << std::endl; // TODO remove
 		float value = stof(ctx->FLOAT_LITERAL()->getText());
 	    auto node = std::make_unique<literalNode>(value);
+
+	    return node;
+	}
+	if(ctx->STRING_LITERAL()) {
+		// std::cout << ctx->STRING_LITERAL()->getText() << std::endl; // TODO remove
+	    auto node = std::make_unique<literalNode>(ctx->STRING_LITERAL()->getText());
 
 	    return node;
 	}
