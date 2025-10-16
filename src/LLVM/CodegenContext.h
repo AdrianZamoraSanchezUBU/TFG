@@ -1,7 +1,7 @@
 /**
  * @file CodegenContext.h
- * @brief Contains the definition of a LLVM program package.
- * 
+ * @brief Contains the definition of a LLVM IR program package.
+ *
  * @author Adrián Zamora Sánchez
  */
 
@@ -14,20 +14,17 @@
  * @brief Structure that contains the LLVM context of a compiled program.
  */
 struct CodegenContext {
-	/// @brief LLVM context.
-	llvm::LLVMContext IRContext;
+    /// @brief LLVM context.
+    llvm::LLVMContext IRContext;
 
-	/// @brief IR builder.
-	llvm::IRBuilder<> IRBuilder;
+    /// @brief IR builder.
+    llvm::IRBuilder<> IRBuilder;
 
-	/// @brief Module of the program to generate.
-	std::unique_ptr<llvm::Module> IRModule;
+    /// @brief Module of the program to generate.
+    std::unique_ptr<llvm::Module> IRModule;
 
-	/**
-	 * @brief Module and IRBuilder set up.
-	 */
-	CodegenContext()
-		: IRBuilder(IRContext), 
-		  IRModule(std::make_unique<llvm::Module>("program", IRContext))
-	{}
+    /**
+     * @brief Module and IRBuilder set up.
+     */
+    CodegenContext() : IRBuilder(IRContext), IRModule(std::make_unique<llvm::Module>("program", IRContext)) {}
 };
