@@ -1,3 +1,11 @@
+/**
+ * @file ASTBuilder.h
+ * @brief Contains the definition of a custom AST builder with a visittor pattern.
+ * 
+ * @author Adrián Zamora Sánchez
+ * @see AST.h
+ */
+
 #pragma once
 #include "TParser.h"
 
@@ -6,66 +14,66 @@ class ASTNode;
 
 /**
  * @class ASTBuilder
- * @brief Genera el AST con visitor pattern.
+ * @brief Generates the AST using the visitor pattern.
  * 
- * Esta clase visita los contextos del programa de forma ordenada
- * generando para cada visita un nodo y de esta forma construyendo
- * el AST completo.
+ * This class visits the program contexts in an orderly manner,
+ * generating a node for each visit and thereby constructing
+ * the complete AST.
  *
  * @see ASTNode
  */
 class ASTBuilder {
 public:
 	/**
-	 * @brief Visita el programa y devuelve los nodos que contiene.
-	 * @param ctx Contexto del programa base.
-	 * @return Vector con los nodos del programa.
+	 * @brief Visits the program and returns the nodes it contains.
+	 * @param ctx Base program context.
+	 * @return Vector with the program's nodes.
 	 */
 	std::vector<std::unique_ptr<ASTNode>> visit(TParser::ProgramContext* ctx);
 
 	/**
-	 * @brief Visita el contexto de un statement.
-	 * @param ctx Contexto de un statement.
-	 * @return Nodo del AST que representa ese statement.
+	 * @brief Visits the context of a statement.
+	 * @param ctx Statement context.
+	 * @return AST node representing that statement.
 	 */
 	std::unique_ptr<ASTNode> visit(TParser::StmtContext* ctx);
 
 	/**
-	 * @brief Visita el contexto de las expresiones aritméticas y lógicas.
+	 * @brief Visits the context of arithmetic and logical expressions.
 	 *
-	 * Visita el contexto de las expresiones aritméticas y lógicas, 
-	 * sirve como dispatcher para visitar los diferentes tipos de expresiones.
+	 * Visits the context of arithmetic and logical expressions,
+	 * serving as a dispatcher to visit the different types of expressions.
 	 * 
-	 * @param ctx Contexto de expresión.
-	 * @return Nodo del AST asociado a la expresión.
+	 * @param ctx Expression context.
+	 * @return AST node associated with the expression.
 	 */
 	std::unique_ptr<ASTNode> visit(TParser::ExprContext *ctx);
 
 	/**
-	 * @brief Visita el contexto de un operador de la expresión.
-	 * @param ctx Contexto de operador.
-	 * @return Nodo del AST asociado a un operador.
+	 * @brief Visits the context of an expression operator.
+	 * @param ctx Operator context.
+	 * @return AST node associated with an operator.
 	 */
 	std::unique_ptr<ASTNode> visit(TParser::OperandExprContext *ctx);
 
 	/**
-	 * @brief Visita el contexto de una expresión aritmética.
-	 * @param ctx Contexto de expresión aritmética.
-	 * @return Nodo del AST asociado a la expresión.
+	 * @brief Visits the context of an arithmetic expression.
+	 * @param ctx Arithmetic expression context.
+	 * @return AST node associated with the expression.
 	 */
 	std::unique_ptr<ASTNode> visit(TParser::ArithmeticExprContext *ctx);
 
 	/**
-	 * @brief Visita el contexto de una expresión lógica. 
-	 * @param ctx Contexto de expresión lógica.
-	 * @return Nodo del AST asociado a la expresión.
+	 * @brief Visits the context of a logical expression. 
+	 * @param ctx Logical expression context.
+	 * @return AST node associated with the expression.
 	 */
 	std::unique_ptr<ASTNode> visit(TParser::LogicalExprContext *ctx);
 
 	/**
-	 * @brief Visita el contexto de un literal.
-	 * @param ctx Contexto de un literal.
-	 * @return Nodo que representa un valor literal en el código.
+	 * @brief Visits the context of a literal.
+	 * @param ctx Literal context.
+	 * @return Node representing a literal value in the code.
 	 */
 	std::unique_ptr<ASTNode> visit(TParser::LiteralContext *ctx);
 };

@@ -17,11 +17,12 @@ std::string readFile(const std::string fileName){
     return buffer.str();
 }
 
+
 /**
- * @brief Ejecuta un test del lexer para un caso concreto.
+ * @brief Runs a test of the lexer for a specific case.
  *
- * @param fileName Nombre del fichero con el código a probar.
- * @return `true` si el lexer ha aceptado el código, `false` en caso contrario.
+ * @param fileName Name of the file with the code to test.
+ * @return `true` if the lexer accepted the code, `false` otherwise.
  */
 bool runLexerTest(const std::string& fileName){
 	std::string fileContent = readFile(fileName);
@@ -63,7 +64,7 @@ TEST(LexerTest, ComplexExpr){
 }
 
 /**
- * @brief Ejecuta los tests asociados al lexer.
+ * @brief Runs the tests associated with the lexer.
  */
 int main(int argc, char **argv){
 	::testing::InitGoogleTest(&argc, argv);

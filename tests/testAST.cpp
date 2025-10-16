@@ -21,10 +21,10 @@ std::string readFile(const std::string fileName){
 }
 
 /**
- * @brief Ejecuta un test del ASTBuilder para un caso concreto.
+ * @brief Runs a test of the ASTBuilder for a specific case.
  *
- * @param fileName Nombre del fichero con el código a probar.
- * @return Nodo base del AST generado.
+ * @param fileName Name of the file with the code to test.
+ * @return Root node of the generated AST.
  */
 std::unique_ptr<ASTNode> runASTTest(const std::string& fileName){
     std::string fileContent = readFile(fileName);
@@ -88,7 +88,7 @@ TEST(ASTTest, Expr){
 }
 
 /**
- * @brief Ejecuta los tests asociados al ASTBuilder.
+ * @brief Runs the tests associated with the ASTBuilder.
  * @see ASTNode
  * @see ASTBuilder
  */

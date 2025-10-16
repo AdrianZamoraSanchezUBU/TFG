@@ -15,14 +15,14 @@
 #include <llvm/Support/raw_ostream.h>
 
 /**
- * @brief Devuelve el texto contenido en un archivo.
+ * @brief Returns the text contained in a file.
  * 
- * Devuelve el texto contenido en un archivo o lanza un runtime_error 
- * en caso de no poder abrir el archivo para su lectura.
+ * Returns the text contained in a file or throws a runtime_error
+ * if the file cannot be opened for reading.
  *
- * @param fileName Nombre del fichero que se quiere leer.
- * @return String del contenido del fichero.
- * @throw std::runtime_error Si el fichero no existe.
+ * @param fileName Name of the file to be read.
+ * @return String with the file's content.
+ * @throw std::runtime_error If the file does not exist.
  */
 std::string readFile(const std::string fileName){
 	std::ifstream testFile(fileName);
@@ -38,13 +38,13 @@ std::string readFile(const std::string fileName){
 }
 
 /**
- * @brief Punto de entrada del compilador.
+ * @brief Entry point of the compiler.
  *
- * Esta función realiza el proceso completo de compilado.
+ * This function performs the complete compilation process.
  *
- * @param argc Número de argumentos.
- * @param argv Vector con los argumentos.
- * @return Código de salida del programa (0 si todo fue correcto).
+ * @param argc Number of arguments.
+ * @param argv Vector with the arguments.
+ * @return Program exit code (0 if everything was successful).
  */
 int main(int argc, char* argv[]){
 	// Arguments check

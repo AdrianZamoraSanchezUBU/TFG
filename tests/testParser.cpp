@@ -19,10 +19,10 @@ std::string readFile(const std::string fileName){
 }
 
 /**
- * @brief Ejecuta un test del parser para un caso concreto.
+ * @brief Runs a test of the parser for a specific case.
  *
- * @param fileName Nombre del fichero con el código a probar.
- * @return `true` si el parser ha aceptado el código, `false` en caso contrario.
+ * @param fileName Name of the file with the code to test.
+ * @return `true` if the parser accepted the code, `false` otherwise.
  */
 bool runParserTest(const std::string& fileName){
     std::string fileContent = readFile(fileName);
@@ -67,7 +67,7 @@ TEST(ParserTest, ComplexExpr){
 }
 
 /**
- * @brief Ejecuta los tests asociados al parser.
+ * @brief Runs the tests associated with the parser.
  */
 int main(int argc, char **argv){
     ::testing::InitGoogleTest(&argc, argv);

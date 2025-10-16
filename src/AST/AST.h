@@ -1,3 +1,10 @@
+/**
+ * @file AST.h
+ * @brief Contains the definition of the Abstract Syntax Tree (AST).
+ * 
+ * @author Adrián Zamora Sánchez
+ */
+
 #pragma once
 #include <string>
 #include <memory>
@@ -9,10 +16,10 @@ namespace llvm { class Value; }
 
 /**
  * @class ASTNode
- * @brief Representa un nodo genérico del AST.
+ * @brief Represents a generic AST node.
  * 
- * Esta clase es una representación genérica de los nodos 
- * que conforman el AST.
+ * This class is a generic representation of the nodes 
+ * that make up the AST.
  */
 class ASTNode{
 private:
@@ -20,22 +27,22 @@ public:
 	virtual ~ASTNode() = default;
 
 	/**
-	 * @brief Devuelve un string con el valor del nodo.
-	 * @return Cadena con el valor del nodo.
+	 * @brief Returns the value in string format.
+	 * @return String with the value of this node.
 	 */
 	virtual std::string getValue() const { return ""; };
 
 	/**
-	 * @brief Compara el propio nodo con otro para verificar si son iguales.
-	 * @param other Puntero a otro nodo.
-	 * @return `true` si son iguales, `false` en caso contrario.
+	 * @brief Compares this node with another to check if they are equal.
+	 * @param other Pointer to another node.
+	 * @return `true` if they are equal, `false` otherwise.
 	 */
 	virtual bool equals(const ASTNode* other) const = 0;
 
 	/**
-	 * @brief Accept del patron visitor de IRGenerator
-	 * @param visitor Objeto encargado de generar y almacenar el LLVM IR
-	 * @return Valor de LLVM (llvm::Value*)
+	 * @brief Accept method of the IRGenerator visitor pattern
+	 * @param visitor Object responsible for generating and storing the LLVM IR
+	 * @return LLVM value (llvm::Value*)
 	 * @see IRGenerator
 	 */
 	virtual llvm::Value* accept(IRGenerator& visitor) = 0;
@@ -43,10 +50,10 @@ public:
 
 /**
  * @class LiteralNode
- * @brief Representa un literal del AST.
+ * @brief Represents a literal in the AST.
  * 
- * Esta clase representa un valor literal dentro del AST,
- * este puede ser de los tipos soportados.
+ * This class represents a literal value within the AST,
+ * which can be of any of the supported types.
  * 
  * @see ASTNode
  */
@@ -55,14 +62,14 @@ private:
 	std::variant<int, float, char, std::string, bool> value;
 public:
 	/**
-     * @brief Constructor del nodo literal.
-     * @param val Valor literal (int, float, char, string o bool).
-     */
+	 * @brief Constructor for the literal node.
+	 * @param val Value associated with the node.
+	 */
 	explicit LiteralNode(std::variant<int, float, char, std::string, bool> val) 
 	: value(std::move(val)) {}
 
 	/**
-	 * @brief Devuelve el valor como std::variant
+	 * @brief Returns the value as std::variant.
 	 */
 	const std::variant<int, float, char, std::string, bool>& getVariantValue() const {
         return value;
@@ -101,10 +108,10 @@ public:
 
 /**
  * @class BinaryExprNode
- * @brief Representa una expresión aritmética o lógica en el AST.
+ * @brief Represents an arithmetic or logical expression in the AST.
  * 
- * Esta clase representa una expresión aritmética o lógica donde
- * sus dos nodos hijos son operandos.
+ * This class represents an arithmetic or logical expression where
+ * its two child nodes are operands.
  * 
  * @see ASTNode
  */
@@ -115,11 +122,11 @@ class BinaryExprNode : public ASTNode {
 
 public:
 	/**
-     * @brief Constructor del nodo literal.
-     * @param op Operador artimético o lógico.
-     * @param lhs Operando izquierdo.
-     * @param rhs Operando derecho.
-     */
+	 * @brief Constructor for the binary expr node.
+	 * @param op Arithmetic or logical operator.
+	 * @param lhs Left-hand operand.
+	 * @param rhs Right-hand operand.
+	 */
     explicit BinaryExprNode(const std::string& op,
                    std::unique_ptr<ASTNode> lhs,
                    std::unique_ptr<ASTNode> rhs)
@@ -132,15 +139,15 @@ public:
     std::string getValue() const { return op; }
 
     /**
-     * @brief Devuelve el nodo hijo izquierdo.
-     * @return Puntero al nodo hijo izquierdo.
+     * @brief Returns the left hand side operator.
+     * @return Returns a pointer to the left hand side node.
      */
    	ASTNode* getLeft() const { return left.get(); }
 
-   	 /**
-      * @brief Devuelve el nodo hijo derecho.
-      * @return Puntero al nodo hijo derecho.
-      */
+   	/**
+     * @brief Returns the right hand side operator.
+     * @return Returns a pointer to the right hand side node.
+     */
    	ASTNode* getRight() const { return right.get(); }
 
 	/// @copydoc ASTNode::equals

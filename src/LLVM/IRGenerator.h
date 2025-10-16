@@ -1,3 +1,14 @@
+/**
+ * @file IRGenerator.h
+ * @brief Contains the definition of the LLVM IR generator.
+ * 
+ * Generates the LLVM IR from the information contained in the AST.
+ * 
+ * @author Adrián Zamora Sánchez
+ * @see CodegenContext.h
+ * @see AST.h
+ */
+
 #pragma once
 #include "CodegenContext.h"
 #include "AST.h"
@@ -7,42 +18,41 @@ class BinaryExprNode;
 
 /**
  * @class IRGenerator
- * @brief Genera el código IR con visitor pattern.
+ * @brief Generates IR code using the visitor pattern.
  * 
- * Esta clase visita los nodos del AST generando para 
- * cada visita el código IR asociado a la información y tipo
- * del nodo visitado.
+ * This class visits AST nodes, generating for each visit
+ * the IR code associated with the information of the visited node.
  *
  * @see ASTNode
  * @see CodegenContext
  */
 class IRGenerator {
-    /// @brief  Contexto de LLVM
+    /// @brief LLVM Context.
     CodegenContext ctx;
 public:
     /**
-     * @brief Constructor de IRGenerator
+     * @brief IRGenerator constructor.
      * 
-     * Inicializa el LLVM context
+     * Initializes the LLVM context.
      */
     IRGenerator();
 
     /**
-     * @return Devuelve el contexto de LLVM 
+     * @return Returns the LLVM Context.
      */
     CodegenContext& getContext() { return ctx; }
 
     /**
-     * @brief Visita un nodo literal
-     * @param node nodo que se recibe para su visita
-     * @return llvm::Value* Valor obtenido de la visita
+     * @brief Visits a literal node.
+     * @param node Node to be visited.
+     * @return llvm::Value* Value obtained from the visit.
      */
     llvm::Value* visit(LiteralNode& node);
 
     /**
-     * @brief Visita un nodo de expresión binaria
-     * @param node nodo que se recibe para su visita 
-     * @return llvm::Value* Valor obtenido de la visita
-     */ 
+     * @brief Visits a binary expression node.
+     * @param node Node to be visited.
+     * @return llvm::Value* Value obtained from the visit.
+     */
     llvm::Value* visit(BinaryExprNode& node);
 };
