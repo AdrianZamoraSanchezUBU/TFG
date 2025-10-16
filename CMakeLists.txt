@@ -15,7 +15,9 @@ link_directories(/usr/local/lib)
 add_library(compilerLib STATIC
     src/grammar/TLexer.cpp
     src/grammar/TParser.cpp
+    src/AST/AST.cpp
     src/AST/ASTBuilder.cpp
+	src/LLVM/IRGenerator.cpp
 )
 
 # Libs LLVM

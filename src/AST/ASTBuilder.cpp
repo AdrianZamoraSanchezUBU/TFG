@@ -1,10 +1,6 @@
 #include <iostream>
-#include "antlr4-runtime.h"
-#include "TLexer.h"
-#include "TParser.h"
-#include "TParserBaseVisitor.h"
-#include "AST.h"
 #include "ASTBuilder.h"
+#include "AST.h"
 #include <vector>
 
 // Root of the program
@@ -53,7 +49,6 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ExprContext *ctx) {
 // Arithmetic Expr
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ArithmeticExprContext *ctx) {
 	std::string op = ctx->op->getText();
-	std::cout << op << std::endl; // TODO remove
 	
 	auto lhs = visit(ctx->expr(0));
     auto rhs = visit(ctx->expr(1));
@@ -66,8 +61,8 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ArithmeticExprContext *ctx) 
 // Logical Expr
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LogicalExprContext *ctx) {
 	std::string op = ctx->comparisonOperator()->getText();
-	std::cout << op << std::endl; // TODO remove
 
+	// Child visits
 	auto lhs = visit(ctx->expr(0));
     auto rhs = visit(ctx->expr(1));
     
@@ -95,22 +90,19 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::OperandExprContext *ctx) {
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
 	// Checks for a number or float context
 	if(ctx->NUMBER_LITERAL()) {
-		// std::cout << ctx->NUMBER_LITERAL()->getText() << std::endl; // TODO remove
 		int value = stoi(ctx->NUMBER_LITERAL()->getText());
-		auto node = std::make_unique<literalNode>(value);
+		auto node = std::make_unique<LiteralNode>(value);
 
         return node;
 	}
 	if(ctx->FLOAT_LITERAL()) {
-		// std::cout << ctx->FLOAT_LITERAL()->getText() << std::endl; // TODO remove
 		float value = stof(ctx->FLOAT_LITERAL()->getText());
-	    auto node = std::make_unique<literalNode>(value);
+	    auto node = std::make_unique<LiteralNode>(value);
 
 	    return node;
 	}
 	if(ctx->STRING_LITERAL()) {
-		// std::cout << ctx->STRING_LITERAL()->getText() << std::endl; // TODO remove
-	    auto node = std::make_unique<literalNode>(ctx->STRING_LITERAL()->getText());
+	    auto node = std::make_unique<LiteralNode>(ctx->STRING_LITERAL()->getText());
 
 	    return node;
 	}

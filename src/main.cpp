@@ -3,18 +3,15 @@
 #include <stdlib.h>
 
 // ANTLR
-#include "antlr4-runtime.h"
 #include "TLexer.h"
-#include "TParser.h"
 #include "LexerErrorListener.h"
 #include "ParserErrorListener.h"
 
 // AST
-#include "AST.h"
 #include "ASTBuilder.h"
 
 // LLVM
-#include "CodegenContext.h"
+#include "IRGenerator.h"
 #include <llvm/Support/raw_ostream.h>
 
 /**
@@ -99,26 +96,13 @@ int main(int argc, char* argv[]){
 		std::cerr << "Error during AST build process: " << e.what() << '\n';
 	}
 
-	/* LLVM */
-	CodegenContext ctx;
-
-	// Program main function set up
-	llvm::FunctionType *FT = llvm::FunctionType::get(
-	    llvm::Type::getInt32Ty(ctx.IRContext), false
-	);
-	llvm::Function *F = llvm::Function::Create(
-	    FT, llvm::Function::ExternalLinkage, "main", ctx.IRModule.get()
-	);
-
-	// Basic block set up TODO: include in AST.h and ASTbuilder program block
-	llvm::BasicBlock *BB = llvm::BasicBlock::Create(ctx.IRContext, "entry", F);
-	ctx.IRBuilder.SetInsertPoint(BB);
-
 	// Codegen
-	llvm::Value* result = ast[0]->codegen(ctx);
-	ctx.IRBuilder.CreateRet(result);
+	IRGenerator IRgen;
+	llvm::Value* result = ast[0]->accept(IRgen);
 
 	// TODO: remove debug
+	CodegenContext& ctx = IRgen.getContext();
+	ctx.IRBuilder.CreateRet(result);
 	ctx.IRModule->print(llvm::outs(), nullptr);
 	
 	return 0;
