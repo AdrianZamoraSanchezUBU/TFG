@@ -5,8 +5,7 @@ IRGenerator::IRGenerator() {
     llvm::FunctionType *FT = llvm::FunctionType::get(llvm::Type::getInt32Ty(ctx.IRContext), false);
     llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, "main", ctx.IRModule.get());
 
-    // Basic block set up TODO: include in ASTBuilder and ASTgenerator "program
-    // block"
+    // Basic block set up TODO: include in ASTBuilder and ASTgenerator "program block"
     llvm::BasicBlock *BB = llvm::BasicBlock::Create(ctx.IRContext, "entry", F);
     ctx.IRBuilder.SetInsertPoint(BB);
 }
@@ -48,16 +47,26 @@ llvm::Value *IRGenerator::visit(LiteralNode &node) {
         // BOOL: unsigned 1 bit integer
         return llvm::ConstantInt::get(ctx.IRContext, llvm::APInt(1, v ? 1 : 0, false));
     }
+
+    // Checks for invalid types in literal nodes
+    llvm::errs() << "Unsupported type in literal node: " << node.getValue() << "\n";
+    return nullptr;
 }
 
 llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
-    // left and right LLVM Values
+    // Left and Right child nodes visit
     llvm::Value *L = node.getLeft()->accept(*this);
     llvm::Value *R = node.getRight()->accept(*this);
 
     // left and right LLVM Types
     llvm::Type *LT = L->getType();
     llvm::Type *RT = R->getType();
+
+    // Check for correctness in child nodes visits
+    if (!L || !R) {
+        llvm::errs() << "Null operand in binary expression.\n";
+        return nullptr;
+    }
 
     /*
     Type domination: float over int
@@ -74,7 +83,7 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
 
     std::string op = node.getValue();
 
-    /* Arithmetic operations */
+    /* Numeric operations */
     // FLOAT
     if (LT->isFloatingPointTy()) {
         if (op == "+")
@@ -85,22 +94,6 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
             return ctx.IRBuilder.CreateFMul(L, R, "multmp");
         if (op == "/")
             return ctx.IRBuilder.CreateFDiv(L, R, "divtmp");
-    }
-    // INT
-    else if (LT->isIntegerTy()) {
-        if (op == "+")
-            return ctx.IRBuilder.CreateAdd(L, R, "addtmp");
-        if (op == "-")
-            return ctx.IRBuilder.CreateSub(L, R, "subtmp");
-        if (op == "*")
-            return ctx.IRBuilder.CreateMul(L, R, "multmp");
-        if (op == "/")
-            return ctx.IRBuilder.CreateSDiv(L, R, "divtmp");
-    }
-
-    /* Logical operations */
-    // FLOAT
-    if (LT->isFloatingPointTy()) {
         if (op == "==")
             return ctx.IRBuilder.CreateFCmpOEQ(L, R, "eqtmp");
         if (op == "!=")
@@ -112,6 +105,14 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
     }
     // INT
     else if (LT->isIntegerTy()) {
+        if (op == "+")
+            return ctx.IRBuilder.CreateAdd(L, R, "addtmp");
+        if (op == "-")
+            return ctx.IRBuilder.CreateSub(L, R, "subtmp");
+        if (op == "*")
+            return ctx.IRBuilder.CreateMul(L, R, "multmp");
+        if (op == "/")
+            return ctx.IRBuilder.CreateSDiv(L, R, "divtmp");
         if (op == "==")
             return ctx.IRBuilder.CreateICmpEQ(L, R, "eqtmp");
         if (op == "!=")
@@ -122,7 +123,8 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
             return ctx.IRBuilder.CreateICmpSGT(L, R, "gttmp");
     }
 
-    // STRING
+    // STRING operations (only == and != comparations)
+    // TODO: CONSTANT FOLDING
     if (auto *ptrTyL = llvm::dyn_cast<llvm::PointerType>(L->getType())) {
         // C context
         llvm::LLVMContext &C = ctx.IRModule->getContext();
@@ -148,4 +150,8 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
         return ctx.IRBuilder.CreateSelect(isEqual, llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), 1),
                                           llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), 0));
     }
+
+    // Checks for invalid operations in the expression
+    llvm::errs() << "Unsupported binary operation: " << op << " on given types.\n";
+    return nullptr;
 }

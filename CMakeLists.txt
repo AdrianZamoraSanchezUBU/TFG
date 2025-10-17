@@ -28,8 +28,7 @@ add_definitions(${LLVM_DEFINITIONS})
 # Linking all the dependencies in one lib
 target_link_libraries(compilerLib PUBLIC 
 	antlr4-runtime
-	LLVMCore
-	LLVMSupport
+	LLVM
 )
 
 add_executable(TCompiler src/main.cpp)
@@ -49,6 +48,7 @@ set(TEST_SOURCES
     tests/testLexer.cpp
     tests/testParser.cpp
     tests/testAST.cpp
+    tests/testIR.cpp
 )
 
 # Build each test
