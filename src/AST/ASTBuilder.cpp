@@ -1,17 +1,79 @@
 #include "ASTBuilder.h"
 
-#include <iostream>
+#include <fstream>
 #include <vector>
 
 #include "AST.h"
+
+/**
+ * @brief Adds a header for the .tex output file when visualizing the AST.
+ * @return string with the header.
+ */
+std::string includeTexHeader() {
+    return R"(
+\documentclass[border=5mm]{standalone}
+
+\usepackage{bbding}
+\usepackage{tikz,tikz-qtree,tikz-qtree-compat}
+\usepackage{amssymb}
+\usepackage{forest}
+
+\usetikzlibrary{shapes}
+\usetikzlibrary{positioning}
+
+\newcommand{\sep}{-.1mm}
+
+\begin{document}
+
+\begin{forest}
+    for tree={
+    align=center,
+    parent anchor=south,
+    child anchor=north,
+    s sep=30pt,
+    l sep=10pt,
+    inner sep=1pt,
+    }
+[Program
+)";
+}
+
+/**
+ * @brief Adds the TickZ styles for the AST visualization.
+ * @return string with the styles.
+ * @todo
+ */
+std::string includeTikzStyles() {
+    return R"()";
+}
 
 // Root of the program
 std::vector<std::unique_ptr<ASTNode>> ASTBuilder::visit(TParser::ProgramContext *ctx) {
     std::vector<std::unique_ptr<ASTNode>> AST;
 
+    // AST visualization argument check
+    if (visualizeFlag) {
+        std::ofstream texFile("AST.tex");
+
+        // Tex file header and styles
+        texFile << includeTexHeader() << std::endl;
+        texFile << includeTikzStyles << std::endl;
+    }
+
     // Visits all the stmts
     for (int i = 0; i < ctx->stmt().size(); i++) {
         AST.push_back(visit(ctx->stmt(i)));
+    }
+
+    if (visualizeFlag) {
+        std::ofstream texFile("AST.tex", std::ios::app);
+
+        // Tex footer file
+        texFile << "]" << std::endl;
+        texFile << R"(\end{forest})" << std::endl;
+        texFile << R"(\end{document})" << std::endl;
+
+        texFile.close();
     }
 
     return AST;

@@ -82,17 +82,28 @@ int main(int argc, char *argv[]) {
     parser.removeErrorListeners();
     parser.addErrorListener(new ParserErrorListener());
 
-    TParser::ProgramContext *tree = parser.program();
+    TParser::ProgramContext *programCtx = parser.program();
 
     // TODO: remove debug
-    // std::cout << tree->toStringTree(&parser) << std::endl;
+    // std::cout << programCtx->toStringTree(&parser) << std::endl;
 
     /* AST build process */
-    ASTBuilder builder;
     std::vector<std::unique_ptr<ASTNode>> ast;
 
     try {
-        ast = builder.visit(tree);
+        bool visualizeFlag = false;
+
+        // Checks for the --vAST flag to determine whether to generate an AST visualization
+        for (int i = 1; i < argc; ++i) {
+            if (std::string(argv[i]) == "--vAST") {
+                visualizeFlag = true;
+                break;
+            }
+        }
+
+        // AST generation process
+        ASTBuilder builder(visualizeFlag);
+        ast = builder.visit(programCtx);
     } catch (const std::exception &e) {
         std::cerr << "Error during AST build process: " << e.what() << '\n';
     }
