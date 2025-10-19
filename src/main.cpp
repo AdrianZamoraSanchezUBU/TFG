@@ -1,7 +1,7 @@
+#include <cstdlib>
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <iostream>
 
 // ANTLR
 #include "LexerErrorListener.h"
@@ -104,6 +104,18 @@ int main(int argc, char *argv[]) {
         // AST generation process
         ASTBuilder builder(visualizeFlag);
         ast = builder.visit(programCtx);
+
+        // xelatex compilation and cleaning
+        if (std::system("xelatex --version > /dev/null 2>&1") == 0) {
+            // Compiles the .tex file
+            std::string texName = "AST";
+            std::string command = "xelatex -interaction=nonstopmode " + texName + ".tex > /dev/null 2>&1";
+            std::system(command.c_str());
+
+            // Clean the .log .aux and .tex files
+            std::string cleanupCmd = "rm -f " + texName + ".log " + texName + ".aux " + texName + ".tex";
+            std::system(cleanupCmd.c_str());
+        }
     } catch (const std::exception &e) {
         std::cerr << "Error during AST build process: " << e.what() << '\n';
     }
