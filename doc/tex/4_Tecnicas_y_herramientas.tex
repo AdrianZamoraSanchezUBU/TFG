@@ -2,3 +2,63 @@
 
 Esta parte de la memoria tiene como objetivo presentar las técnicas metodológicas y las herramientas de desarrollo que se han utilizado para llevar a cabo el proyecto. Si se han estudiado diferentes alternativas de metodologías, herramientas, bibliotecas se puede hacer un resumen de los aspectos más destacados de cada alternativa, incluyendo comparativas entre las distintas opciones y una justificación de las elecciones realizadas. 
 No se pretende que este apartado se convierta en un capítulo de un libro dedicado a cada una de las alternativas, sino comentar los aspectos más destacados de cada opción, con un repaso somero a los fundamentos esenciales y referencias bibliográficas para que el lector pueda ampliar su conocimiento sobre el tema.
+
+\section{Metodología de desarrollo}
+El desarrollo del proyecto se ha organizado siguiendo una metodología ágil, concretamente el marco de trabajo \textbf{SCRUM}, apoyado en la herramienta \textbf{ZenHub} para su gestión y seguimiento. La elección de una metodología ágil se justifica por su \textit{flexibilidad} y \textit{adaptabilidad}, características especialmente valiosas en un proyecto de investigación y desarrollo como este, donde la evolución del conocimiento y del propio software ocurre de forma simultánea e iterativa.
+
+El flujo de trabajo se estructura mediante un tablero \textbf{Kanban} en ZenHub, el cual permite visualizar de manera clara el estado actual del proyecto. En dicho tablero se gestionan las \textit{issues} y los \textit{milestones} de GitHub, representando las distintas tareas, etapas o funcionalidades en desarrollo.  
+Cada elemento del tablero incluye información relevante como la prioridad, la duración estimada, el tipo de tarea y su relación con otras, lo que facilita la planificación y el control del progreso de manera visual y dinámica.
+
+Esta metodología fomenta un desarrollo incremental y una mejora continua del código, permitiendo incorporar nuevas funcionalidades, corregir errores y ajustar los objetivos a medida que avanza el trabajo, garantizando así un resultado más coherente y alineado con los objetivos técnicos del proyecto.
+
+\section{Metodología de programación}
+El desarrollo del compilador y de las herramientas asociadas se ha abordado desde el paradigma de la \textbf{programación orientada a objetos} (OOP, por sus siglas en inglés). Este enfoque resulta especialmente adecuado para un proyecto de estas características, ya que facilita la modularización del código y la definición clara de las responsabilidades de cada componente del sistema (analizador léxico, analizador sintáctico, generador de código, etc.).
+
+La OOP favorece la reutilización, extensibilidad y mantenibilidad del software, permitiendo aislar los distintos módulos del compilador y facilitar su evolución futura. Además, este paradigma se integra de forma natural con las herramientas empleadas, como \textbf{ANTLR} y \textbf{LLVM}, ambas diseñadas con arquitecturas orientadas a objetos.
+
+Otro motivo determinante en la elección de este enfoque es el uso de \textbf{C++} como lenguaje de implementación. C++ ofrece un modelo de programación fuertemente orientado a objetos, combinado con una gestión eficiente de recursos y un rendimiento elevado, aspectos cruciales en el desarrollo de compiladores y sistemas de bajo nivel. La compatibilidad nativa de C++ con las bibliotecas de ANTLR y LLVM refuerza aún más la idoneidad de esta metodología para el proyecto.
+
+
+\section{Elección de herramientas}
+A continuación se presentan las principales herramientas empleadas en el desarrollo del proyecto, así como la justificación de su elección frente a otras alternativas disponibles. Las herramientas seleccionadas se han escogido teniendo en cuenta su madurez, soporte, documentación, integración con C++ y adecuación a los objetivos técnicos del proyecto.
+
+\subsection{ANTLR}
+ANTLR (Another Tool for Language Recognition) es una herramienta ampliamente utilizada para la generación automática de analizadores léxicos y sintácticos a partir de gramáticas formales. Su principal fortaleza radica en la facilidad con la que permite definir y mantener gramáticas complejas mediante una sintaxis clara y expresiva, generando código eficiente y legible para distintos lenguajes de programación, incluido C++.
+
+Entre sus características más destacables se encuentran:
+\begin{itemize}
+    \item Soporte nativo para gramáticas LL(*) que permiten manejar ambigüedades complejas.
+    \item Generación automática de analizadores léxicos y sintácticos a partir de un único archivo de gramática.
+    \item Aunque está diseñado para usarser con Java, actualmente cuenta con compatibilidad para muchos lenguajes de destino, entre ellos C++.
+\end{itemize}
+
+\textbf{Alternativas consideradas:}
+\begin{itemize}
+    \item \textbf{Bison y Flex:} Son las herramientas clásicas en la generación de analizadores. Sin embargo, en el contexto elegido ANTLR cuenta con una estructura orientada a objetos más integrable con otras herramientas.
+    \item \textbf{PEG (Parsing Expression Grammar):} Ofrecen gran expresividad y flexibilidad, pero carecen del soporte multiplataforma y de la madurez de ANTLR, además de no integrarse de forma fácil con C++.
+    \item \textbf{JavaCC:} Alternativas orientadas a Java, no adecuadas para este proyecto al estar centrado en C++.
+\end{itemize}
+
+\textbf{Justificación de la elección:}  
+ANTLR se considera la opción más equilibrada entre facilidad de uso, potencia y soporte técnico. Permite definir la gramática del lenguaje de manera declarativa y coherente, integrándose perfectamente con el entorno C++. Además, su ecosistema y documentación la convierten en una herramienta moderna y sólida frente a las opciones más tradicionales.
+
+\subsection{LLVM}
+LLVM (Low Level Virtual Machine) es una infraestructura modular y extensible para el desarrollo de compiladores, enlazadores y optimizadores de código. Su arquitectura se basa en una representación intermedia (IR) que actúa como un lenguaje ensamblador universal, lo que permite desarrollar compiladores portables, eficientes y escalables.
+
+Entre sus principales ventajas destacan:
+\begin{itemize}
+    \item \textbf{Representación intermedia (IR):} Permite una separación clara entre la fase de análisis y la de generación de código, haciendo posible optimizaciones y traducciones a múltiples arquitecturas.
+    \item \textbf{Portabilidad:} LLVM IR puede compilarse a diferentes arquitecturas (x86, ARM, RISC-V, etc.) sin modificar el compilador fuente.
+    \item \textbf{Integración con C++:} Al estar implementado en C++, se integra de manera natural con el entorno de desarrollo del proyecto.
+    \item \textbf{Extensibilidad:} Su diseño modular permite hacer cambios como optimizaciones, cambio de backend o cambios en herramientas de análisis de forma sencilla.
+\end{itemize}
+
+\textbf{Alternativas consideradas:}
+\begin{itemize}
+    \item \textbf{GCC (GNU Compiler Collection):} Ofrece una infraestructura madura, pero su API interna no está diseñada para un uso externo, lo que dificulta su integración en proyectos ajenos al entorno GNU.
+    \item \textbf{QBE Compiler Infrastructure:} Es más ligera que LLVM, pero carece del ecosistema, documentación y soporte de comunidad que caracterizan a LLVM.
+    \item \textbf{Cranelift:} Un backend moderno y rápido, pero enfocado en compilación JIT (just-in-time) y no tan versátil para la generación de IR o compiladores tradicionales.
+\end{itemize}
+
+\textbf{Justificación de la elección:}  
+LLVM ofrece el equilibrio ideal entre potencial, documentación y flexibilidad, su diseño modular permite construir un compilador completamente funcional sin preocuparse por la dependencia de la arquitectura de destino. Además, su integración con C++ simplifica enormemente la generación de IR y la gestión de optimizaciones.

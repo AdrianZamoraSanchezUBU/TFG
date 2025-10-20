@@ -1,20 +1,35 @@
 \capitulo{2}{Objetivos del proyecto}
 
-\subsection{Requisitos software}
 \begin{itemize}
-    \item \textbf{Diseñar un lenguaje}:
-    \item \textbf{Compilador capaz de reconocer el lenguaje}:
-    \item \textbf{Generación de errores encontrados en la entrada}:
-    \item \textbf{Herramienta de análisis (debug) visual}:
-    \item \textbf{Compilación desde IR}:
-    \item \textbf{Utilidades temporales propias del lenguaje}:
+    \item \textbf{Diseñar un lenguaje de programación}: 
+    Definir la sintaxis y semántica de un nuevo lenguaje, estableciendo sus estructuras básicas, tipos de datos, operadores y reglas gramaticales.
+
+    \item \textbf{Desarrollar un compilador capaz de reconocer el lenguaje}: 
+    Implementar un compilador que analice y procese el código fuente del lenguaje, abarcando las fases de análisis léxico, sintáctico y semántico.
+
+    \item \textbf{Generación y gestión de errores}: 
+    Incorporar un sistema de detección y reporte de errores léxicos, sintácticos y semánticos, proporcionando mensajes claros y detallados que faciliten la depuración del código.
+
+    \item \textbf{Herramienta de análisis y depuración visual}: 
+    Desarrollar una utilidad visual que permita representar y explorar estructuras internas del compilador, como el Árbol de Sintaxis Abstracta (AST), facilitando la comprensión y depuración del lenguaje.
+
+    \item \textbf{Compilación a partir de una representación intermedia (IR)}: 
+    Implementar la traducción del lenguaje diseñado a una representación intermedia basada en LLVM IR, permitiendo la optimización y posterior generación de código máquina para distintas arquitecturas.
+
+    \item \textbf{Implementación de utilidades internas del lenguaje}: 
+    Desarrollar un conjunto de funciones o bibliotecas básicas que proporcionen utilidades estándar dentro del entorno del lenguaje diseñado.
 \end{itemize}
 
 \subsection{Objetivos técnicos}
-Utilizar ANTLR, puesto que es una herramienta moderna y reconocida entre los programas generadores de reconocedores de lenguajes.
 
-Utilizar LLVM, también una de las herramientas más actuales y utilizadas en compiladores reales, capaz de generar un IR que permite crear un compilador extremadamente portable independientemente de la arquitectura.
+El desarrollo del proyecto se apoya en el uso de herramientas y tecnologías ampliamente reconocidas en el ámbito de los compiladores modernos:
 
-Utilizar C++ como entorno, pues tiene buena integración con ANTLR (C++ ANTLR Runtime Environment) y con LLVM, además de una gran capacidad para manejar OOP.
+\begin{itemize}
+    \item \textbf{ANTLR}: Se utilizará ANTLR como generador de analizadores léxicos y sintácticos, dada su modernidad, robustez y amplia adopción en el desarrollo de lenguajes formales.
 
-Crear al menos una funcionalidad con la que se permita al usuario visualizar el programa escrito junto a algunos detalles minimos, por ejemplo, mediante la representación del AST en un grafo que se pueda guardar como una imagen del programa. Sirviendo tanto como una funcionalidad de debug visual como una característica interesante desde el punto de vista academico.
+    \item \textbf{LLVM}: Se empleará LLVM como infraestructura de compilación, debido a su capacidad para generar una representación intermedia (IR) portable y optimizable, independiente de la arquitectura de hardware.
+
+    \item \textbf{C++}: El proyecto se desarrollará en C++, por su excelente integración tanto con ANTLR (a través del ANTLR Runtime para C++) como con LLVM, además de sus ventajas en programación orientada a objetos y gestión eficiente de memoria.
+
+    \item \textbf{LaTex forest}: Esta herramienta ampliamente utilizada en el ámbio académico se utiliza para visualizaciones y diagramas. 
+\end{itemize}
