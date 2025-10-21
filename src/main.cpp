@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
         ast = builder.visit(programCtx);
 
         // xelatex compilation and cleaning
-        if (std::system("xelatex --version > /dev/null 2>&1") == 0) {
+        if (std::system("xelatex --version > /dev/null 2>&1") == 0 && visualizeFlag) {
             // Compiles the .tex file
             std::string texName = "AST";
             std::string command = "xelatex -interaction=nonstopmode " + texName + ".tex > /dev/null 2>&1";

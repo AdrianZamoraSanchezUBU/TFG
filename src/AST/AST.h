@@ -6,10 +6,10 @@
  */
 
 #pragma once
+#include <iostream>
 #include <memory>
 #include <string>
 #include <variant>
-
 // Forward declarations
 class IRGenerator;
 namespace llvm {
@@ -60,8 +60,8 @@ class ASTNode {
  * @see ASTNode
  */
 class LiteralNode : public ASTNode {
-  private:
     std::variant<int, float, char, std::string, bool> value;
+    bool constant = false;
 
   public:
     /**
@@ -74,6 +74,16 @@ class LiteralNode : public ASTNode {
      * @brief Returns the value as std::variant.
      */
     const std::variant<int, float, char, std::string, bool> &getVariantValue() const { return value; }
+
+    /**
+     * @brief Returns `true` if is a constant, `false` otherwise
+     */
+    bool isConstant() { return constant; }
+
+    /**
+     * @brief Setter for constant true value
+     */
+    void setConstant() { constant = true; }
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override {
@@ -128,7 +138,16 @@ class BinaryExprNode : public ASTNode {
      * @param rhs Right-hand operand.
      */
     explicit BinaryExprNode(const std::string &op, std::unique_ptr<ASTNode> lhs, std::unique_ptr<ASTNode> rhs)
-        : op(op), left(std::move(lhs)), right(std::move(rhs)) {}
+        : op(op), left(std::move(lhs)), right(std::move(rhs)) {
+        // Checks if both sides of the expression are literals
+        LiteralNode *L = dynamic_cast<LiteralNode *>(lhs.get());
+        LiteralNode *R = dynamic_cast<LiteralNode *>(rhs.get());
+
+        if (L && R) {
+            L->setConstant();
+            R->setConstant();
+        }
+    }
 
     /**
      * @brief Devuelve el operador asociado al nodo.

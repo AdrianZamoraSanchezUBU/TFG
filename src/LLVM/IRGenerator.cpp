@@ -1,4 +1,5 @@
 #include "IRGenerator.h"
+#include <string.h>
 
 IRGenerator::IRGenerator() {
     // Program main function set up
@@ -35,6 +36,11 @@ llvm::Value *IRGenerator::visit(LiteralNode &node) {
     }
 
     if (std::holds_alternative<std::string>(value)) {
+        if (!node.isConstant()) {
+            // Generates a UndefValue as placeholder for future constant folding
+            return llvm::UndefValue::get(llvm::PointerType::get(llvm::Type::getInt8Ty(ctx.IRContext), 0));
+        }
+
         std::string v = std::get<std::string>(value);
 
         // STRING: pointer (*i8) to constant null-terminated IR format string
@@ -58,7 +64,6 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
     llvm::Value *L = node.getLeft()->accept(*this);
     llvm::Value *R = node.getRight()->accept(*this);
 
-    // left and right LLVM Types
     llvm::Type *LT = L->getType();
     llvm::Type *RT = R->getType();
 
@@ -123,32 +128,20 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
             return ctx.IRBuilder.CreateICmpSGT(L, R, "gttmp");
     }
 
-    // STRING operations (only == and != comparations)
-    // TODO: CONSTANT FOLDING
-    if (auto *ptrTyL = llvm::dyn_cast<llvm::PointerType>(L->getType())) {
-        // C context
-        llvm::LLVMContext &C = ctx.IRModule->getContext();
-        llvm::Type *i8Ty = llvm::Type::getInt8Ty(C);
-        llvm::Type *i8PtrTy = llvm::PointerType::getUnqual(i8Ty);
+    // STRING value for constant folding (only '==' and '!=' comparations)
+    if (LT->isPointerTy() && RT->isPointerTy()) {
+        // Check for valid string operation
+        if (op == "==" || op == "!=") {
+            bool sameStrings = (node.getLeft()->getValue() == node.getRight()->getValue());
+            auto *boolVal = llvm::ConstantInt::get(llvm::Type::getInt1Ty(ctx.IRContext), sameStrings);
 
-        // Function strcmp definition
-        llvm::FunctionType *strcmpType = llvm::FunctionType::get(llvm::Type::getInt32Ty(C), // Return type
-                                                                 {i8PtrTy, i8PtrTy},        // Params type
-                                                                 false);
+            // If the operator is '!=', invert the result
+            if (op == "!=") {
+                boolVal = llvm::ConstantInt::get(llvm::Type::getInt1Ty(ctx.IRContext), !sameStrings);
+            }
 
-        // Getting the strcmp function
-        llvm::FunctionCallee strcmpFunc = ctx.IRModule->getOrInsertFunction("strcmp", strcmpType);
-
-        // Calling strcmp with L and R
-        llvm::Value *strcmpResult = ctx.IRBuilder.CreateCall(strcmpFunc, {L, R});
-
-        // Creates a boolean comparation for the result
-        llvm::Value *isEqual =
-            ctx.IRBuilder.CreateICmpEQ(strcmpResult, llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), 0));
-
-        // Returns 0 if the strings are not equal and 1 if they are equal
-        return ctx.IRBuilder.CreateSelect(isEqual, llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), 1),
-                                          llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), 0));
+            return boolVal;
+        }
     }
 
     // Checks for invalid operations in the expression
