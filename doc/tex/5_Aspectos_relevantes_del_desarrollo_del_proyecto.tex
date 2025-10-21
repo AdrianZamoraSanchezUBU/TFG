@@ -1,7 +1,10 @@
 \capitulo{5}{Aspectos relevantes del desarrollo del proyecto}
 
-Este apartado pretende recoger los aspectos más interesantes del desarrollo del proyecto, comentados por los autores del mismo.
-Debe incluir desde la exposición del ciclo de vida utilizado, hasta los detalles de mayor relevancia de las fases de análisis, diseño e implementación.
-Se busca que no sea una mera operación de copiar y pegar diagramas y extractos del código fuente, sino que realmente se justifiquen los caminos de solución que se han tomado, especialmente aquellos que no sean triviales.
-Puede ser el lugar más adecuado para documentar los aspectos más interesantes del diseño y de la implementación, con un mayor hincapié en aspectos tales como el tipo de arquitectura elegido, los índices de las tablas de la base de datos, normalización y desnormalización, distribución en ficheros3, reglas de negocio dentro de las bases de datos (EDVHV GH GDWRV DFWLYDV), aspectos de desarrollo relacionados con el WWW...
-Este apartado, debe convertirse en el resumen de la experiencia práctica del proyecto, y por sí mismo justifica que la memoria se convierta en un documento útil, fuente de referencia para los autores, los tutores y futuros alumnos.
+El comienzo del proyecto parte del objetivo de conseguir una versión MVP (Minimal Viable Product) que pudiese aportar una base sólida y fácil de ampliar. En este caso el MVP se enfocó en la creación de un micro compilador capaz de procesar expresiones aritméticas y lógicas, puesto que esta estructura es básica y está presente en todos los lenguajes de programación.
+
+La primera fase de este desarrollo comienza con la creación de un lexer donde se definen algunas estructuras básicas como los lierales de número entero, número con decimales o las cadenas de caracteres, así como los operadores que se van a emplear para estas expresiones. Una vez obtenido el lexer el siguiente paso es construir un parser capaz de reconocer estructuras gramaticales más complejas donde se conectan el uso de los operadores y los literales definidos anteriormente.
+
+A continuación se debe implementar una estructura de datos que sea capaz de representar cualquier tipo de estructura sintáctica bien formada de este lenguaje, la estructura del árbol de sintaxis abstracta (AST por sus siglas en inglés) será la encargada de crear este representacion en tiempo de ejecución del compilador, almacenando los datos relevantes de cada estructura para su posterior análisis en las siguientes fases.
+Para formar este AST se empleará un visitor patterns (patrón de visita), objeto que recibe el nombre de ASTBuilder, el cual se encarga de visitar cada contexto generado de forma automática por el parser de ANTLR, dando por resultado unos nodos enlazados, el AST. Adicionalmente, ASTBuilder será el encargado de generar una representación visual del árbol a medida que lo va construyendo, para conseguir esto se escriben cada nodo en el formato de la biblioteca `forest` de LaTex a medida que estos se van formando, garantizando su orden y asociación correctos.
+
+

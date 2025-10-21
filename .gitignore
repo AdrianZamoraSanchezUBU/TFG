@@ -31,6 +31,7 @@ AST.aux
 AST.log
 AST.pdf
 AST.tex
+experimental/*
 
 # Ignores VScode config files
 .vscode/
