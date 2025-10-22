@@ -18,34 +18,34 @@ A continuación se listan los RF (requisitos funcionales) necesarios para comple
 \begin{enumerate}
 \item[\textbf{RF-1}] \textbf{Capacidad de analizar un texto en el lenguaje fuente:} El programa debe ser capaz de aceptar entradas válidas en el lenguaje fuente.
 	\begin{enumerate}
-		\item[\textbf{RF-1.1}] \textbf{Gestión de errores léxicos:} el programa debe mostrar casos donde se encuentran errores léxicos al analizar la entrada.
-		\item[\textbf{RF-1.2}] \textbf{Información de debug léxica:} el programa debe ser capaz de ofrecer información sobre los tokens que ha encontrado en el programa mediante un argumento.
+		\item[\textbf{RF-1.1}] \textbf{Gestión de errores léxicos:} El programa debe mostrar casos donde se encuentran errores léxicos al analizar la entrada.
+		\item[\textbf{RF-1.2}] \textbf{Información de debug léxica:} El programa debe ser capaz de ofrecer información sobre los tokens que ha encontrado en el programa mediante un argumento.
 	\end{enumerate}
-\item[\textbf{RF-2}] \textbf{Capacidad para analisis sintáctico:} El programa debe poder analizar sintácticamente el texto recibido siguiendo las reglas de producción definidas.
+\item[\textbf{RF-2}] \textbf{Capacidad para análisis sintáctico:} El programa debe poder analizar sintácticamente el texto recibido siguiendo las reglas de producción definidas.
 	\begin{enumerate}
 		\item[\textbf{RF-2.1}] \textbf{Gestión de errores sintácticos:} El programa mostrará un error frente a errores sintácticos, mostrando la fuente del error por pantalla.
-		\item[\textbf{RF-2.2}] \textbf{Información de debug sintáctica:}  
+		\item[\textbf{RF-2.2}] \textbf{Información de debug sintáctica:} El programa mostrará información sobre el propio proceso de análisis sintáctico.
 	\end{enumerate}
 \item[\textbf{RF-3}] \textbf{Creación del AST:} El programa generará la AST a partir de la información obtenida en los pasos de análisis léxico y sintáctico.
 	\begin{enumerate}	
-		\item[\textbf{RF-3.1}] \textbf{Recorrido con patrón visitor:}
-		\item[\textbf{RF-3.2}] \textbf{Recolecta de información de cada estructura:}
-		\item[\textbf{RF-3.3}] \textbf{Impresión por pantalla del resultado de la AST:}
+		\item[\textbf{RF-3.1}] \textbf{Recorrido con patrón visitor:} Se implementa un visitor pattern capaz de recorrer de forma ordenada los contextos del parser.
+		\item[\textbf{RF-3.2}] \textbf{Recolecta de información de cada estructura:} Cada estructura visitada debe almacenar los datos más relevantes de cara a las siguientes fases del compilador. 
+		\item[\textbf{RF-3.3}] \textbf{Impresión por pantalla del resultado de la AST:} Se debe poder mostrar una imagen representativa de los nodos del AST.
 	\end{enumerate}	
 \item[\textbf{RF-4}] \textbf{Análisis semántico:} El programa creará la tabla de símbolos y comprobará los tipos en asignaciones y declaraciones.
 	\begin{enumerate}	
-		\item[\textbf{RF-4.1}] \textbf{Inserción de variables y funciones en la tabla de símbolos:}
-		\item[\textbf{RF-4.2}] \textbf{Gestión de los scopes:}
+		\item[\textbf{RF-4.1}] \textbf{Asociación de simbolos y sus datos:} 
+		\item[\textbf{RF-4.2}] \textbf{Gestión de los scopes:} 
 		\item[\textbf{RF-4.3}] \textbf{Comprobaciones de tipos y compatibilidad en operaciones:}
 	\end{enumerate}	
-\item[\textbf{RF-5}] \textbf{Generación de código IR:} 
+\item[\textbf{RF-5}] \textbf{Generación de código IR:} El programa será capaz de crear una representación intermedia en LLVM IR.
 	\begin{enumerate}	
-		\item[\textbf{RF-5.1}] \textbf{}
-		\item[\textbf{RF-5.2}] \textbf{}
-		\item[\textbf{RF-5.3}] \textbf{}
+		\item[\textbf{RF-5.1}] \textbf{Recorrido con patrón visitor:} El programa recorrerá el AST de forma ordenada generando un IR para cada estructura encontrada.
+		\item[\textbf{RF-5.2}] \textbf{Optimizaciones:} Se deben aplicar las optimizaciones propias de la generación del IR.
 	\end{enumerate}	
+\item[\textbf{RF-6}] \textbf{Optimizaciones:} % TODO
+\item[\textbf{RF-7}] \textbf{Generación de código máquina:} % TODO
 \end{enumerate}
-
 
 \section{Casos de uso}
 \subsubsection{Actores}
