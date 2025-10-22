@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 include_directories(
     ${PROJECT_SOURCE_DIR}/src/grammar
     ${PROJECT_SOURCE_DIR}/src/AST
+    ${PROJECT_SOURCE_DIR}/src/semantic
     ${PROJECT_SOURCE_DIR}/src/LLVM
     /usr/local/include/antlr4-runtime
 )
@@ -17,6 +18,8 @@ add_library(compilerLib STATIC
     src/grammar/TParser.cpp
     src/AST/AST.cpp
     src/AST/ASTBuilder.cpp
+    src/semantic/SemanticVisitor.cpp
+    src/semantic/SymbolTable.cpp
 	src/LLVM/IRGenerator.cpp
 )
 

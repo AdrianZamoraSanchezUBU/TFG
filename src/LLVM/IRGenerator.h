@@ -44,7 +44,7 @@ class IRGenerator {
     CodegenContext &getContext() { return ctx; }
 
     /**
-     * @brief Visits a binary expression node.
+     * @brief Visits a code block node.
      * @param node Node to be visited.
      * @return llvm::Value* Value obtained from the visit.
      */

@@ -14,6 +14,7 @@
 
 // Forward declarations
 class IRGenerator;
+class SemanticVisitor;
 namespace llvm {
 class Value;
 class Function;
@@ -49,6 +50,14 @@ class ASTNode {
      * @return LLVM value (llvm::Value*)
      * @see IRGenerator
      */
+    virtual void *accept(SemanticVisitor &visitor) = 0;
+
+    /**
+     * @brief Accept method of the IRGenerator visitor pattern
+     * @param visitor Object responsible for generating and storing the LLVM IR
+     * @return LLVM value (llvm::Value*)
+     * @see IRGenerator
+     */
     virtual llvm::Value *accept(IRGenerator &visitor) = 0;
 
     /**
@@ -62,7 +71,6 @@ class ASTNode {
  */
 class CodeBlockNode : public ASTNode {
     std::vector<std::unique_ptr<ASTNode>> statements;
-    // TODO: Scopes?
 
   public:
     /**
@@ -86,7 +94,10 @@ class CodeBlockNode : public ASTNode {
     /// @copydoc ASTNode::print
     void print() { std::cout << "CODE BLOCK" << std::endl; }
 
-    /// @copydoc ASTNode::accept
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
     llvm::Value *accept(IRGenerator &visitor) override;
 };
 
@@ -155,7 +166,10 @@ class LiteralNode : public ASTNode {
         return false;
     }
 
-    /// @copydoc ASTNode::accept
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
     llvm::Value *accept(IRGenerator &visitor) override;
 };
 
@@ -224,6 +238,9 @@ class BinaryExprNode : public ASTNode {
     /// @copydoc ASTNode::print
     void print() { std::cout << "BINARY EXPR NODE" << std::endl; }
 
-    /// @copydoc ASTNode::accept
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
     llvm::Value *accept(IRGenerator &visitor) override;
 };
