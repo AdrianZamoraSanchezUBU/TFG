@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
     // std::cout << programCtx->toStringTree(&parser) << std::endl;
 
     /* AST build process */
-    std::vector<std::unique_ptr<ASTNode>> ast;
+    std::unique_ptr<ASTNode> astRoot;
 
     try {
         bool visualizeFlag = false;
@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
 
         // AST generation process
         ASTBuilder builder(visualizeFlag);
-        ast = builder.visit(programCtx);
+        astRoot = builder.visit(programCtx);
 
         // xelatex compilation and cleaning
         if (std::system("xelatex --version > /dev/null 2>&1") == 0 && visualizeFlag) {
@@ -122,11 +122,20 @@ int main(int argc, char *argv[]) {
 
     // Codegen
     IRGenerator IRgen;
-    llvm::Value *result = ast[0]->accept(IRgen);
+    llvm::Value *entryBlock = nullptr;
+    CodegenContext &ctx = IRgen.getContext();
+    if (auto *block = dynamic_cast<CodeBlockNode *>(astRoot.get())) {
+        llvm::Value *F = block->accept(IRgen);
+
+        llvm::Value *result = block->getStmt(0)->accept(IRgen);
+
+        llvm::Function *func = llvm::cast<llvm::Function>(F);
+        llvm::BasicBlock *BB = &func->getEntryBlock();
+        ctx.IRBuilder.SetInsertPoint(BB);
+        ctx.IRBuilder.CreateRet(result);
+    }
 
     // TODO: remove debug
-    CodegenContext &ctx = IRgen.getContext();
-    ctx.IRBuilder.CreateRet(result);
     ctx.IRModule->print(llvm::outs(), nullptr);
 
     return 0;

@@ -2,6 +2,10 @@
 
 #include "IRGenerator.h"
 
+llvm::Value *CodeBlockNode::accept(IRGenerator &visitor) {
+    return visitor.visit(*this);
+}
+
 llvm::Value *LiteralNode::accept(IRGenerator &visitor) {
     return visitor.visit(*this);
 }

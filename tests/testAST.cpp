@@ -54,7 +54,7 @@ std::unique_ptr<ASTNode> runASTTest(const std::string &fileName) {
 
     try {
         auto nodes = builder.visit(tree);
-        return std::move(nodes[0]);
+        return std::move(nodes);
     } catch (const std::exception &e) {
         std::cerr << "Error during AST build process: " << e.what() << '\n';
     }

@@ -1,14 +1,17 @@
 #include "IRGenerator.h"
 #include <string.h>
 
-IRGenerator::IRGenerator() {
+IRGenerator::IRGenerator() {}
+
+llvm::Value *IRGenerator::visit(CodeBlockNode &node) {
     // Program main function set up
     llvm::FunctionType *FT = llvm::FunctionType::get(llvm::Type::getInt32Ty(ctx.IRContext), false);
     llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, "main", ctx.IRModule.get());
 
-    // Basic block set up TODO: include in ASTBuilder and ASTgenerator "program block"
     llvm::BasicBlock *BB = llvm::BasicBlock::Create(ctx.IRContext, "entry", F);
     ctx.IRBuilder.SetInsertPoint(BB);
+
+    return F;
 }
 
 llvm::Value *IRGenerator::visit(LiteralNode &node) {

@@ -74,8 +74,7 @@ std::string includeTexHeader() {
 }
 
 // Root of the program
-std::vector<std::unique_ptr<ASTNode>> ASTBuilder::visit(TParser::ProgramContext *ctx) {
-    std::vector<std::unique_ptr<ASTNode>> AST;
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ProgramContext *ctx) {
 
     // AST visualization argument check
     if (visualizeFlag) {
@@ -85,10 +84,7 @@ std::vector<std::unique_ptr<ASTNode>> ASTBuilder::visit(TParser::ProgramContext 
         texFile << includeTexHeader() << std::endl;
     }
 
-    // Visits all the stmts
-    for (int i = 0; i < ctx->stmt().size(); i++) {
-        AST.push_back(visit(ctx->stmt(i)));
-    }
+    auto entryBlock = visit(ctx->block());
 
     if (visualizeFlag) {
         std::ofstream texFile("AST.tex", std::ios::app);
@@ -101,7 +97,21 @@ std::vector<std::unique_ptr<ASTNode>> ASTBuilder::visit(TParser::ProgramContext 
         texFile.close();
     }
 
-    return AST;
+    return entryBlock;
+}
+
+// Code block
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::BlockContext *ctx) {
+    std::vector<std::unique_ptr<ASTNode>> stmt;
+
+    // Visits all the stmts
+    for (int i = 0; i < ctx->stmt().size(); i++) {
+        stmt.push_back(visit(ctx->stmt(i)));
+    }
+
+    auto codeBlock = std::make_unique<CodeBlockNode>(std::move(stmt));
+
+    return codeBlock;
 }
 
 // Dispatcher for STMT

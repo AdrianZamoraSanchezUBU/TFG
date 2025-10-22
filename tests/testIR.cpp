@@ -96,17 +96,17 @@ bool testIR(const std::string &fileName, std::string expectedIR) {
 
     /* AST build process */
     ASTBuilder builder;
-    std::vector<std::unique_ptr<ASTNode>> ast;
+    std::unique_ptr<ASTNode> astRoot;
 
     try {
-        ast = builder.visit(tree);
+        astRoot = builder.visit(tree);
     } catch (const std::exception &e) {
         std::cerr << "Error during AST build process: " << e.what() << '\n';
     }
 
     // Codegen
     IRGenerator IRgen;
-    llvm::Value *result = ast[0]->accept(IRgen);
+    llvm::Value *result = astRoot->accept(IRgen);
 
     CodegenContext &ctx = IRgen.getContext();
     ctx.IRBuilder.CreateRet(result);

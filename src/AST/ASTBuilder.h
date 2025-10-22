@@ -41,7 +41,14 @@ class ASTBuilder {
      * @param ctx Base program context.
      * @return Vector with the program's nodes.
      */
-    std::vector<std::unique_ptr<ASTNode>> visit(TParser::ProgramContext *ctx);
+    std::unique_ptr<ASTNode> visit(TParser::ProgramContext *ctx);
+
+    /**
+     * @brief Visits the context of a block of code.
+     * @param ctx Block context.
+     * @return AST node representing a block.
+     */
+    std::unique_ptr<ASTNode> visit(TParser::BlockContext *ctx);
 
     /**
      * @brief Visits the context of a statement.

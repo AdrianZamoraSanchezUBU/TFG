@@ -10,11 +10,14 @@
 #include <memory>
 #include <string>
 #include <variant>
+#include <vector>
+
 // Forward declarations
 class IRGenerator;
 namespace llvm {
 class Value;
-}
+class Function;
+} // namespace llvm
 
 /**
  * @class ASTNode
@@ -24,7 +27,6 @@ class Value;
  * that make up the AST.
  */
 class ASTNode {
-  private:
   public:
     virtual ~ASTNode() = default;
 
@@ -48,6 +50,44 @@ class ASTNode {
      * @see IRGenerator
      */
     virtual llvm::Value *accept(IRGenerator &visitor) = 0;
+
+    /**
+     * @brief Prints data about this node
+     */
+    virtual void print() = 0;
+};
+
+/**
+ *
+ */
+class CodeBlockNode : public ASTNode {
+    std::vector<std::unique_ptr<ASTNode>> statements;
+    // TODO: Scopes?
+
+  public:
+    /**
+     * @brief Constructor for the CodeBlock node.
+     * @param stmt Nodes associated to the statement of this block.
+     */
+    explicit CodeBlockNode(std::vector<std::unique_ptr<ASTNode>> stmt) : statements(std::move(stmt)) {}
+
+    ASTNode *getStmt(int i) const { return statements[i].get(); }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override {
+        // Dynamic cast to LiteralNode and value check
+        if (auto o = dynamic_cast<const CodeBlockNode *>(other)) {
+            return statements == o->statements;
+        }
+
+        return false;
+    }
+
+    /// @copydoc ASTNode::print
+    void print() { std::cout << "CODE BLOCK" << std::endl; }
+
+    /// @copydoc ASTNode::accept
+    llvm::Value *accept(IRGenerator &visitor) override;
 };
 
 /**
@@ -101,6 +141,9 @@ class LiteralNode : public ASTNode {
 
         return ""; // Unreachable
     }
+
+    /// @copydoc ASTNode::print
+    void print() { std::cout << "LITERAL NODE" << std::endl; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -177,6 +220,9 @@ class BinaryExprNode : public ASTNode {
 
         return false;
     }
+
+    /// @copydoc ASTNode::print
+    void print() { std::cout << "BINARY EXPR NODE" << std::endl; }
 
     /// @copydoc ASTNode::accept
     llvm::Value *accept(IRGenerator &visitor) override;

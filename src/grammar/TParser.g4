@@ -5,7 +5,7 @@ options {
 }
 
 /* Main structures */
-program: stmt*;
+program: block;
 
 block: LBRACE stmt* RBRACE;
 

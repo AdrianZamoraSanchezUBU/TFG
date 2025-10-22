@@ -1,1 +1,1 @@
-"string" == "string";
+{"string" == "string";}
