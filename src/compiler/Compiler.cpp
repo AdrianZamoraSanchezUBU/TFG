@@ -3,7 +3,7 @@
 bool Compiler::lex() {
     // Reads the input file and generates the lexer
     std::string fileContent = readFile(flags.inputFile);
-    inputStream = std::make_unique<antlr4::ANTLRInputStream>(readFile(flags.inputFile));
+    inputStream = std::make_unique<antlr4::ANTLRInputStream>(fileContent);
 
     lexer = std::make_unique<TLexer>(inputStream.get());
 
@@ -88,11 +88,11 @@ bool Compiler::analyze() {
 
 bool Compiler::generateIR() {
     // IRGenerator and IR context
-    IRGenerator IRgen;
-    CodegenContext &ctx = IRgen.getContext();
+    IRGenerator &IRgen = getIRgenerator();
+    CodegenContext &ctx = getIRContext();
 
     // FIXME: REMOVE WHEN FUNCTIONS ARE IMPLEMENTED
-    if (auto *block = dynamic_cast<CodeBlockNode *>(ast.get())) {
+    if (auto *block = dynamic_cast<CodeBlockNode *>(getAST())) {
         llvm::Value *F = block->accept(IRgen);
 
         llvm::Value *result = block->getStmt(0)->accept(IRgen);

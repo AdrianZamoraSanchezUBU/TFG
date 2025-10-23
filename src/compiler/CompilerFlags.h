@@ -12,8 +12,8 @@
 struct CompilerFlags {
     std::string inputFile;
     std::string outputFile;
-    bool visualizeAST;
-    bool debug;
+    bool visualizeAST = false;
+    bool debug = false;
 };
 
 /**

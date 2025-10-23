@@ -3,30 +3,10 @@
 #include <fstream>
 #include <sstream>
 
-#include "AST.h"
-#include "ASTBuilder.h"
-#include "IRGenerator.h"
-#include "ParserErrorListener.h"
-#include "TLexer.h"
-#include "TParser.h"
-#include "antlr4-runtime.h"
+#include "Compiler.h"
 #include <llvm/AsmParser/Parser.h>
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/raw_ostream.h>
-
-/// copydoc readFile
-std::string readFile(const std::string fileName) {
-    std::ifstream testFile(fileName);
-
-    if (!testFile.is_open()) {
-        throw std::runtime_error("Unable to open file: " + fileName);
-    }
-
-    std::ostringstream buffer;
-    buffer << testFile.rdbuf(); // Reads the file
-
-    return buffer.str();
-}
 
 /**
  * @brief Compares two strings in IR format
@@ -62,9 +42,8 @@ bool IRsAreEqual(const std::string &a, const std::string &b, llvm::LLVMContext &
     modA->print(rsoA, nullptr);
     modB->print(rsoB, nullptr);
 
-    // Shows both IR strings
-    std::cout << "=== IR A ===\n" << rsoA.str() << "\n";
-    std::cout << "=== IR B ===\n" << rsoB.str() << "\n";
+    std::cout << rsoA.str() << std::endl;
+    std::cout << rsoB.str() << std::endl;
 
     return rsoA.str() == rsoB.str();
 }
@@ -76,46 +55,26 @@ bool IRsAreEqual(const std::string &a, const std::string &b, llvm::LLVMContext &
  * @return Generated IR code.
  */
 bool testIR(const std::string &fileName, std::string expectedIR) {
-    std::string fileContent = readFile(fileName);
+    CompilerFlags flags;
+    flags.inputFile = fileName;
 
-    // Lexing process
-    antlr4::ANTLRInputStream input(fileContent);
-    TLexer lexer(&input);
+    Compiler compiler(flags);
 
-    antlr4::CommonTokenStream tokens(&lexer);
-    tokens.fill();
-
-    // Parsing process
-    TParser parser(&tokens);
-
-    parser.removeErrorListeners();
-    auto *errorListener = new ParserErrorListener();
-    parser.addErrorListener(errorListener);
-
-    TParser::ProgramContext *tree = parser.program();
-
-    /* AST build process */
-    ASTBuilder builder;
-    std::unique_ptr<ASTNode> astRoot;
-
-    try {
-        astRoot = builder.visit(tree);
-    } catch (const std::exception &e) {
-        std::cerr << "Error during AST build process: " << e.what() << '\n';
-    }
-
-    // Codegen
-    IRGenerator IRgen;
-    llvm::Value *result = astRoot->accept(IRgen);
-
-    CodegenContext &ctx = IRgen.getContext();
-    ctx.IRBuilder.CreateRet(result);
+    if (!compiler.lex())
+        return false;
+    if (!compiler.parse())
+        return false;
+    if (!compiler.analyze())
+        return false;
+    if (!compiler.generateIR())
+        return false;
 
     std::string rawIRString;
     llvm::raw_string_ostream rso(rawIRString);
-    ctx.IRModule->print(rso, nullptr);
 
-    return IRsAreEqual(rso.str(), expectedIR, ctx.IRContext);
+    compiler.getIRContext().IRModule->print(rso, nullptr);
+
+    return IRsAreEqual(rso.str(), expectedIR, compiler.getIRContext().IRContext);
 }
 
 TEST(IRTest, aritmeticExpr) {

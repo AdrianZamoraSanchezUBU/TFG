@@ -46,7 +46,7 @@ class Compiler {
     std::shared_ptr<antlr4::CommonTokenStream> tokenList = nullptr;
     std::unique_ptr<ASTNode> ast = nullptr;
     SymbolTable symTable;
-    CodegenContext llvmContext;
+    std::unique_ptr<IRGenerator> IRgen;
 
     /// Lasting data structures
     std::unique_ptr<antlr4::ANTLRInputStream> inputStream;
@@ -61,7 +61,11 @@ class Compiler {
      * @brief Compiler default constructor.
      * @param flagStruct Structure with the compiler flags data.
      */
-    Compiler(CompilerFlags flagsStruct) : flags(flagsStruct){};
+    Compiler(CompilerFlags flagsStruct) : flags(flagsStruct) {
+        if (!IRgen) {
+            IRgen = std::make_unique<IRGenerator>();
+        }
+    };
 
     /**
      * @brief Lexical analysis phase of the compiler.
@@ -78,7 +82,7 @@ class Compiler {
     /**
      * @brief AST getter.
      */
-    std::unique_ptr<ASTNode> getAST() { return std::move(ast); }
+    ASTNode *getAST() { return ast.get(); }
 
     /**
      * @brief Semantic analysis phase of the compiler.
@@ -91,4 +95,14 @@ class Compiler {
      * @return `true` if success, `false` otherwise.
      */
     bool generateIR();
+
+    /**
+     * @brief IRGenerator CodegenContext getter;
+     */
+    CodegenContext &getIRContext() { return getIRgenerator().getContext(); }
+
+    /**
+     * @brief llvm IRGenerator getter;
+     */
+    IRGenerator &getIRgenerator() { return *IRgen; }
 };

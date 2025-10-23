@@ -3,12 +3,7 @@
 #include <fstream>
 #include <sstream>
 
-#include "AST.h"
-#include "ASTBuilder.h"
-#include "ParserErrorListener.h"
-#include "TLexer.h"
-#include "TParser.h"
-#include "antlr4-runtime.h"
+#include "Compiler.h"
 
 /// copydoc readFile
 std::string readFile(const std::string fileName) {
@@ -30,43 +25,20 @@ std::string readFile(const std::string fileName) {
  * @param fileName Name of the file with the code to test.
  * @return Root node of the generated AST.
  */
-std::unique_ptr<ASTNode> runASTTest(const std::string &fileName) {
-    std::string fileContent = readFile(fileName);
-
-    // Lexing process
-    antlr4::ANTLRInputStream input(fileContent);
-    TLexer lexer(&input);
-
-    antlr4::CommonTokenStream tokens(&lexer);
-    tokens.fill();
-
-    // Parsing process
-    TParser parser(&tokens);
-
-    parser.removeErrorListeners();
-    auto *errorListener = new ParserErrorListener();
-    parser.addErrorListener(errorListener);
-
-    TParser::ProgramContext *tree = parser.program();
-
-    // AST build process
-    ASTBuilder builder;
-
-    try {
-        auto nodes = builder.visit(tree);
-        return std::move(nodes);
-    } catch (const std::exception &e) {
-        std::cerr << "Error during AST build process: " << e.what() << '\n';
-    }
-
-    return nullptr;
+ASTNode *runASTTest(const std::string &fileName, Compiler &compiler) {
+    compiler.lex();
+    compiler.parse();
+    return compiler.getAST();
 }
 
 TEST(ASTTest, Expr) {
     const std::string fileName = std::string(TEST_FILES_DIR) + "complexExpr.T";
 
-    // Result of the ASTBuilder
-    auto result = runASTTest(fileName);
+    CompilerFlags flags;
+    flags.inputFile = fileName;
+    Compiler compiler(flags);
+
+    ASTNode *result = runASTTest(fileName, compiler);
 
     /* Expected result */
     auto leftOperation =
@@ -75,7 +47,14 @@ TEST(ASTTest, Expr) {
     auto rightOperation =
         std::make_unique<BinaryExprNode>("+", std::make_unique<LiteralNode>(2), std::make_unique<LiteralNode>(1));
 
-    auto root = std::make_unique<BinaryExprNode>("-", std::move(leftOperation), std::move(rightOperation));
+    std::unique_ptr<BinaryExprNode> rootExpr =
+        std::make_unique<BinaryExprNode>("-", std::move(leftOperation), std::move(rightOperation));
+
+    std::vector<std::unique_ptr<ASTNode>> statements;
+
+    statements.push_back(std::move(rootExpr));
+
+    auto root = std::make_unique<CodeBlockNode>(std::move(statements));
 
     EXPECT_TRUE(result->equals(root.get())) << "Unexpected AST result with: " << fileName;
 }

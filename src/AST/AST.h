@@ -85,7 +85,13 @@ class CodeBlockNode : public ASTNode {
     bool equals(const ASTNode *other) const override {
         // Dynamic cast to LiteralNode and value check
         if (auto o = dynamic_cast<const CodeBlockNode *>(other)) {
-            return statements == o->statements;
+            for (int i = 0; i < statements.size(); i++) {
+                if (!getStmt(i)->equals(o->getStmt(i))) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         return false;

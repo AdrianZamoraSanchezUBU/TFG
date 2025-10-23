@@ -1,24 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <fstream>
-#include <sstream>
-
-#include "ParserErrorListener.h"
-#include "TLexer.h"
-#include "TParser.h"
-#include "antlr4-runtime.h"
-
-/// copydoc readFile
-std::string readFile(const std::string fileName) {
-    std::ifstream testFile(fileName);
-    if (!testFile.is_open()) {
-        throw std::runtime_error("Unable to open file: " + fileName);
-    }
-
-    std::ostringstream buffer;
-    buffer << testFile.rdbuf(); // Reads the file
-    return buffer.str();
-}
+#include "Compiler.h"
 
 /**
  * @brief Runs a test of the parser for a specific case.
@@ -27,27 +9,17 @@ std::string readFile(const std::string fileName) {
  * @return `true` if the parser accepted the code, `false` otherwise.
  */
 bool runParserTest(const std::string &fileName) {
-    std::string fileContent = readFile(fileName);
+    CompilerFlags flags;
+    flags.inputFile = fileName;
 
-    antlr4::ANTLRInputStream input(fileContent);
-    TLexer lexer(&input);
+    Compiler compiler(flags);
 
-    antlr4::CommonTokenStream tokens(&lexer);
-    tokens.fill();
+    if (!compiler.lex())
+        return false;
+    if (!compiler.parse())
+        return false;
 
-    TParser parser(&tokens);
-
-    parser.removeErrorListeners();
-    auto *errorListener = new ParserErrorListener();
-    parser.addErrorListener(errorListener);
-
-    TParser::ProgramContext *tree = parser.program();
-
-    // Verifies if an error is present
-    bool success = !errorListener->hasErrors();
-
-    delete errorListener;
-    return success;
+    return true;
 }
 
 TEST(ParserTest, BasicArithmeticExpr) {
