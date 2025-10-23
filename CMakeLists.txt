@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Including header files
 include_directories(
+    ${PROJECT_SOURCE_DIR}/src/compiler
     ${PROJECT_SOURCE_DIR}/src/grammar
     ${PROJECT_SOURCE_DIR}/src/AST
     ${PROJECT_SOURCE_DIR}/src/semantic
@@ -14,6 +15,8 @@ include_directories(
 link_directories(/usr/local/lib)
 
 add_library(compilerLib STATIC
+    src/compiler/Compiler.cpp
+    src/compiler/CompilerFlags.cpp
     src/grammar/TLexer.cpp
     src/grammar/TParser.cpp
     src/AST/AST.cpp
