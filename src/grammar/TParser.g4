@@ -5,12 +5,13 @@ options {
 }
 
 /* Main structures */
-program: block;
+program: block ;
 
-block: LBRACE stmt* RBRACE;
+block: LBRACE stmt* RBRACE ;
 
-stmt
-	: expr SEMICOLON
+stmt: expr SEMICOLON
+	| functionDeclaration
+	| functionCall SEMICOLON
 	;
 
 expr
@@ -40,3 +41,19 @@ literal
 	| FLOAT_LITERAL	
 	| STRING_LITERAL
    	;
+
+variableDec : type IDENTIFIER ;
+
+functionDeclaration: type FUNCTION IDENTIFIER LPAREN params? RPAREN block ;
+
+functionCall: IDENTIFIER LPAREN (operand (COMMA operand)*)? RPAREN ;
+
+params: type IDENTIFIER (COMMA type IDENTIFIER)* ;
+
+type
+	: TYPE_INT
+	| TYPE_FLOAT
+	| TYPE_CHAR
+	| TYPE_STRING
+	| TYPE_BOOLEAN
+	;

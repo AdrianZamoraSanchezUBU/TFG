@@ -4,6 +4,16 @@ options {
     caseInsensitive = false;
 }
 
+/* KEYWORDs */
+FUNCTION : 'function' ;
+
+// Types
+TYPE_INT    : 'int' ;
+TYPE_FLOAT  : 'float' ;
+TYPE_CHAR   : 'char' ;
+TYPE_STRING : 'string' ;
+TYPE_BOOLEAN : 'bool' ;
+
 /* SYMBOLS */
 PLUS  : '+' ;
 MINUS : '-' ;
@@ -16,6 +26,7 @@ LT : '<' ;
 LE : '<=' ;
 GT : '>' ;
 GE : '>=' ;
+ASSIGN : '=' ;
 
 LPAREN : '(' ;
 RPAREN : ')' ;
@@ -24,6 +35,7 @@ LBRACE : '{' ;
 RBRACE : '}' ;
 
 SEMICOLON : ';' ;
+COMMA : ',' ;
 
 /* COMPONENTS */
 fragment DIGIT  : [0-9] ;

@@ -21,6 +21,11 @@ class Function;
 } // namespace llvm
 
 /**
+ * @brief Supported types in the AST
+ */
+enum SupportedTypes { TYPE_INT, TYPE_FLOAT, TYPE_CHAR, TYPE_STRING, TYPE_BOOL };
+
+/**
  * @class ASTNode
  * @brief Represents a generic AST node.
  *
@@ -160,7 +165,7 @@ class LiteralNode : public ASTNode {
     }
 
     /// @copydoc ASTNode::print
-    void print() { std::cout << "LITERAL NODE" << std::endl; }
+    void print() { std::cout << "LITERAL NODE" << getValue() << std::endl; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -242,7 +247,150 @@ class BinaryExprNode : public ASTNode {
     }
 
     /// @copydoc ASTNode::print
-    void print() { std::cout << "BINARY EXPR NODE" << std::endl; }
+    void print() { std::cout << "BINARY EXPR NODE" << getValue() << std::endl; }
+
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
+    llvm::Value *accept(IRGenerator &visitor) override;
+};
+
+/**
+ * @class VariableDec
+ * @brief Represents a variable declaration in the AST.
+ *
+ * This class represents a variable declaration within the AST,
+ * it has a value type and could be initialized with a value.
+ *
+ * @see ASTNode
+ * @see CodeBlock
+ */
+class VariableDec : public ASTNode {
+    SupportedTypes type;
+    std::string identifier;
+    std::unique_ptr<ASTNode> init;
+
+  public:
+    /**
+     * @brief Constructor for a initialized VariableDec node.
+     * @param t Type of the variable.
+     * @param id Identifier of this variable.
+     * @param ini Initialized value for the variable.
+     */
+    explicit VariableDec(SupportedTypes t, std::string id, std::unique_ptr<ASTNode> ini)
+        : type(t), identifier(id), init(std::move(ini)){};
+
+    /**
+     * @brief Constructor for a uninitialized VariableDec node.
+     * @param t Type of the variable.
+     * @param id Identifier of this variable.
+     */
+    explicit VariableDec(SupportedTypes t, std::string id) : type(t), identifier(id), init(nullptr){};
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return identifier; }
+
+    /**
+     * @brief Getter for type.
+     */
+    SupportedTypes getType() const { return type; }
+
+    /// @copydoc ASTNode::print
+    void print() { std::cout << "VARIABLE DECLARATION NODE" << getValue() << std::endl; }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override {
+        if (auto o = dynamic_cast<const VariableDec *>(other)) {
+            // Returns the result of comparing all the attributes
+            return type == o->type && identifier == o->identifier && init.get()->equals(o->init.get());
+        }
+
+        return false;
+    }
+
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
+    llvm::Value *accept(IRGenerator &visitor) override;
+};
+
+/**
+ * @class VariableAssign
+ * @brief Represents a variable assignation in the AST.
+ *
+ * This class represents a variable assignation within the AST,
+ * it has a identifier and a new value assigned to this identifier.
+ *
+ * @see ASTNode
+ * @see CodeBlock
+ */
+class VariableAssign : public ASTNode {
+    std::string identifier;
+    std::unique_ptr<ASTNode> assign;
+
+  public:
+    /**
+     * @brief Constructor for VariableAssign node.
+     * @param id Identifier of this variable.
+     * @param val Value assigned to the variable.
+     */
+    explicit VariableAssign(std::string id, std::unique_ptr<ASTNode> val) : identifier(id), assign(std::move(val)){};
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return identifier; }
+
+    /// @copydoc ASTNode::print
+    void print() { std::cout << "VARIABLE ASSIGN NODE" << getValue() << std::endl; }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override {
+        if (auto o = dynamic_cast<const VariableAssign *>(other)) {
+            // Returns the result of comparing all the attributes
+            return identifier == o->identifier && assign.get()->equals(o->assign.get());
+        }
+
+        return false;
+    }
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
+    llvm::Value *accept(IRGenerator &visitor) override;
+};
+
+/**
+ * @class FunctionDecNode
+ * @brief Represents a function declaration in the AST.
+ *
+ * This class represents a function declaration within the AST,
+ * it has a return type, a CodeBlock and parameters.
+ *
+ * @see ASTNode
+ * @see CodeBlock
+ */
+class FunctionDecNode : public ASTNode {
+    std::string identifier;
+    std::vector<VariableDec> paramList;
+    std::unique_ptr<CodeBlockNode> codeBlock;
+
+  public:
+    /**
+     * @brief Constructor for the FunctionDecNode.
+     * @param id Name os the function.
+     */
+    explicit FunctionDecNode(std::string id, std::vector<VariableDec> params, std::unique_ptr<CodeBlockNode> code)
+        : identifier(id), paramList(params), codeBlock(std::move(code)){};
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return identifier; }
+
+    /// @copydoc ASTNode::print
+    void print() { std::cout << "FUNCTION DECLARATION NODE: " << getValue() << std::endl; }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override { return false; }
 
     /// @copydoc ASTNode::accept(SemanticVisitor &)
     void *accept(SemanticVisitor &visitor) override;
