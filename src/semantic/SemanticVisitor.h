@@ -15,6 +15,8 @@ class SemanticVisitor {
     SymbolTable symtab;
 
   public:
+    SemanticVisitor() { symtab = SymbolTable(); }
+
     /**
      * @brief Checks the correctness of a binary expression node.
      * @param node Node to be visited.
@@ -32,4 +34,9 @@ class SemanticVisitor {
      * @param node Node to be visited.
      */
     void *visit(VariableDecNode &node);
+
+    /**
+     * @brief Prints the content of the SymbolTable.
+     */
+    void printSymbolTable() { symtab.print(); }
 };

@@ -39,3 +39,10 @@ bool SymbolTable::reach(std::string element1, std::string element2) {
     }
     return false;
 }
+
+void SymbolTable::print() {
+    // Prints all the scopes
+    for (const auto &scope : scopes) {
+        scope->print();
+    }
+}

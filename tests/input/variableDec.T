@@ -1,3 +1,4 @@
 {
     int a;
+    string b;
 }

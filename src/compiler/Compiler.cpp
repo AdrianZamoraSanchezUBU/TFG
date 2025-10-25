@@ -25,14 +25,14 @@ bool Compiler::lex() {
     // Shows the tokens if the debug flag is set to true
     if (flags.debug) {
         // Printing the input text
-        std::cout << "* COMPILER INPUT: \n" << fileContent << "\n" << std::endl;
+        std::cout << "****** COMPILER INPUT ****** \n" << fileContent << "\n" << std::endl;
 
         // Printing tokens
-        std::cout << "* TOKEN LIST: " << std::endl;
+        std::cout << "****** TOKEN LIST ******" << std::endl;
         for (auto token : tokenList->getTokens()) {
             std::cout << token->toString() << std::endl;
         }
-        std::cout << "\b" << std::endl;
+        std::cout << std::endl;
     }
 
     return true;
@@ -66,7 +66,7 @@ bool Compiler::parse() {
             std::string command = "xelatex -interaction=nonstopmode " + texName + ".tex > /dev/null 2>&1";
 
             if (std::system(command.c_str()) == 0 && flags.debug) {
-                std::cout << "* AST VISUALIZATION GENERATED AT: ./AST.pdf\n" << std::endl;
+                std::cout << "****** AST VISUALIZATION GENERATED AT: ./AST.pdf ******\n" << std::endl;
             }
 
             // Clean the .log .aux and .tex files
@@ -83,6 +83,16 @@ bool Compiler::parse() {
 
 // TODO: implement semantic analysis phase when functions or variables are implemented
 bool Compiler::analyze() {
+    SemanticVisitor visitor;
+
+    getAST()->accept(visitor);
+
+    if (flags.debug) {
+        std::cout << "****** SYMBOL TABLE ******" << std::endl;
+        visitor.printSymbolTable();
+        std::cout << std::endl;
+    }
+
     return true;
 }
 
@@ -93,7 +103,7 @@ bool Compiler::generateIR() {
 
     // FIXME: REMOVE WHEN FUNCTIONS ARE IMPLEMENTED
     if (auto *block = dynamic_cast<CodeBlockNode *>(getAST())) {
-        llvm::Value *F = block->accept(IRgen);
+        llvm::Value *F = getAST()->accept(IRgen);
 
         llvm::Value *result = block->getStmt(0)->accept(IRgen);
 
@@ -105,7 +115,7 @@ bool Compiler::generateIR() {
 
     // Debug IR print
     if (flags.debug) {
-        std::cout << "* GENERATED LLVM IR: " << std::endl;
+        std::cout << "****** GENERATED LLVM IR ******" << std::endl;
         ctx.IRModule->print(llvm::outs(), nullptr);
     }
 

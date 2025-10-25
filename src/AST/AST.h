@@ -80,6 +80,14 @@ class CodeBlockNode : public ASTNode {
      */
     explicit CodeBlockNode(std::vector<std::unique_ptr<ASTNode>> stmt) : statements(std::move(stmt)) {}
 
+    /**
+     * @brief Returns the ammount of statements in this block.
+     */
+    int getStmtCount() { return statements.size(); }
+
+    /**
+     * @brief Returns the statement with index i.
+     */
     ASTNode *getStmt(int i) const { return statements[i].get(); }
 
     /// @copydoc ASTNode::equals

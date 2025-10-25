@@ -38,6 +38,18 @@ class Symbol {
      */
     Symbol(std::string id, ASTNode *astnode, llvm::Value *val, SymbolCategory cat)
         : ID(id), node(astnode), llvmVal(val), category(cat) {}
+
+    Symbol(std::string id, ASTNode *astnode, SymbolCategory cat) : ID(id), node(astnode), category(cat) {}
+
+    /**
+     * @brief Getter for ID;
+     */
+    std::string getID() { return ID; }
+
+    /**
+     * @brief Prints the Symbol data.
+     */
+    std::string print() const;
 };
 
 /**
@@ -79,4 +91,9 @@ class Scope {
      * @brief Returns the level of this Scope.
      */
     int getLevel() { return level; }
+
+    /**
+     * @brief Prints Scope data.
+     */
+    void print();
 };

@@ -23,6 +23,7 @@ add_library(compilerLib STATIC
     src/AST/ASTBuilder.cpp
     src/semantic/SemanticVisitor.cpp
     src/semantic/SymbolTable.cpp
+    src/semantic/Scope.cpp
 	src/LLVM/IRGenerator.cpp
 )
 

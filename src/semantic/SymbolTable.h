@@ -47,4 +47,9 @@ class SymbolTable {
      * @brief Returns the current Scope.
      */
     Scope *getCurrentScope() { return currentScope; }
+
+    /**
+     * @brief Prints all the Scopes and its Symbols.
+     */
+    void print();
 };
