@@ -6,6 +6,7 @@
  */
 
 #pragma once
+#include "SupportedTypes.h"
 #include <iostream>
 #include <memory>
 #include <string>
@@ -19,11 +20,6 @@ namespace llvm {
 class Value;
 class Function;
 } // namespace llvm
-
-/**
- * @brief Supported types in the AST
- */
-enum SupportedTypes { TYPE_INT, TYPE_FLOAT, TYPE_CHAR, TYPE_STRING, TYPE_BOOL };
 
 /**
  * @class ASTNode
@@ -266,7 +262,7 @@ class BinaryExprNode : public ASTNode {
  * @see ASTNode
  * @see CodeBlock
  */
-class VariableDec : public ASTNode {
+class VariableDecNode : public ASTNode {
     SupportedTypes type;
     std::string identifier;
     std::unique_ptr<ASTNode> init;
@@ -278,7 +274,7 @@ class VariableDec : public ASTNode {
      * @param id Identifier of this variable.
      * @param ini Initialized value for the variable.
      */
-    explicit VariableDec(SupportedTypes t, std::string id, std::unique_ptr<ASTNode> ini)
+    explicit VariableDecNode(SupportedTypes t, const std::string &id, std::unique_ptr<ASTNode> ini)
         : type(t), identifier(id), init(std::move(ini)){};
 
     /**
@@ -286,7 +282,7 @@ class VariableDec : public ASTNode {
      * @param t Type of the variable.
      * @param id Identifier of this variable.
      */
-    explicit VariableDec(SupportedTypes t, std::string id) : type(t), identifier(id), init(nullptr){};
+    explicit VariableDecNode(SupportedTypes t, const std::string &id) : type(t), identifier(id), init(nullptr){};
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return identifier; }
@@ -301,7 +297,7 @@ class VariableDec : public ASTNode {
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
-        if (auto o = dynamic_cast<const VariableDec *>(other)) {
+        if (auto o = dynamic_cast<const VariableDecNode *>(other)) {
             // Returns the result of comparing all the attributes
             return type == o->type && identifier == o->identifier && init.get()->equals(o->init.get());
         }
@@ -326,7 +322,7 @@ class VariableDec : public ASTNode {
  * @see ASTNode
  * @see CodeBlock
  */
-class VariableAssign : public ASTNode {
+class VariableAssignNode : public ASTNode {
     std::string identifier;
     std::unique_ptr<ASTNode> assign;
 
@@ -336,7 +332,8 @@ class VariableAssign : public ASTNode {
      * @param id Identifier of this variable.
      * @param val Value assigned to the variable.
      */
-    explicit VariableAssign(std::string id, std::unique_ptr<ASTNode> val) : identifier(id), assign(std::move(val)){};
+    explicit VariableAssignNode(const std::string &id, std::unique_ptr<ASTNode> val)
+        : identifier(id), assign(std::move(val)){};
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return identifier; }
@@ -346,7 +343,7 @@ class VariableAssign : public ASTNode {
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
-        if (auto o = dynamic_cast<const VariableAssign *>(other)) {
+        if (auto o = dynamic_cast<const VariableAssignNode *>(other)) {
             // Returns the result of comparing all the attributes
             return identifier == o->identifier && assign.get()->equals(o->assign.get());
         }
@@ -372,7 +369,7 @@ class VariableAssign : public ASTNode {
  */
 class FunctionDecNode : public ASTNode {
     std::string identifier;
-    std::vector<VariableDec> paramList;
+    std::vector<VariableDecNode> paramList;
     std::unique_ptr<CodeBlockNode> codeBlock;
 
   public:
@@ -380,8 +377,10 @@ class FunctionDecNode : public ASTNode {
      * @brief Constructor for the FunctionDecNode.
      * @param id Name os the function.
      */
-    explicit FunctionDecNode(std::string id, std::vector<VariableDec> params, std::unique_ptr<CodeBlockNode> code)
-        : identifier(id), paramList(params), codeBlock(std::move(code)){};
+    explicit FunctionDecNode(const std::string &id,
+                             std::vector<VariableDecNode> &params,
+                             std::unique_ptr<CodeBlockNode> code)
+        : identifier(id), paramList(std::move(params)), codeBlock(std::move(code)){};
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return identifier; }

@@ -27,3 +27,12 @@ void *BinaryExprNode::accept(SemanticVisitor &visitor) {
 llvm::Value *BinaryExprNode::accept(IRGenerator &visitor) {
     return visitor.visit(*this);
 }
+
+/* VariableDecNode */
+void *VariableDecNode::accept(SemanticVisitor &visitor) {
+    return visitor.visit(*this);
+};
+
+llvm::Value *VariableDecNode::accept(IRGenerator &visitor) {
+    return visitor.visit(*this);
+};

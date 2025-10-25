@@ -7,3 +7,7 @@ void *SemanticVisitor::visit(BinaryExprNode &node) {
 void *SemanticVisitor::visit(CodeBlockNode &node) {
     return nullptr;
 }
+
+void *SemanticVisitor::visit(VariableDecNode &node) {
+    return nullptr;
+}

@@ -151,3 +151,7 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
     llvm::errs() << "Unsupported binary operation: " << op << " on given types.\n";
     return nullptr;
 }
+
+llvm::Value *IRGenerator::visit(VariableDecNode &node) {
+    return llvm::UndefValue::get(llvm::PointerType::get(llvm::Type::getInt8Ty(ctx.IRContext), 0));
+}

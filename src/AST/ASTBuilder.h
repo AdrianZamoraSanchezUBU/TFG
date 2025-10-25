@@ -8,6 +8,7 @@
  */
 
 #pragma once
+#include "SupportedTypes.h"
 #include "TParser.h"
 
 // Forward declaration
@@ -95,4 +96,16 @@ class ASTBuilder {
      * @return Node representing a literal value in the code.
      */
     std::unique_ptr<ASTNode> visit(TParser::LiteralContext *ctx);
+
+    /**
+     * @brief Visits the context of a variable declaration.
+     * @param ctx Variable declaration context.
+     * @return AST node associated the variable declaration.
+     */
+    std::unique_ptr<ASTNode> visit(TParser::VariableDecContext *ctx);
+
+    /**
+     * TODO
+     */
+    SupportedTypes visit(TParser::TypeContext *ctx);
 };

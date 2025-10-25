@@ -36,6 +36,15 @@ std::string includeTikzStyles() {
         minimum width=3.5em,
         minimum height=2.5em, 
         align=center
+    },
+    variableDecNode/.style={
+        draw, 
+        rectangle, 
+        fill=cyan!15!white, 
+        minimum size=3.5em,
+        minimum width=4.5em,
+        minimum height=2.8em, 
+        align=center
     }
 })";
 }
@@ -73,7 +82,6 @@ std::string includeTexHeader() {
 [Program,programNode)";
 }
 
-// Root of the program
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ProgramContext *ctx) {
 
     // AST visualization argument check
@@ -100,7 +108,6 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ProgramContext *ctx) {
     return entryBlock;
 }
 
-// Code block
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::BlockContext *ctx) {
     std::vector<std::unique_ptr<ASTNode>> stmt;
 
@@ -114,18 +121,17 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::BlockContext *ctx) {
     return codeBlock;
 }
 
-// Dispatcher for STMT
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::StmtContext *ctx) {
     if (ctx->expr()) {
         return visit(ctx->expr());
+    }
+    if (ctx->variableDec()) {
+        return visit(ctx->variableDec());
     }
 
     throw std::runtime_error("Not a valid stmt");
 }
 
-/* Expr management*/
-
-// Dispatcher for EXPR
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ExprContext *ctx) {
     if (auto aritmeticCtx = dynamic_cast<TParser::ArithmeticExprContext *>(ctx)) {
         return visit(aritmeticCtx);
@@ -135,12 +141,13 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ExprContext *ctx) {
         return visit(operandCtx);
     } else if (auto parenCtx = dynamic_cast<TParser::ParenExprContext *>(ctx)) {
         return visit(parenCtx->expr());
+    } else if (auto varDec = dynamic_cast<TParser::VariableDecContext *>(ctx)) {
+        return visit(varDec);
     }
 
     throw std::runtime_error("Not a valid expr");
 }
 
-// Arithmetic Expr
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ArithmeticExprContext *ctx) {
     std::string op = ctx->op->getText();
 
@@ -170,7 +177,6 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ArithmeticExprContext *ctx) 
     return exprNode;
 }
 
-// Logical Expr
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LogicalExprContext *ctx) {
     std::string op = ctx->comparisonOperator()->getText();
 
@@ -201,7 +207,6 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LogicalExprContext *ctx) {
     return exprNode;
 }
 
-/* Smaller components */
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::OperandExprContext *ctx) {
     auto operand = ctx->operand();
 
@@ -265,4 +270,39 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
     }
 
     throw std::runtime_error("Not a valid literal");
+}
+
+SupportedTypes ASTBuilder::visit(TParser::TypeContext *ctx) {
+    std::string typeString = ctx->getText();
+    SupportedTypes type;
+
+    // Type dispatch
+    if (ctx->TYPE_INT())
+        return SupportedTypes::TYPE_INT;
+    if (ctx->TYPE_FLOAT())
+        return SupportedTypes::TYPE_FLOAT;
+    if (ctx->TYPE_CHAR())
+        return SupportedTypes::TYPE_CHAR;
+    if (ctx->TYPE_STRING())
+        return SupportedTypes::TYPE_STRING;
+    if (ctx->TYPE_BOOLEAN())
+        return SupportedTypes::TYPE_BOOL;
+
+    throw std::runtime_error("Not a valid type");
+}
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableDecContext *ctx) {
+    SupportedTypes type = visit(ctx->type());
+
+    if (visualizeFlag) {
+        std::ofstream texFile("AST.tex", std::ios::app);
+
+        // Node information
+        texFile << "[{" << typeToString(type) << " " << ctx->IDENTIFIER()->getText() << "},variableDecNode]"
+                << std::endl;
+
+        texFile.close();
+    }
+
+    return std::make_unique<VariableDecNode>(type, ctx->IDENTIFIER()->getText());
 }

@@ -26,7 +26,7 @@ LT : '<' ;
 LE : '<=' ;
 GT : '>' ;
 GE : '>=' ;
-ASSIGN : '=' ;
+ASSIGN_OPERATOR : '=' ;
 
 LPAREN : '(' ;
 RPAREN : ')' ;

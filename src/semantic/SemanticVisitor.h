@@ -26,4 +26,10 @@ class SemanticVisitor {
      * @param node Node to be visited.
      */
     void *visit(CodeBlockNode &node);
+
+    /**
+     * @brief Visits a variable declaration node.
+     * @param node Node to be visited.
+     */
+    void *visit(VariableDecNode &node);
 };

@@ -10,7 +10,9 @@ program: block ;
 block: LBRACE stmt* RBRACE ;
 
 stmt: expr SEMICOLON
-	| functionDeclaration
+	| variableDec SEMICOLON
+	| variableAssign SEMICOLON
+	| functionDeclaration SEMICOLON	
 	| functionCall SEMICOLON
 	;
 
@@ -34,6 +36,7 @@ comparisonOperator
 operand
 	: literal
 	| IDENTIFIER
+	| functionCall
 	;
 
 literal
@@ -43,6 +46,11 @@ literal
    	;
 
 variableDec : type IDENTIFIER ;
+
+variableAssign : 
+	| IDENTIFIER ASSIGN_OPERATOR expr
+	| variableDec ASSIGN_OPERATOR expr
+	;
 
 functionDeclaration: type FUNCTION IDENTIFIER LPAREN params? RPAREN block ;
 
