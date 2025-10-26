@@ -13,7 +13,9 @@ llvm::Value *CodeBlockNode::accept(IRGenerator &visitor) {
 }
 
 /* LiteralNode visitors */
-void *LiteralNode::accept(SemanticVisitor &visitor) {}
+void *LiteralNode::accept(SemanticVisitor &visitor) {
+    return visitor.visit(*this);
+}
 
 llvm::Value *LiteralNode::accept(IRGenerator &visitor) {
     return visitor.visit(*this);

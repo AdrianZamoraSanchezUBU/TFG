@@ -2,7 +2,6 @@
 #include <string.h>
 
 llvm::Value *IRGenerator::visit(CodeBlockNode &node) {
-
     return nullptr;
 }
 
@@ -147,6 +146,7 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
 llvm::Value *IRGenerator::visit(VariableDecNode &node) {
     llvm::Type *varType = nullptr;
 
+    // Type dispatch from Supported Type to LLVM::Type
     switch (node.getType()) {
     case SupportedTypes::TYPE_INT:
         varType = llvm::Type::getInt32Ty(ctx.IRContext);
@@ -165,9 +165,16 @@ llvm::Value *IRGenerator::visit(VariableDecNode &node) {
         break;
     }
 
-    llvm::AllocaInst *allocaInst = ctx.IRBuilder.CreateAlloca(varType, nullptr, node.getValue());
+    // Gets the current function
+    llvm::Function *currentFunction = ctx.getCurrentFunction();
 
-    // Registers this new alloca to the Symbol Table
+    // Creates a temporal builder that points to the begin of the current basic block
+    llvm::IRBuilder<> tmpBuilder(&currentFunction->getEntryBlock(), currentFunction->getEntryBlock().begin());
+
+    // Allocating memory for the variable
+    llvm::AllocaInst *allocaInst = tmpBuilder.CreateAlloca(varType, nullptr, node.getValue());
+
+    // Registers this new allocation associated with a Symbol in the SymbolTable
     symtab.addLlvmVal(node.getValue(), allocaInst);
 
     return allocaInst;

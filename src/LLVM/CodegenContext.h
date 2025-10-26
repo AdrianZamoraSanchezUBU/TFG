@@ -14,13 +14,13 @@
  * @brief Structure that contains the LLVM context of a compiled program.
  */
 struct CodegenContext {
-    /// @brief LLVM context.
+    /// LLVM context.
     llvm::LLVMContext IRContext;
 
-    /// @brief IR builder.
+    /// IR builder.
     llvm::IRBuilder<> IRBuilder;
 
-    /// @brief Module of the program to generate.
+    /// Module of the program to generate.
     std::unique_ptr<llvm::Module> IRModule;
 
     /// Current function
@@ -30,13 +30,19 @@ struct CodegenContext {
      * @brief Module and IRBuilder set up.
      */
     CodegenContext() : IRBuilder(IRContext), IRModule(std::make_unique<llvm::Module>("program", IRContext)) {
-        // Program main function set up
+        // Program main function and basic block set up
         llvm::FunctionType *FT = llvm::FunctionType::get(llvm::Type::getInt32Ty(IRContext), false);
         llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, "main", IRModule.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(IRContext, "entry", F);
 
+        // Sets the current function in the CodegenContext
         currentFunction = F;
 
         IRBuilder.SetInsertPoint(BB);
     }
+
+    /**
+     * Getter for current function
+     */
+    llvm::Function *getCurrentFunction() { return currentFunction; };
 };

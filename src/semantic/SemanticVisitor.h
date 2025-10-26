@@ -19,6 +19,12 @@ class SemanticVisitor {
     SemanticVisitor(SymbolTable &table) : symtab(table) {}
 
     /**
+     * @brief Needed visit
+     * @param node Node to be visited.
+     */
+    void *visit(LiteralNode &node);
+
+    /**
      * @brief Checks the correctness of a binary expression node.
      * @param node Node to be visited.
      */

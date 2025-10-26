@@ -1,5 +1,9 @@
 #include "SemanticVisitor.h"
 
+void *SemanticVisitor::visit(LiteralNode &node) {
+    return nullptr;
+}
+
 void *SemanticVisitor::visit(BinaryExprNode &node) {
     return nullptr;
 }
