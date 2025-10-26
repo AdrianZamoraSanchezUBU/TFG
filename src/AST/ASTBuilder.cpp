@@ -276,7 +276,7 @@ SupportedTypes ASTBuilder::visit(TParser::TypeContext *ctx) {
     std::string typeString = ctx->getText();
     SupportedTypes type;
 
-    // Type dispatch
+    // Type dispatch from tokens to Supported types
     if (ctx->TYPE_INT())
         return SupportedTypes::TYPE_INT;
     if (ctx->TYPE_FLOAT())

@@ -81,12 +81,13 @@ bool Compiler::parse() {
     return true;
 }
 
-// TODO: implement semantic analysis phase when functions or variables are implemented
 bool Compiler::analyze() {
     SemanticVisitor visitor;
 
+    // SymbolTable formation and semantic analysis process
     getAST()->accept(visitor);
 
+    // If in debug mode, prints all the symbols
     if (flags.debug) {
         std::cout << "****** SYMBOL TABLE ******" << std::endl;
         visitor.printSymbolTable();
