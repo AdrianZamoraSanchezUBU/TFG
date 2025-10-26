@@ -1,17 +1,9 @@
 #include "IRGenerator.h"
 #include <string.h>
 
-IRGenerator::IRGenerator() {}
-
 llvm::Value *IRGenerator::visit(CodeBlockNode &node) {
-    // Program main function set up
-    llvm::FunctionType *FT = llvm::FunctionType::get(llvm::Type::getInt32Ty(ctx.IRContext), false);
-    llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, "main", ctx.IRModule.get());
 
-    llvm::BasicBlock *BB = llvm::BasicBlock::Create(ctx.IRContext, "entry", F);
-    ctx.IRBuilder.SetInsertPoint(BB);
-
-    return F;
+    return nullptr;
 }
 
 llvm::Value *IRGenerator::visit(LiteralNode &node) {
@@ -153,5 +145,30 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(VariableDecNode &node) {
-    return llvm::UndefValue::get(llvm::PointerType::get(llvm::Type::getInt8Ty(ctx.IRContext), 0));
+    llvm::Type *varType = nullptr;
+
+    switch (node.getType()) {
+    case SupportedTypes::TYPE_INT:
+        varType = llvm::Type::getInt32Ty(ctx.IRContext);
+        break;
+    case SupportedTypes::TYPE_FLOAT:
+        varType = llvm::Type::getInt32Ty(ctx.IRContext);
+        break;
+    case SupportedTypes::TYPE_CHAR:
+        varType = llvm::Type::getInt32Ty(ctx.IRContext);
+        break;
+    case SupportedTypes::TYPE_STRING:
+        varType = llvm::PointerType::get(llvm::Type::getInt8Ty(ctx.IRContext), 0);
+        break;
+    case SupportedTypes::TYPE_BOOL:
+        varType = llvm::Type::getInt32Ty(ctx.IRContext);
+        break;
+    }
+
+    llvm::AllocaInst *allocaInst = ctx.IRBuilder.CreateAlloca(varType, nullptr, node.getValue());
+
+    // Registers this new alloca to the Symbol Table
+    symtab.addLlvmVal(node.getValue(), allocaInst);
+
+    return allocaInst;
 }

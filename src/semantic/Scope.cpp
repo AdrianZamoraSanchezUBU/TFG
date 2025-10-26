@@ -11,18 +11,19 @@ std::string Symbol::print() const {
 };
 
 bool Scope::contains(std::string id) {
-    // Look for the id in this scopes
+    // Look for the id in this Scope
     if (symbols.find(id) != symbols.end()) {
         return true;
     }
 
-    // Stops the search if the parent scope is the global scope
-    if (parent == nullptr) {
-        return false;
+    // Try to get the parent scope
+    if (auto p = parent.lock()) {
+        // Look for the id in parent
+        return p->contains(id);
     }
 
-    // Look for the id in parent
-    return parent->contains(id);
+    // No parent (global scope)
+    return false;
 }
 
 bool Scope::insertSymbol(Symbol symbol) {

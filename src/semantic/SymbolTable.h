@@ -4,6 +4,7 @@
  *
  * @author Adrián Zamora Sánchez
  */
+#pragma once
 #include "Scope.h"
 #include <vector>
 
@@ -12,21 +13,21 @@
  * @see Scope.h
  */
 class SymbolTable {
-    std::vector<std::unique_ptr<Scope>> scopes;
-    Scope *currentScope = nullptr;
+    std::vector<std::shared_ptr<Scope>> scopes;
+    std::shared_ptr<Scope> currentScope = nullptr;
     int nextScopeId = 0;
 
   public:
     SymbolTable() {
         // Global Scope with level 0
-        currentScope = new Scope(nextScopeId++, 0, nullptr);
+        currentScope = std::make_shared<Scope>(nextScopeId++, 0, nullptr);
         scopes.emplace_back(currentScope);
     }
 
     /**
      * @brief Creates a new Scope and uses it as current Scope.
      */
-    Scope *enterScope();
+    std::shared_ptr<Scope> enterScope();
 
     /**
      * @brief Exits the current Scope, changing the current Scope to its father Scope.
@@ -36,7 +37,7 @@ class SymbolTable {
     /**
      * @brief Finds the Scope that contains the key.
      */
-    Scope *findScope(std::string key);
+    std::shared_ptr<Scope> findScope(std::string key);
 
     /**
      * @brief Returns `true` if the first element can reach the second one, `false`otherwise.
@@ -46,7 +47,12 @@ class SymbolTable {
     /**
      * @brief Returns the current Scope.
      */
-    Scope *getCurrentScope() { return currentScope; }
+    std::shared_ptr<Scope> getCurrentScope() { return currentScope; }
+
+    /**
+     * @brief Adds a llvm value to the Symbol associated with the ID.
+     */
+    void addLlvmVal(std::string, llvm::Value *);
 
     /**
      * @brief Prints all the Scopes and its Symbols.

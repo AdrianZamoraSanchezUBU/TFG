@@ -4,6 +4,7 @@
  *
  * @author Adrián Zamora Sánchez
  */
+#pragma once
 #include "AST.h"
 #include "SymbolTable.h"
 
@@ -12,10 +13,10 @@
  * @see AST.h
  */
 class SemanticVisitor {
-    SymbolTable symtab;
+    SymbolTable &symtab;
 
   public:
-    SemanticVisitor() { symtab = SymbolTable(); }
+    SemanticVisitor(SymbolTable &table) : symtab(table) {}
 
     /**
      * @brief Checks the correctness of a binary expression node.

@@ -1,4 +1,3 @@
 {
     int a;
-    string b;
 }

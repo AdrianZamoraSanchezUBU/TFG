@@ -12,7 +12,7 @@ void *SemanticVisitor::visit(CodeBlockNode &node) {
 }
 
 void *SemanticVisitor::visit(VariableDecNode &node) {
-    Scope *currentScope = symtab.getCurrentScope();
+    std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
 
     Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE);
 

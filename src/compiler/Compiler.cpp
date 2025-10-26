@@ -82,15 +82,11 @@ bool Compiler::parse() {
 }
 
 bool Compiler::analyze() {
-    SemanticVisitor visitor;
+    getAST()->accept(*analyser);
 
-    // SymbolTable formation and semantic analysis process
-    getAST()->accept(visitor);
-
-    // If in debug mode, prints all the symbols
     if (flags.debug) {
         std::cout << "****** SYMBOL TABLE ******" << std::endl;
-        visitor.printSymbolTable();
+        analyser->printSymbolTable();
         std::cout << std::endl;
     }
 
@@ -98,19 +94,12 @@ bool Compiler::analyze() {
 }
 
 bool Compiler::generateIR() {
-    // IRGenerator and IR context
-    IRGenerator &IRgen = getIRgenerator();
-    CodegenContext &ctx = getIRContext();
+    CodegenContext &ctx = IRgen.get()->getContext();
 
     // FIXME: REMOVE WHEN FUNCTIONS ARE IMPLEMENTED
     if (auto *block = dynamic_cast<CodeBlockNode *>(getAST())) {
-        llvm::Value *F = getAST()->accept(IRgen);
+        llvm::Value *result = block->getStmt(0)->accept(*IRgen);
 
-        llvm::Value *result = block->getStmt(0)->accept(IRgen);
-
-        llvm::Function *func = llvm::cast<llvm::Function>(F);
-        llvm::BasicBlock *BB = &func->getEntryBlock();
-        ctx.IRBuilder.SetInsertPoint(BB);
         ctx.IRBuilder.CreateRet(result);
     }
 

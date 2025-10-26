@@ -47,6 +47,7 @@ class Compiler {
     std::unique_ptr<ASTNode> ast = nullptr;
     SymbolTable symTable;
     std::unique_ptr<IRGenerator> IRgen;
+    std::unique_ptr<SemanticVisitor> analyser;
 
     /// Lasting data structures
     std::unique_ptr<antlr4::ANTLRInputStream> inputStream;
@@ -62,9 +63,8 @@ class Compiler {
      * @param flagStruct Structure with the compiler flags data.
      */
     Compiler(CompilerFlags flagsStruct) : flags(flagsStruct) {
-        if (!IRgen) {
-            IRgen = std::make_unique<IRGenerator>();
-        }
+        analyser = std::make_unique<SemanticVisitor>(symTable);
+        IRgen = std::make_unique<IRGenerator>(symTable);
     };
 
     /**

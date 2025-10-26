@@ -12,6 +12,7 @@
 #pragma once
 #include "AST.h"
 #include "CodegenContext.h"
+#include "SymbolTable.h"
 
 class LiteralNode;
 class BinaryExprNode;
@@ -27,8 +28,8 @@ class BinaryExprNode;
  * @see CodegenContext
  */
 class IRGenerator {
-    /// @brief LLVM Context.
-    CodegenContext ctx;
+    CodegenContext ctx;  /// LLVM Context.
+    SymbolTable &symtab; /// Symbol Table reference.
 
   public:
     /**
@@ -36,7 +37,7 @@ class IRGenerator {
      *
      * Initializes the LLVM context.
      */
-    IRGenerator();
+    explicit IRGenerator(SymbolTable &table) : ctx(), symtab(table){};
 
     /**
      * @return Returns the LLVM Context.

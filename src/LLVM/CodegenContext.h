@@ -23,8 +23,20 @@ struct CodegenContext {
     /// @brief Module of the program to generate.
     std::unique_ptr<llvm::Module> IRModule;
 
+    /// Current function
+    llvm::Function *currentFunction;
+
     /**
      * @brief Module and IRBuilder set up.
      */
-    CodegenContext() : IRBuilder(IRContext), IRModule(std::make_unique<llvm::Module>("program", IRContext)) {}
+    CodegenContext() : IRBuilder(IRContext), IRModule(std::make_unique<llvm::Module>("program", IRContext)) {
+        // Program main function set up
+        llvm::FunctionType *FT = llvm::FunctionType::get(llvm::Type::getInt32Ty(IRContext), false);
+        llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, "main", IRModule.get());
+        llvm::BasicBlock *BB = llvm::BasicBlock::Create(IRContext, "entry", F);
+
+        currentFunction = F;
+
+        IRBuilder.SetInsertPoint(BB);
+    }
 };

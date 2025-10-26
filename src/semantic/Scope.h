@@ -4,6 +4,7 @@
  *
  * @author Adrián Zamora Sánchez
  */
+#pragma once
 #include "AST.h"
 #include <string>
 #include <unordered_map>
@@ -47,6 +48,11 @@ class Symbol {
     std::string getID() { return ID; }
 
     /**
+     * @brief Setter for llvmVal
+     */
+    void setLlvmValue(llvm::Value *val) { llvmVal = val; };
+
+    /**
      * @brief Prints the Symbol data.
      */
     std::string print() const;
@@ -59,7 +65,7 @@ class Symbol {
 class Scope {
     int id;
     int level;
-    Scope *parent;
+    std::weak_ptr<Scope> parent;
     std::unordered_map<std::string, Symbol> symbols;
 
   public:
@@ -69,7 +75,7 @@ class Scope {
      * @param level level of visibility of this Scope.
      * @param parent lower level parent Scope.
      */
-    Scope(int id, int level, Scope *parent) : id(id), level(level), parent(parent) {}
+    Scope(int id, int level, std::shared_ptr<Scope> parent) : id(id), level(level), parent(parent) {}
 
     /**
      * @brief Returns `true`if this scope contains this id, `false`otherwise.
@@ -79,13 +85,27 @@ class Scope {
     /**
      * @brief Returns the parent Scope.
      */
-    Scope *getParent() { return parent; }
+    std::shared_ptr<Scope> getParent() {
+        return parent.lock();
+        ;
+    }
 
     /**
      * @brief Inserts a new Symbol in this Scope.
      * @see Symbol
      */
     bool insertSymbol(Symbol);
+
+    /**
+     * @brief Getter for Symbol
+     */
+    Symbol *getSymbol(const std::string &id) {
+        auto it = symbols.find(id);
+        if (it != symbols.end())
+            return &it->second;
+
+        return nullptr;
+    }
 
     /**
      * @brief Returns the level of this Scope.
