@@ -46,6 +46,9 @@ STRING_LITERAL : '"' ~["]* '"';
 NUMBER_LITERAL : DIGIT+ ;
 FLOAT_LITERAL  : DIGIT+ '.' DIGIT+ ;
 
+BOOL_TRUE_LITERAL   : 'true'  ;
+BOOL_FALSE_LITERAL : 'false' ;
+
 /* BLANKS */
 COMMNET : '//' ~[\r\n]* -> skip ;
 NEWLINE : [\r\n]+ -> skip ;

@@ -226,7 +226,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
     // Checks for a number or float context
     if (ctx->NUMBER_LITERAL()) {
         int value = stoi(ctx->NUMBER_LITERAL()->getText());
-        auto node = std::make_unique<LiteralNode>(value);
+        auto node = std::make_unique<LiteralNode>(value, SupportedTypes::TYPE_INT);
 
         if (visualizeFlag) {
             std::ofstream texFile("AST.tex", std::ios::app);
@@ -239,9 +239,29 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
 
         return node;
     }
+    if (ctx->boolean_literal()) {
+        bool value = false;
+
+        if (ctx->boolean_literal()->getText() == "true") {
+            value = true;
+        }
+
+        auto node = std::make_unique<LiteralNode>(value, SupportedTypes::TYPE_BOOL);
+
+        if (visualizeFlag) {
+            std::ofstream texFile("AST.tex", std::ios::app);
+
+            // Node information
+            texFile << "[{" << ctx->boolean_literal()->getText() << "},literalNode]" << std::endl;
+
+            texFile.close();
+        }
+
+        return node;
+    }
     if (ctx->FLOAT_LITERAL()) {
         float value = stof(ctx->FLOAT_LITERAL()->getText());
-        auto node = std::make_unique<LiteralNode>(value);
+        auto node = std::make_unique<LiteralNode>(value, SupportedTypes::TYPE_FLOAT);
 
         if (visualizeFlag) {
             std::ofstream texFile("AST.tex", std::ios::app);
@@ -255,7 +275,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
         return node;
     }
     if (ctx->STRING_LITERAL()) {
-        auto node = std::make_unique<LiteralNode>(ctx->STRING_LITERAL()->getText());
+        auto node = std::make_unique<LiteralNode>(ctx->STRING_LITERAL()->getText(), SupportedTypes::TYPE_STRING);
 
         if (visualizeFlag) {
             std::ofstream texFile("AST.tex", std::ios::app);

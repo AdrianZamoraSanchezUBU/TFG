@@ -127,14 +127,15 @@ class CodeBlockNode : public ASTNode {
  */
 class LiteralNode : public ASTNode {
     std::variant<int, float, char, std::string, bool> value;
-    bool constant = false;
+    SupportedTypes type;
 
   public:
     /**
      * @brief Constructor for the literal node.
      * @param val Value associated with the node.
      */
-    explicit LiteralNode(std::variant<int, float, char, std::string, bool> val) : value(std::move(val)) {}
+    explicit LiteralNode(std::variant<int, float, char, std::string, bool> val, SupportedTypes t)
+        : value(std::move(val)), type(t) {}
 
     /**
      * @brief Returns the value as std::variant.
@@ -142,14 +143,9 @@ class LiteralNode : public ASTNode {
     const std::variant<int, float, char, std::string, bool> &getVariantValue() const { return value; }
 
     /**
-     * @brief Returns `true` if is a constant, `false` otherwise
+     * @brief Getter for type.
      */
-    bool isConstant() { return constant; }
-
-    /**
-     * @brief Setter for constant true value
-     */
-    void setConstant() { constant = true; }
+    SupportedTypes getType() { return type; }
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override {
@@ -175,7 +171,7 @@ class LiteralNode : public ASTNode {
     bool equals(const ASTNode *other) const override {
         // Dynamic cast to LiteralNode and value check
         if (auto o = dynamic_cast<const LiteralNode *>(other)) {
-            return value == o->value;
+            return (value == o->value && type == o->type);
         }
 
         return false;
@@ -201,6 +197,7 @@ class BinaryExprNode : public ASTNode {
     std::string op;
     std::unique_ptr<ASTNode> left;
     std::unique_ptr<ASTNode> right;
+    SupportedTypes type;
 
   public:
     /**
@@ -210,16 +207,7 @@ class BinaryExprNode : public ASTNode {
      * @param rhs Right-hand operand.
      */
     explicit BinaryExprNode(const std::string &op, std::unique_ptr<ASTNode> lhs, std::unique_ptr<ASTNode> rhs)
-        : op(op), left(std::move(lhs)), right(std::move(rhs)) {
-        // Checks if both sides of the expression are literals
-        LiteralNode *L = dynamic_cast<LiteralNode *>(lhs.get());
-        LiteralNode *R = dynamic_cast<LiteralNode *>(rhs.get());
-
-        if (L && R) {
-            L->setConstant();
-            R->setConstant();
-        }
-    }
+        : op(op), left(std::move(lhs)), right(std::move(rhs)) {}
 
     /**
      * @brief Devuelve el operador asociado al nodo.
@@ -238,6 +226,16 @@ class BinaryExprNode : public ASTNode {
      * @return Returns a pointer to the right hand side node.
      */
     ASTNode *getRight() const { return right.get(); }
+
+    /**
+     * @brief Getter for the returnType;
+     */
+    SupportedTypes getType() const { return type; }
+
+    /**
+     * @brief Setter for the returnType;
+     */
+    void setType(SupportedTypes t) { type = t; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {

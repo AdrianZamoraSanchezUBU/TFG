@@ -8,49 +8,40 @@ llvm::Value *IRGenerator::visit(CodeBlockNode &node) {
 llvm::Value *IRGenerator::visit(LiteralNode &node) {
     std::variant<int, float, char, std::string, bool> value = node.getVariantValue();
 
-    if (std::holds_alternative<int>(value)) {
-        int v = std::get<int>(value);
-
-        // INT: signed 32 bits integer
-        return llvm::ConstantInt::get(ctx.IRContext, llvm::APInt(32, v, true));
-    }
-
-    if (std::holds_alternative<float>(value)) {
+    switch (node.getType()) {
+    case SupportedTypes::TYPE_FLOAT: {
         float v = std::get<float>(value);
 
         // FLOAT
         return llvm::ConstantFP::get(ctx.IRContext, llvm::APFloat(v));
     }
+    case SupportedTypes::TYPE_INT: {
+        int v = std::get<int>(value);
 
-    if (std::holds_alternative<char>(value)) {
+        // INT: signed 32 bits integer
+        return llvm::ConstantInt::get(ctx.IRContext, llvm::APInt(32, v, true));
+    }
+    case SupportedTypes::TYPE_CHAR: {
         char v = std::get<char>(value);
 
         // CHAR: unsigned 8 bits integer
         return llvm::ConstantInt::get(ctx.IRContext, llvm::APInt(8, v, false));
     }
-
-    if (std::holds_alternative<std::string>(value)) {
-        if (!node.isConstant()) {
-            // Generates a UndefValue as placeholder for future constant folding
-            return llvm::UndefValue::get(llvm::PointerType::get(llvm::Type::getInt8Ty(ctx.IRContext), 0));
-        }
-
-        std::string v = std::get<std::string>(value);
-
-        // STRING: pointer (*i8) to constant null-terminated IR format string
-        return ctx.IRBuilder.CreateGlobalStringPtr(v, ".str");
+    case SupportedTypes::TYPE_STRING: {
+        // Generates a UndefValue as placeholder for future constant folding
+        return llvm::UndefValue::get(llvm::PointerType::get(llvm::Type::getInt8Ty(ctx.IRContext), 0));
     }
-
-    if (std::holds_alternative<bool>(value)) {
+    case SupportedTypes::TYPE_BOOL: {
         bool v = std::get<bool>(value);
 
         // BOOL: unsigned 1 bit integer
         return llvm::ConstantInt::get(ctx.IRContext, llvm::APInt(1, v ? 1 : 0, false));
     }
-
-    // Checks for invalid types in literal nodes
-    llvm::errs() << "Unsupported type in literal node: " << node.getValue() << "\n";
-    return nullptr;
+    default:
+        // Checks for invalid types in literal nodes
+        llvm::errs() << "Unsupported type in literal node: " << node.getValue() << "\n";
+        return nullptr;
+    }
 }
 
 llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
@@ -58,8 +49,15 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
     llvm::Value *L = node.getLeft()->accept(*this);
     llvm::Value *R = node.getRight()->accept(*this);
 
-    llvm::Type *LT = L->getType();
-    llvm::Type *RT = R->getType();
+    SupportedTypes LT, RT;
+    SupportedTypes operationType = node.getType();
+
+    if (auto left = dynamic_cast<LiteralNode *>(node.getLeft())) {
+        LT = left->getType();
+    }
+    if (auto right = dynamic_cast<LiteralNode *>(node.getRight())) {
+        RT = right->getType();
+    }
 
     // Check for correctness in child nodes visits
     if (!L || !R) {
@@ -74,17 +72,17 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
     the int will be cast into a float and then proceed with
     the operation.
     */
-    if (LT->isIntegerTy() && RT->isFloatingPointTy()) {
-        L = ctx.IRBuilder.CreateSIToFP(L, RT, "inttofloat");
-    } else if (LT->isFloatingPointTy() && RT->isIntegerTy()) {
-        R = ctx.IRBuilder.CreateSIToFP(R, LT, "inttofloat");
+    if (LT == SupportedTypes::TYPE_INT && RT == SupportedTypes::TYPE_FLOAT) {
+        L = ctx.IRBuilder.CreateSIToFP(L, R->getType(), "inttofloat");
+    } else if (LT == SupportedTypes::TYPE_FLOAT && RT == SupportedTypes::TYPE_INT) {
+        R = ctx.IRBuilder.CreateSIToFP(R, L->getType(), "inttofloat");
     }
 
     std::string op = node.getValue();
 
     /* Numeric operations */
     // FLOAT
-    if (LT->isFloatingPointTy()) {
+    if (operationType == SupportedTypes::TYPE_FLOAT) {
         if (op == "+")
             return ctx.IRBuilder.CreateFAdd(L, R, "addtmp");
         if (op == "-")
@@ -102,8 +100,10 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
         if (op == ">")
             return ctx.IRBuilder.CreateFCmpOGT(L, R, "gttmp");
     }
+
     // INT
-    else if (LT->isIntegerTy()) {
+    if (operationType == SupportedTypes::TYPE_INT || operationType == SupportedTypes::TYPE_CHAR ||
+        operationType == SupportedTypes::TYPE_BOOL) {
         if (op == "+")
             return ctx.IRBuilder.CreateAdd(L, R, "addtmp");
         if (op == "-")
@@ -123,7 +123,7 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
     }
 
     // STRING value for constant folding (only '==' and '!=' comparations)
-    if (LT->isPointerTy() && RT->isPointerTy()) {
+    if (operationType == SupportedTypes::TYPE_STRING) {
         // Check for valid string operation
         if (op == "==" || op == "!=") {
             bool sameStrings = (node.getLeft()->getValue() == node.getRight()->getValue());

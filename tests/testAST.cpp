@@ -42,10 +42,12 @@ TEST(ASTTest, Expr) {
 
     /* Expected result */
     auto leftOperation =
-        std::make_unique<BinaryExprNode>("+", std::make_unique<LiteralNode>(3), std::make_unique<LiteralNode>(2));
+        std::make_unique<BinaryExprNode>("+", std::make_unique<LiteralNode>(3, SupportedTypes::TYPE_INT),
+                                         std::make_unique<LiteralNode>(2, SupportedTypes::TYPE_INT));
 
     auto rightOperation =
-        std::make_unique<BinaryExprNode>("+", std::make_unique<LiteralNode>(2), std::make_unique<LiteralNode>(1));
+        std::make_unique<BinaryExprNode>("+", std::make_unique<LiteralNode>(2, SupportedTypes::TYPE_INT),
+                                         std::make_unique<LiteralNode>(1, SupportedTypes::TYPE_INT));
 
     std::unique_ptr<BinaryExprNode> rootExpr =
         std::make_unique<BinaryExprNode>("-", std::move(leftOperation), std::move(rightOperation));

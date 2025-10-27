@@ -43,6 +43,7 @@ literal
 	: NUMBER_LITERAL	
 	| FLOAT_LITERAL	
 	| STRING_LITERAL
+	| boolean_literal
    	;
 
 variableDec : type IDENTIFIER ;
@@ -65,3 +66,8 @@ type
 	| TYPE_STRING
 	| TYPE_BOOLEAN
 	;
+
+boolean_literal 
+				: BOOL_TRUE_LITERAL
+				| BOOL_FALSE_LITERAL
+				;

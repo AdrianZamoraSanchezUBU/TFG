@@ -5,6 +5,24 @@ void *SemanticVisitor::visit(LiteralNode &node) {
 }
 
 void *SemanticVisitor::visit(BinaryExprNode &node) {
+    SupportedTypes LT, RT;
+
+    if (auto L = dynamic_cast<LiteralNode *>(node.getLeft())) {
+        LT = L->getType();
+    }
+    /* TODO: CHECK FOR A VARIABLE WITH VALUE
+    else if () {
+    }
+    */
+
+    if (auto R = dynamic_cast<LiteralNode *>(node.getLeft())) {
+        RT = R->getType();
+    }
+
+    if (LT == RT) {
+        node.setType(LT);
+    }
+
     return nullptr;
 }
 
