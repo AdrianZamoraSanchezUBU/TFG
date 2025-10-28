@@ -18,6 +18,9 @@ class SymbolTable {
     int nextScopeId = 0;
 
   public:
+    /**
+     * @brief Constructor for SymbolTable.
+     */
     SymbolTable() {
         // Global Scope with level 0
         currentScope = std::make_shared<Scope>(nextScopeId++, 0, nullptr);

@@ -40,18 +40,18 @@
 #include "IRGenerator.h"
 
 class Compiler {
-    CompilerFlags flags; /// Flags
+    CompilerFlags flags; ///< Flags
 
     /// Data structures
+    std::unique_ptr<antlr4::ANTLRInputStream> inputStream;
     std::shared_ptr<antlr4::CommonTokenStream> tokenList = nullptr;
     std::unique_ptr<ASTNode> ast = nullptr;
     SymbolTable symTable;
-    std::unique_ptr<IRGenerator> IRgen;
-    std::unique_ptr<SemanticVisitor> analyser;
 
-    /// Lasting data structures
-    std::unique_ptr<antlr4::ANTLRInputStream> inputStream;
+    /// Workers
     std::unique_ptr<TLexer> lexer;
+    std::unique_ptr<SemanticVisitor> analyser;
+    std::unique_ptr<IRGenerator> IRgen;
 
     /// Lexer & Parser error listeners
     std::shared_ptr<ParserErrorListener> parserErrorListener;

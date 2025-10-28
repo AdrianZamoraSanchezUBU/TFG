@@ -18,3 +18,7 @@ then
 	# Runs all the tests in build/
 	ctest --output-on-failure -T
 fi
+
+# Runs cppcheck as a simple code quality tool
+cd ..
+cppcheck --enable=all --inconclusive --std=c++17 --force --quiet --suppress=missingIncludeSystem src/ 2> cppcheck_out.txt
