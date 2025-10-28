@@ -1,5 +1,9 @@
 #include "SemanticVisitor.h"
 
+namespace llvm {
+class Type;
+}
+
 void *SemanticVisitor::visit(LiteralNode &node) {
     return nullptr;
 }
@@ -41,17 +45,17 @@ void *SemanticVisitor::visit(VariableDecNode &node) {
     }
 
     Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE);
-
     currentScope->insertSymbol(newSymbol);
 
     return nullptr;
 }
 
 void *SemanticVisitor::visit(VariableAssignNode &node) {
+    std::cout << "S0" << std::endl;
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
 
-    // Checks if the variable was already declarated
-    if (currentScope.get()->contains(node.getValue())) {
+    // Checks if the variable was already declarated (only assign)
+    if (currentScope->contains(node.getValue())) {
         if (node.getType() != SupportedTypes::TYPE_VOID) {
             std::cerr << "Variable redeclaration error" << std::endl;
         }
@@ -61,22 +65,33 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
             Symbol sym = *currentScope.get()->getSymbol(node.getValue());
 
             if (sym.getCategory() != SymbolCategory::VARIABLE) {
-                std::cerr << "Non variable identifier used in a variable assign" << std::endl;
+                std::cerr << "Missing declaration for a identifier used in a variable assign" << std::endl;
             }
+
+            llvm::Type *llvmType = sym.getType();
         }
 
         // TODO: Type check for already declarated variable assign
-
-        Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE);
-
-        currentScope->insertSymbol(newSymbol);
     }
 
     // Type check for variable dec + assign
     if (auto val = dynamic_cast<BinaryExprNode *>(node.getAssign())) {
-        if (val->getValue() != node.getValue()) {
+        if (val->getType() != node.getType()) {
             std::cerr << "Variable assign with incompatible types" << std::endl;
         }
+
+        // Inserting the variable in the Symbol Table
+        Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE);
+        currentScope->insertSymbol(newSymbol);
+    }
+    if (auto val = dynamic_cast<LiteralNode *>(node.getAssign())) {
+        if (val->getType() != node.getType()) {
+            std::cerr << "Variable assign with incompatible types" << std::endl;
+        }
+
+        // Inserting the variable in the Symbol Table
+        Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE);
+        currentScope->insertSymbol(newSymbol);
     }
 
     return nullptr;

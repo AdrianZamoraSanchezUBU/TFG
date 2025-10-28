@@ -5,6 +5,21 @@ llvm::Value *IRGenerator::visit(CodeBlockNode &node) {
     return nullptr;
 }
 
+llvm::Type *IRGenerator::llvmTypeConversion(SupportedTypes type) {
+    switch (type) {
+    case SupportedTypes::TYPE_INT:
+        return llvm::Type::getInt32Ty(ctx.IRContext);
+    case SupportedTypes::TYPE_FLOAT:
+        return llvm::Type::getInt32Ty(ctx.IRContext);
+    case SupportedTypes::TYPE_CHAR:
+        return llvm::Type::getInt32Ty(ctx.IRContext);
+    case SupportedTypes::TYPE_STRING:
+        return llvm::PointerType::get(llvm::Type::getInt8Ty(ctx.IRContext), 0);
+    case SupportedTypes::TYPE_BOOL:
+        return llvm::Type::getInt32Ty(ctx.IRContext);
+    }
+};
+
 llvm::Value *IRGenerator::visit(LiteralNode &node) {
     std::variant<int, float, char, std::string, bool> value = node.getVariantValue();
 
@@ -144,26 +159,7 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(VariableDecNode &node) {
-    llvm::Type *varType = nullptr;
-
-    // Type dispatch from Supported Type to LLVM::Type
-    switch (node.getType()) {
-    case SupportedTypes::TYPE_INT:
-        varType = llvm::Type::getInt32Ty(ctx.IRContext);
-        break;
-    case SupportedTypes::TYPE_FLOAT:
-        varType = llvm::Type::getInt32Ty(ctx.IRContext);
-        break;
-    case SupportedTypes::TYPE_CHAR:
-        varType = llvm::Type::getInt32Ty(ctx.IRContext);
-        break;
-    case SupportedTypes::TYPE_STRING:
-        varType = llvm::PointerType::get(llvm::Type::getInt8Ty(ctx.IRContext), 0);
-        break;
-    case SupportedTypes::TYPE_BOOL:
-        varType = llvm::Type::getInt32Ty(ctx.IRContext);
-        break;
-    }
+    llvm::Type *varType = llvmTypeConversion(node.getType());
 
     // Gets the current function
     llvm::Function *currentFunction = ctx.getCurrentFunction();
@@ -174,10 +170,55 @@ llvm::Value *IRGenerator::visit(VariableDecNode &node) {
     // Allocating memory for the variable
     llvm::AllocaInst *allocaInst = tmpBuilder.CreateAlloca(varType, nullptr, node.getValue());
 
-    // Registers this new allocation associated with a Symbol in the SymbolTable
+    // Registers this new allocation associated with the Symbol in the SymbolTable
     symtab.addLlvmVal(node.getValue(), allocaInst);
 
     return allocaInst;
 }
 
-llvm::Value *IRGenerator::visit(VariableAssignNode &node) {}
+llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
+    llvm::Value *assignVal;
+    SupportedTypes exprType;
+
+    // Visits the type of assignment
+    if (auto expr = dynamic_cast<BinaryExprNode *>(node.getAssign())) {
+        assignVal = visit(*expr);
+        exprType = expr->getType();
+    }
+    if (auto expr = dynamic_cast<LiteralNode *>(node.getAssign())) {
+        assignVal = visit(*expr);
+        exprType = expr->getType();
+    }
+
+    // (DECLARATION + ASSIGNMENT)
+    if (node.getType() != SupportedTypes::TYPE_VOID) {
+        // Type dispatch from Supported Type to LLVM::Type
+        llvm::Type *varType = llvmTypeConversion(node.getType());
+
+        // Gets the current function
+        llvm::Function *currentFunction = ctx.getCurrentFunction();
+
+        // Creates a temporal builder that points to the begin of the current basic block
+        llvm::IRBuilder<> tmpBuilder(&currentFunction->getEntryBlock(), currentFunction->getEntryBlock().begin());
+
+        // Allocating memory for the variable
+        llvm::AllocaInst *allocaInst = tmpBuilder.CreateAlloca(varType, nullptr, node.getValue());
+
+        // Registers this new allocation associated with the Symbol in the SymbolTable
+        symtab.addLlvmVal(node.getValue(), allocaInst);
+        std::shared_ptr<Scope> scope = symtab.findScope(node.getValue());
+
+        // Getting the memory address where the value is stored
+        llvm::Value *alloc = scope.get()->getSymbol(node.getValue())->getLlvmValue();
+        ctx.IRBuilder.CreateStore(assignVal, alloc);
+
+        return alloc;
+    }
+
+    // Gets the memory address and stores the value (ONLY ASSIGNMENT)
+    std::shared_ptr<Scope> scope = symtab.findScope(node.getValue());
+    llvm::Value *alloc = scope.get()->getSymbol(node.getValue())->getLlvmValue();
+    ctx.IRBuilder.CreateStore(assignVal, alloc);
+
+    return alloc;
+}

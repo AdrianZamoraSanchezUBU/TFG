@@ -343,19 +343,25 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableDecContext *ctx) {
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableAssignContext *ctx) {
     std::string varName = ctx->variableDec()->IDENTIFIER()->getText();
     SupportedTypes type = SupportedTypes::TYPE_VOID;
-    std::unique_ptr<ASTNode> assign = visit(ctx->expr());
+    std::unique_ptr<ASTNode> assign;
 
-    if (ctx->variableDec()->type()) {
-        type = visit(ctx->variableDec()->type());
-    }
+    type = visit(ctx->variableDec()->type());
 
     if (visualizeFlag) {
         std::ofstream texFile("AST.tex", std::ios::app);
 
-        // Node information
-        texFile << "[{" << typeToString(type) << varName << "},variableAssignNode]" << std::endl;
+        // Node information with type
+        texFile << "[{" << ctx->variableDec()->type()->getText() << " " << varName << "},variableAssignNode"
+                << std::endl;
 
         texFile.close();
+    }
+
+    assign = visit(ctx->expr());
+
+    if (visualizeFlag) {
+        std::ofstream texFile("AST.tex", std::ios::app);
+        texFile << "]" << std::endl;
     }
 
     return std::make_unique<VariableAssignNode>(type, varName, std::move(assign));

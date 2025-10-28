@@ -12,6 +12,7 @@
 #pragma once
 #include "AST.h"
 #include "CodegenContext.h"
+#include "SupportedTypes.h"
 #include "SymbolTable.h"
 
 class LiteralNode;
@@ -38,6 +39,13 @@ class IRGenerator {
      * Initializes the LLVM context.
      */
     explicit IRGenerator(SymbolTable &table) : ctx(), symtab(table){};
+
+    /**
+     * @brief Returns the llvm::Type associated with a SupportedTypes type.
+     * @param type SupportedType format.
+     * @return llvm::Type* format of the type.
+     */
+    llvm::Type *llvmTypeConversion(SupportedTypes);
 
     /**
      * @return Returns the LLVM Context.

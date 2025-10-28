@@ -11,7 +11,8 @@
 
 namespace llvm {
 class Value;
-}
+class Type;
+} // namespace llvm
 
 /**
  * @brief Possible categories for identifiers.
@@ -31,6 +32,7 @@ class Symbol {
     std::string ID;
     ASTNode *node;
     llvm::Value *llvmVal;
+    llvm::Type *type = nullptr;
     SymbolCategory category;
 
   public:
@@ -53,9 +55,24 @@ class Symbol {
     SymbolCategory getCategory() { return category; }
 
     /**
+     * @brief Getter for type.
+     */
+    llvm::Type *getType() { return type; }
+
+    /**
+     * @brief Setter for type.
+     */
+    void setType(llvm::Type *ty) { type = ty; }
+
+    /**
      * @brief Setter for llvmVal.
      */
-    void setLlvmValue(llvm::Value *val) { llvmVal = val; };
+    void setLlvmValue(llvm::Value *val) { llvmVal = val; }
+
+    /**
+     * @brief Setter for llvmVal.
+     */
+    llvm::Value *getLlvmValue() { return llvmVal; }
 
     /**
      * @brief Prints the Symbol data.

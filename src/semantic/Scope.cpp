@@ -1,13 +1,24 @@
 #include "Scope.h"
 
 std::string Symbol::print() const {
-    std::string type;
+    std::string cat;
 
-    if (auto *VarDecNode = dynamic_cast<VariableDecNode *>(node)) {
-        type = typeToString(VarDecNode->getType());
+    switch (category) {
+    case SymbolCategory::CONSTANT:
+        cat = "CONSTANT";
+        break;
+    case SymbolCategory::FUNCTION:
+        cat = "FUNCTION";
+        break;
+    case SymbolCategory::PARAMETER:
+        cat = "PARAMETER";
+        break;
+    case SymbolCategory::VARIABLE:
+        cat = "VARIABLE";
+        break;
     }
 
-    return type + " " + this->ID;
+    return cat;
 };
 
 bool Scope::contains(std::string id) {
