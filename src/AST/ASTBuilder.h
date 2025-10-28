@@ -105,6 +105,13 @@ class ASTBuilder {
     std::unique_ptr<ASTNode> visit(TParser::VariableDecContext *ctx);
 
     /**
+     * @brief Visits the context of a variable assignment.
+     * @param ctx Variable assignment context.
+     * @return AST node associated the variable assignment.
+     */
+    std::unique_ptr<ASTNode> visit(TParser::VariableAssignContext *ctx);
+
+    /**
      * @brief Visits the type context of a variable declaration.
      * @param ctx Type context in a variable declaration.
      * @return SupportedTypes A supported type representing the token value.

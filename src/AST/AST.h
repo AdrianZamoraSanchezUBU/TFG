@@ -271,24 +271,14 @@ class BinaryExprNode : public ASTNode {
 class VariableDecNode : public ASTNode {
     SupportedTypes type;
     std::string identifier;
-    std::unique_ptr<ASTNode> init;
 
   public:
-    /**
-     * @brief Constructor for a initialized VariableDec node.
-     * @param t Type of the variable.
-     * @param id Identifier of this variable.
-     * @param ini Initialized value for the variable.
-     */
-    explicit VariableDecNode(SupportedTypes t, const std::string &id, std::unique_ptr<ASTNode> ini)
-        : type(t), identifier(id), init(std::move(ini)){};
-
     /**
      * @brief Constructor for a uninitialized VariableDec node.
      * @param t Type of the variable.
      * @param id Identifier of this variable.
      */
-    explicit VariableDecNode(SupportedTypes t, const std::string &id) : type(t), identifier(id), init(nullptr){};
+    explicit VariableDecNode(SupportedTypes t, const std::string &id) : type(t), identifier(id){};
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return identifier; }
@@ -305,7 +295,7 @@ class VariableDecNode : public ASTNode {
     bool equals(const ASTNode *other) const override {
         if (auto o = dynamic_cast<const VariableDecNode *>(other)) {
             // Returns the result of comparing all the attributes
-            return type == o->type && identifier == o->identifier && init.get()->equals(o->init.get());
+            return type == o->type && identifier == o->identifier;
         }
 
         return false;
@@ -329,6 +319,7 @@ class VariableDecNode : public ASTNode {
  * @see CodeBlock
  */
 class VariableAssignNode : public ASTNode {
+    SupportedTypes type = SupportedTypes::TYPE_VOID;
     std::string identifier;
     std::unique_ptr<ASTNode> assign;
 
@@ -338,8 +329,18 @@ class VariableAssignNode : public ASTNode {
      * @param id Identifier of this variable.
      * @param val Value assigned to the variable.
      */
-    explicit VariableAssignNode(const std::string &id, std::unique_ptr<ASTNode> val)
-        : identifier(id), assign(std::move(val)){};
+    explicit VariableAssignNode(SupportedTypes t, const std::string &id, std::unique_ptr<ASTNode> val)
+        : type(t), identifier(id), assign(std::move(val)){};
+
+    /**
+     * @brief Getter for type.
+     */
+    SupportedTypes getType() const { return type; }
+
+    /**
+     * @brief Getter for assign expresion.
+     */
+    ASTNode *getAssign() const { return assign.get(); }
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return identifier; }

@@ -179,3 +179,5 @@ llvm::Value *IRGenerator::visit(VariableDecNode &node) {
 
     return allocaInst;
 }
+
+llvm::Value *IRGenerator::visit(VariableAssignNode &node) {}

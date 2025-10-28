@@ -71,4 +71,11 @@ class IRGenerator {
      * @return llvm::Value* Value obtained from the visit.
      */
     llvm::Value *visit(VariableDecNode &node);
+
+    /**
+     * @brief Visits a variable assignment node.
+     * @param node Node to be visited.
+     * @return llvm::Value* Value obtained from the visit.
+     */
+    llvm::Value *visit(VariableAssignNode &node);
 };

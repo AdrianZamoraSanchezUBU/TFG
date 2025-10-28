@@ -4,7 +4,7 @@
 /**
  * @brief Supported types in the AST
  */
-enum SupportedTypes { TYPE_INT, TYPE_FLOAT, TYPE_CHAR, TYPE_STRING, TYPE_BOOL };
+enum SupportedTypes { TYPE_INT, TYPE_FLOAT, TYPE_CHAR, TYPE_STRING, TYPE_BOOL, TYPE_VOID };
 
 inline std::string typeToString(SupportedTypes type) {
     switch (type) {
@@ -18,6 +18,8 @@ inline std::string typeToString(SupportedTypes type) {
         return "string";
     case SupportedTypes::TYPE_BOOL:
         return "bool";
+    case SupportedTypes::TYPE_VOID:
+        return "void";
     default:
         return "UnknownType";
     }

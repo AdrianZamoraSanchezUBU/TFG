@@ -45,6 +45,14 @@ std::string includeTikzStyles() {
         minimum width=4.5em,
         minimum height=2.8em, 
         align=center
+    },variableAssignNode/.style={
+        draw, 
+        parallelogram, 
+        fill=violet!20!white, 
+        minimum size=3.5em,
+        minimum width=4.5em,
+        minimum height=2.8em, 
+        align=center
     }
 })";
 }
@@ -128,6 +136,9 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::StmtContext *ctx) {
     if (ctx->variableDec()) {
         return visit(ctx->variableDec());
     }
+    if (ctx->variableAssign()) {
+        return visit(ctx->variableAssign());
+    }
 
     throw std::runtime_error("Not a valid stmt");
 }
@@ -143,6 +154,8 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ExprContext *ctx) {
         return visit(parenCtx->expr());
     } else if (auto varDec = dynamic_cast<TParser::VariableDecContext *>(ctx)) {
         return visit(varDec);
+    } else if (auto varAssign = dynamic_cast<TParser::VariableAssignContext *>(ctx)) {
+        return visit(varAssign);
     }
 
     throw std::runtime_error("Not a valid expr");
@@ -325,4 +338,25 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableDecContext *ctx) {
     }
 
     return std::make_unique<VariableDecNode>(type, ctx->IDENTIFIER()->getText());
+}
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableAssignContext *ctx) {
+    std::string varName = ctx->variableDec()->IDENTIFIER()->getText();
+    SupportedTypes type = SupportedTypes::TYPE_VOID;
+    std::unique_ptr<ASTNode> assign = visit(ctx->expr());
+
+    if (ctx->variableDec()->type()) {
+        type = visit(ctx->variableDec()->type());
+    }
+
+    if (visualizeFlag) {
+        std::ofstream texFile("AST.tex", std::ios::app);
+
+        // Node information
+        texFile << "[{" << typeToString(type) << varName << "},variableAssignNode]" << std::endl;
+
+        texFile.close();
+    }
+
+    return std::make_unique<VariableAssignNode>(type, varName, std::move(assign));
 }

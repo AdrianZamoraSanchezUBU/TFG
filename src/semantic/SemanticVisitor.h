@@ -43,6 +43,12 @@ class SemanticVisitor {
     void *visit(VariableDecNode &node);
 
     /**
+     * @brief Visits a variable declaration node.
+     * @param node Node to be visited.
+     */
+    void *visit(VariableAssignNode &node);
+
+    /**
      * @brief Prints the content of the SymbolTable.
      */
     void printSymbolTable() { symtab.print(); }

@@ -43,12 +43,17 @@ class Symbol {
     Symbol(std::string id, ASTNode *astnode, SymbolCategory cat) : ID(id), node(astnode), category(cat) {}
 
     /**
-     * @brief Getter for ID;
+     * @brief Getter for ID.
      */
     std::string getID() { return ID; }
 
     /**
-     * @brief Setter for llvmVal
+     * @brief Getter for category.
+     */
+    SymbolCategory getCategory() { return category; }
+
+    /**
+     * @brief Setter for llvmVal.
      */
     void setLlvmValue(llvm::Value *val) { llvmVal = val; };
 

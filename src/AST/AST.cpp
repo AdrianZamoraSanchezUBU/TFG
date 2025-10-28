@@ -38,3 +38,12 @@ void *VariableDecNode::accept(SemanticVisitor &visitor) {
 llvm::Value *VariableDecNode::accept(IRGenerator &visitor) {
     return visitor.visit(*this);
 };
+
+/* VariableAssignNode */
+void *VariableAssignNode::accept(SemanticVisitor &visitor) {
+    return visitor.visit(*this);
+};
+
+llvm::Value *VariableAssignNode::accept(IRGenerator &visitor) {
+    return visitor.visit(*this);
+};
