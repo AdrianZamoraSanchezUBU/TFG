@@ -341,22 +341,32 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableDecContext *ctx) {
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableAssignContext *ctx) {
-    std::string varName = ctx->variableDec()->IDENTIFIER()->getText();
-    SupportedTypes type = SupportedTypes::TYPE_VOID;
+    std::string varName;
+    SupportedTypes type;
+    std::string typeString;
     std::unique_ptr<ASTNode> assign;
 
-    type = visit(ctx->variableDec()->type());
+    // If this is a variable declaration + assignment visit the type
+    if (ctx->variableDec()) {
+        varName = ctx->variableDec()->IDENTIFIER()->getText();
+        type = visit(ctx->variableDec()->type());
+        typeString = ctx->variableDec()->type()->getText();
+    } else {
+        varName = ctx->IDENTIFIER()->getText();
+        type = SupportedTypes::TYPE_VOID;
+        typeString = "void";
+    }
 
     if (visualizeFlag) {
+        // Node information
         std::ofstream texFile("AST.tex", std::ios::app);
 
-        // Node information with type
-        texFile << "[{" << ctx->variableDec()->type()->getText() << " " << varName << "},variableAssignNode"
-                << std::endl;
+        texFile << "[{" << typeString << " " << varName << "},variableAssignNode" << std::endl;
 
         texFile.close();
     }
 
+    // Visits the expr that gives this variable its value
     assign = visit(ctx->expr());
 
     if (visualizeFlag) {

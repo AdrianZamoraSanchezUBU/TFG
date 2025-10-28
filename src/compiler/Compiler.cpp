@@ -98,7 +98,11 @@ bool Compiler::generateIR() {
 
     // FIXME: REMOVE WHEN FUNCTIONS ARE IMPLEMENTED
     if (auto *block = dynamic_cast<CodeBlockNode *>(getAST())) {
-        llvm::Value *result = block->getStmt(0)->accept(*IRgen);
+        llvm::Value *result;
+
+        for (int i = 0; i < block->getStmtCount(); i++) {
+            result = block->getStmt(i)->accept(*IRgen);
+        }
 
         ctx.IRBuilder.CreateRet(result);
     }

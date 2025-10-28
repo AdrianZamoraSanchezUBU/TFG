@@ -51,7 +51,6 @@ void *SemanticVisitor::visit(VariableDecNode &node) {
 }
 
 void *SemanticVisitor::visit(VariableAssignNode &node) {
-    std::cout << "S0" << std::endl;
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
 
     // Checks if the variable was already declarated (only assign)
