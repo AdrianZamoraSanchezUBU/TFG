@@ -45,6 +45,15 @@ std::string includeTikzStyles() {
         minimum width=4.5em,
         minimum height=2.8em, 
         align=center
+    },
+    varRefNode/.style={
+        draw, 
+        rectangle, 
+        fill=green!10!white, 
+        minimum size=3.5em,
+        minimum width=4.5em,
+        minimum height=2.8em, 
+        align=center
     },variableAssignNode/.style={
         draw, 
         rectangle, 
@@ -235,7 +244,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::OperandExprContext *ctx) {
             std::ofstream texFile("AST.tex", std::ios::app);
 
             // Node information
-            texFile << "[{" << operand->IDENTIFIER()->getText() << "},variableDecNode]" << std::endl;
+            texFile << "[{" << operand->IDENTIFIER()->getText() << "},varRefNode]" << std::endl;
 
             texFile.close();
         }
@@ -368,14 +377,17 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableAssignContext *ctx) 
     } else {
         varName = ctx->IDENTIFIER()->getText();
         type = SupportedTypes::TYPE_VOID;
-        typeString = "void";
     }
 
     if (visualizeFlag) {
         // Node information
         std::ofstream texFile("AST.tex", std::ios::app);
 
-        texFile << "[{" << typeString << " " << varName << "},variableAssignNode" << std::endl;
+        if (type == SupportedTypes::TYPE_VOID) {
+            texFile << "[{" << varName << "},variableAssignNode" << std::endl;
+        } else {
+            texFile << "[{" << typeString << " " << varName << "},variableAssignNode" << std::endl;
+        }
 
         texFile.close();
     }

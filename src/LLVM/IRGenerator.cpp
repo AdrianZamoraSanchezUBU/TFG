@@ -158,16 +158,16 @@ llvm::Value *IRGenerator::visit(VariableDecNode &node) {
 
 llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
     llvm::Value *assignVal;
-    SupportedTypes exprType;
 
     // Visits the type of assignment
     if (auto expr = dynamic_cast<BinaryExprNode *>(node.getAssign())) {
         assignVal = visit(*expr);
-        exprType = expr->getType();
     }
-    if (auto expr = dynamic_cast<LiteralNode *>(node.getAssign())) {
-        assignVal = visit(*expr);
-        exprType = expr->getType();
+    if (auto lit = dynamic_cast<LiteralNode *>(node.getAssign())) {
+        assignVal = visit(*lit);
+    }
+    if (auto var = dynamic_cast<VariableRefNode *>(node.getAssign())) {
+        assignVal = visit(*var);
     }
 
     // (DECLARATION + ASSIGNMENT)

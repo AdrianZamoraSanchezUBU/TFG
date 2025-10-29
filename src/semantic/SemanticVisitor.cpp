@@ -126,7 +126,7 @@ void *SemanticVisitor::visit(VariableRefNode &node) {
 
     // Checks if the variable was already declarated
     if (currentScope->contains(node.getValue())) {
-        // Check for identifier variable status
+        // Check for this identifier variable status
         if (currentScope.get()->getSymbol(node.getValue())) {
             Symbol sym = *currentScope.get()->getSymbol(node.getValue());
 
