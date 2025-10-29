@@ -68,7 +68,14 @@ class ASTNode {
 };
 
 /**
+ * @class CodeBlockNode
+ * @brief Represents a block of statements in the AST.
  *
+ * This class represents a block of code in the AST,
+ * which can contain other statements. It is present in
+ * functions, loops and control structures.
+ *
+ * @see ASTNode
  */
 class CodeBlockNode : public ASTNode {
     std::vector<std::unique_ptr<ASTNode>> statements;
@@ -268,6 +275,60 @@ class BinaryExprNode : public ASTNode {
  * @see ASTNode
  * @see CodeBlock
  */
+class ReturnNode : public ASTNode {
+    SupportedTypes type = SupportedTypes::TYPE_VOID;
+    std::unique_ptr<ASTNode> stmt;
+
+  public:
+    /**
+     * @brief Constructor for a return statement.
+     * @param ret returned ASTNode.
+     */
+    explicit ReturnNode(std::unique_ptr<ASTNode> ret) : stmt(std::move(ret)){};
+
+    /**
+     * @brief Constructor for a return statement node without parameters (return;).
+     */
+    explicit ReturnNode(){};
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return typeToString(type); }
+
+    /**
+     * @brief Getter for type.
+     */
+    SupportedTypes getType() const { return type; }
+
+    /// @copydoc ASTNode::print
+    void print() { std::cout << "RETURN STMT NODE" << getValue() << std::endl; }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override {
+        if (auto o = dynamic_cast<const ReturnNode *>(other)) {
+            // Returns the result of comparing all the attributes
+            return type == o->type && stmt.get()->equals(o);
+        }
+
+        return false;
+    }
+
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
+    llvm::Value *accept(IRGenerator &visitor) override;
+};
+
+/**
+ * @class VariableDec
+ * @brief Represents a variable declaration in the AST.
+ *
+ * This class represents a variable declaration within the AST,
+ * it has a value type and could be initialized with a value.
+ *
+ * @see ASTNode
+ * @see CodeBlock
+ */
 class VariableDecNode : public ASTNode {
     SupportedTypes type;
     std::string identifier;
@@ -365,6 +426,49 @@ class VariableAssignNode : public ASTNode {
 };
 
 /**
+ * @class VariableRefNode
+ * @brief Represents a variable assignation in the AST.
+ *
+ * This class represents a variable assignation within the AST,
+ * it has a identifier and a new value assigned to this identifier.
+ *
+ * @see ASTNode
+ * @see CodeBlock
+ */
+class VariableRefNode : public ASTNode {
+    std::string identifier;
+
+  public:
+    /**
+     * @brief Constructor for VariableAssign node.
+     * @param id Identifier of this variable.
+     * @param val Value assigned to the variable.
+     */
+    explicit VariableRefNode(const std::string &id) : identifier(id){};
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return identifier; }
+
+    /// @copydoc ASTNode::print
+    void print() { std::cout << "VARIABLE ASSIGN NODE" << getValue() << std::endl; }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override {
+        if (auto o = dynamic_cast<const VariableRefNode *>(other)) {
+            // Returns the result of comparing all the attributes
+            return identifier == o->identifier;
+        }
+
+        return false;
+    }
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
+    llvm::Value *accept(IRGenerator &visitor) override;
+};
+
+/**
  * @class FunctionDecNode
  * @brief Represents a function declaration in the AST.
  *
@@ -391,6 +495,18 @@ class FunctionDecNode : public ASTNode {
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return identifier; }
+
+    /**
+     * @brief  Indicates if the function is defined or only declared.
+     * @return `true` if the function is defined, `false` otherwise.
+     */
+    bool isDefined() {
+        if (codeBlock) {
+            return true;
+        }
+
+        return false;
+    }
 
     /// @copydoc ASTNode::print
     void print() { std::cout << "FUNCTION DECLARATION NODE: " << getValue() << std::endl; }

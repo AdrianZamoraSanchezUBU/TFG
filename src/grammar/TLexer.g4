@@ -6,6 +6,7 @@ options {
 
 /* KEYWORDs */
 FUNCTION : 'function' ;
+RETURN : 'return' ;
 
 // Types
 TYPE_INT    : 'int' ;

@@ -39,7 +39,7 @@ void *SemanticVisitor::visit(CodeBlockNode &node) {
 
 void *SemanticVisitor::visit(VariableDecNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
-
+    std::cout << "dec semantic" << std::endl;
     if (currentScope.get()->contains(node.getValue())) {
         std::cerr << "Variable redeclaration error" << std::endl;
     }
@@ -93,5 +93,13 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
         currentScope->insertSymbol(newSymbol);
     }
 
+    return nullptr;
+}
+
+void *SemanticVisitor::visit(VariableRefNode &node) {
+    return nullptr;
+}
+
+void *SemanticVisitor::visit(ReturnNode &node) {
     return nullptr;
 }

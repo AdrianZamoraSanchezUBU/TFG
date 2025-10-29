@@ -53,6 +53,14 @@ std::string includeTikzStyles() {
         minimum width=4.5em,
         minimum height=2.8em, 
         align=center
+    },returnNode/.style={
+        draw, 
+        rectangle, 
+        fill=violet, 
+        minimum size=3.5em,
+        minimum width=4.5em,
+        minimum height=2.8em, 
+        align=center
     }
 })";
 }
@@ -120,8 +128,12 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::BlockContext *ctx) {
     std::vector<std::unique_ptr<ASTNode>> stmt;
 
     // Visits all the stmts
-    for (int i = 0; i < ctx->stmt().size(); i++) {
-        stmt.push_back(visit(ctx->stmt(i)));
+    for (auto child : ctx->children) {
+        if (auto stmtCtx = dynamic_cast<TParser::StmtContext *>(child)) {
+            stmt.push_back(visit(stmtCtx));
+        } else if (auto retCtx = dynamic_cast<TParser::Return_stmtContext *>(child)) {
+            stmt.push_back(visit(retCtx));
+        }
     }
 
     auto codeBlock = std::make_unique<CodeBlockNode>(std::move(stmt));
@@ -132,11 +144,9 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::BlockContext *ctx) {
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::StmtContext *ctx) {
     if (ctx->expr()) {
         return visit(ctx->expr());
-    }
-    if (ctx->variableDec()) {
+    } else if (ctx->variableDec()) {
         return visit(ctx->variableDec());
-    }
-    if (ctx->variableAssign()) {
+    } else if (ctx->variableAssign()) {
         return visit(ctx->variableAssign());
     }
 
@@ -152,10 +162,6 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ExprContext *ctx) {
         return visit(operandCtx);
     } else if (auto parenCtx = dynamic_cast<TParser::ParenExprContext *>(ctx)) {
         return visit(parenCtx->expr());
-    } else if (auto varDec = dynamic_cast<TParser::VariableDecContext *>(ctx)) {
-        return visit(varDec);
-    } else if (auto varAssign = dynamic_cast<TParser::VariableAssignContext *>(ctx)) {
-        return visit(varAssign);
     }
 
     throw std::runtime_error("Not a valid expr");
@@ -225,7 +231,15 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::OperandExprContext *ctx) {
 
     // Checks if the operand is a identifier (variable) or a literal
     if (operand->IDENTIFIER()) {
-        return nullptr; // TODO add identifiers
+        if (visualizeFlag) {
+            std::ofstream texFile("AST.tex", std::ios::app);
+
+            // Node information
+            texFile << "[{" << operand->IDENTIFIER()->getText() << "},variableDecNode]" << std::endl;
+
+            texFile.close();
+        }
+        return std::make_unique<VariableRefNode>(operand->IDENTIFIER()->getText());
     }
 
     if (operand->literal()) {
@@ -375,4 +389,27 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableAssignContext *ctx) 
     }
 
     return std::make_unique<VariableAssignNode>(type, varName, std::move(assign));
+}
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Return_stmtContext *ctx) {
+    std::unique_ptr<ASTNode> retVal;
+
+    if (visualizeFlag) {
+        // Node information
+        std::ofstream texFile("AST.tex", std::ios::app);
+
+        texFile << "[return,returnNode" << std::endl;
+
+        texFile.close();
+    }
+
+    // Visits the expr that gives this variable its value
+    retVal = visit(ctx->expr());
+
+    if (visualizeFlag) {
+        std::ofstream texFile("AST.tex", std::ios::app);
+        texFile << "]" << std::endl;
+    }
+
+    return std::make_unique<ReturnNode>(std::move(retVal));
 }

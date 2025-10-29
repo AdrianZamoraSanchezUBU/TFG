@@ -117,4 +117,11 @@ class ASTBuilder {
      * @return SupportedTypes A supported type representing the token value.
      */
     SupportedTypes visit(TParser::TypeContext *ctx);
+
+    /**
+     * @brief Visits the context of a return statement.
+     * @param ctx Context of a return statement.
+     * @return AST node associated with the return statement.
+     */
+    std::unique_ptr<ASTNode> visit(TParser::Return_stmtContext *ctx);
 };

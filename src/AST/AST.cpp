@@ -47,3 +47,21 @@ void *VariableAssignNode::accept(SemanticVisitor &visitor) {
 llvm::Value *VariableAssignNode::accept(IRGenerator &visitor) {
     return visitor.visit(*this);
 };
+
+/* VariableRefNode */
+void *VariableRefNode::accept(SemanticVisitor &visitor) {
+    return visitor.visit(*this);
+};
+
+llvm::Value *VariableRefNode::accept(IRGenerator &visitor) {
+    return visitor.visit(*this);
+};
+
+/* ReturnNode */
+void *ReturnNode::accept(SemanticVisitor &visitor) {
+    return visitor.visit(*this);
+};
+
+llvm::Value *ReturnNode::accept(IRGenerator &visitor) {
+    return visitor.visit(*this);
+};

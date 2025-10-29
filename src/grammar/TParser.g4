@@ -7,13 +7,16 @@ options {
 /* Main structures */
 program: block ;
 
-block: LBRACE stmt* RBRACE ;
+block: LBRACE (stmt | return_stmt)* RBRACE ;
+
+return_stmt : RETURN expr? SEMICOLON ;
 
 stmt: expr SEMICOLON
 	| variableDec SEMICOLON
 	| variableAssign SEMICOLON
-	| functionDeclaration SEMICOLON	
-	| functionCall SEMICOLON
+	| functionCall SEMICOLON 
+	| functionDeclaration
+	| functionDefinition
 	;
 
 expr
@@ -52,6 +55,8 @@ variableAssign :
 	| IDENTIFIER ASSIGN_OPERATOR expr
 	| variableDec ASSIGN_OPERATOR expr
 	;
+
+functionDefinition : type FUNCTION IDENTIFIER LPAREN params? RPAREN ;
 
 functionDeclaration: type FUNCTION IDENTIFIER LPAREN params? RPAREN block ;
 

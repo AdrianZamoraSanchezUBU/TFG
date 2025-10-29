@@ -159,6 +159,7 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(VariableDecNode &node) {
+    std::cout << "var assg" << std::endl;
     llvm::Type *varType = llvmTypeConversion(node.getType());
 
     // Gets the current function
@@ -177,6 +178,7 @@ llvm::Value *IRGenerator::visit(VariableDecNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
+    std::cout << "var assg" << std::endl;
     llvm::Value *assignVal;
     SupportedTypes exprType;
 
@@ -221,4 +223,12 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
     ctx.IRBuilder.CreateStore(assignVal, alloc);
 
     return alloc;
+}
+
+llvm::Value *IRGenerator::visit(VariableRefNode &node) {
+    return nullptr;
+}
+
+llvm::Value *IRGenerator::visit(ReturnNode &node) {
+    return nullptr;
 }
