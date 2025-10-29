@@ -32,17 +32,18 @@ class Symbol {
     std::string ID;
     ASTNode *node;
     llvm::Value *llvmVal;
-    llvm::Type *type = nullptr;
+    SupportedTypes type = SupportedTypes::TYPE_VOID;
     SymbolCategory category;
 
   public:
     /**
      * @brief Constructor for Symbol.
      */
-    Symbol(std::string id, ASTNode *astnode, llvm::Value *val, SymbolCategory cat)
-        : ID(id), node(astnode), llvmVal(val), category(cat) {}
+    Symbol(std::string id, ASTNode *astnode, llvm::Value *val, SymbolCategory cat, SupportedTypes ty)
+        : ID(id), node(astnode), llvmVal(val), category(cat), type(ty) {}
 
-    Symbol(std::string id, ASTNode *astnode, SymbolCategory cat) : ID(id), node(astnode), category(cat) {}
+    Symbol(std::string id, ASTNode *astnode, SymbolCategory cat, SupportedTypes ty)
+        : ID(id), node(astnode), category(cat), type(ty) {}
 
     /**
      * @brief Getter for ID.
@@ -57,12 +58,12 @@ class Symbol {
     /**
      * @brief Getter for type.
      */
-    llvm::Type *getType() { return type; }
+    SupportedTypes getSupportedType() { return type; }
 
     /**
      * @brief Setter for type.
      */
-    void setType(llvm::Type *ty) { type = ty; }
+    void setType(SupportedTypes ty) { type = ty; }
 
     /**
      * @brief Setter for llvmVal.

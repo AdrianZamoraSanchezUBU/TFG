@@ -47,7 +47,7 @@ std::string includeTikzStyles() {
         align=center
     },variableAssignNode/.style={
         draw, 
-        parallelogram, 
+        rectangle, 
         fill=violet!20!white, 
         minimum size=3.5em,
         minimum width=4.5em,

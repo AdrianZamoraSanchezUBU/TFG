@@ -67,30 +67,10 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
     SupportedTypes LT, RT;
     SupportedTypes operationType = node.getType();
 
-    if (auto left = dynamic_cast<LiteralNode *>(node.getLeft())) {
-        LT = left->getType();
-    }
-    if (auto right = dynamic_cast<LiteralNode *>(node.getRight())) {
-        RT = right->getType();
-    }
-
     // Check for correctness in child nodes visits
     if (!L || !R) {
         llvm::errs() << "Null operand in binary expression.\n";
         return nullptr;
-    }
-
-    /*
-    Type domination: float over int
-
-    If one side of the operation is float and the other is int,
-    the int will be cast into a float and then proceed with
-    the operation.
-    */
-    if (LT == SupportedTypes::TYPE_INT && RT == SupportedTypes::TYPE_FLOAT) {
-        L = ctx.IRBuilder.CreateSIToFP(L, R->getType(), "inttofloat");
-    } else if (LT == SupportedTypes::TYPE_FLOAT && RT == SupportedTypes::TYPE_INT) {
-        R = ctx.IRBuilder.CreateSIToFP(R, L->getType(), "inttofloat");
     }
 
     std::string op = node.getValue();
@@ -159,7 +139,6 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(VariableDecNode &node) {
-    std::cout << "var assg" << std::endl;
     llvm::Type *varType = llvmTypeConversion(node.getType());
 
     // Gets the current function
@@ -178,7 +157,6 @@ llvm::Value *IRGenerator::visit(VariableDecNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
-    std::cout << "var assg" << std::endl;
     llvm::Value *assignVal;
     SupportedTypes exprType;
 
@@ -226,7 +204,20 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(VariableRefNode &node) {
-    return nullptr;
+    // Finding the ptr of the variable
+    std::shared_ptr<Scope> scope = symtab.findScope(node.getValue());
+    llvm::Value *alloc = scope.get()->getSymbol(node.getValue())->getLlvmValue();
+
+    // Getting the allocated type
+    llvm::Type *type;
+    if (llvm::AllocaInst *ty = llvm::dyn_cast<llvm::AllocaInst>(alloc)) {
+        type = ty->getAllocatedType();
+    }
+
+    // Reference to value
+    llvm::Value *value = ctx.IRBuilder.CreateLoad(type, alloc, node.getValue());
+
+    return value;
 }
 
 llvm::Value *IRGenerator::visit(ReturnNode &node) {

@@ -9,20 +9,46 @@ void *SemanticVisitor::visit(LiteralNode &node) {
 }
 
 void *SemanticVisitor::visit(BinaryExprNode &node) {
-    SupportedTypes LT, RT;
+    std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
+    SupportedTypes LT = SupportedTypes::TYPE_VOID;
+    SupportedTypes RT = SupportedTypes::TYPE_VOID;
 
-    if (auto L = dynamic_cast<LiteralNode *>(node.getLeft())) {
-        LT = L->getType();
-    }
-    /* TODO: CHECK FOR A VARIABLE WITH VALUE
-    else if () {
-    }
-    */
-
-    if (auto R = dynamic_cast<LiteralNode *>(node.getLeft())) {
-        RT = R->getType();
+    /* Propagation of the type */
+    // Getting the type of the literal nodes
+    if (auto left = dynamic_cast<LiteralNode *>(node.getLeft())) {
+        LT = left->getType();
     }
 
+    if (auto right = dynamic_cast<LiteralNode *>(node.getRight())) {
+        RT = right->getType();
+    }
+
+    // Getting the type of the variables
+    if (auto left = dynamic_cast<VariableRefNode *>(node.getLeft())) {
+        std::shared_ptr<Scope> scope = symtab.findScope(left->getValue());
+        SupportedTypes type = scope.get()->getSymbol(left->getValue())->getSupportedType();
+
+        LT = type;
+    }
+
+    if (auto right = dynamic_cast<VariableRefNode *>(node.getRight())) {
+        std::shared_ptr<Scope> scope = symtab.findScope(right->getValue());
+        SupportedTypes type = scope.get()->getSymbol(right->getValue())->getSupportedType();
+
+        RT = type;
+    }
+
+    // Visiting other expr nodes
+    if (auto left = dynamic_cast<BinaryExprNode *>(node.getLeft())) {
+        visit(*left);
+        LT = left->getType();
+    }
+    if (auto right = dynamic_cast<BinaryExprNode *>(node.getRight())) {
+        visit(*right);
+        RT = right->getType();
+    }
+
+    // Type assign to the expr
     if (LT == RT) {
         node.setType(LT);
     }
@@ -31,6 +57,7 @@ void *SemanticVisitor::visit(BinaryExprNode &node) {
 }
 
 void *SemanticVisitor::visit(CodeBlockNode &node) {
+    // Visits all the statements inside the block
     for (int i = 0; i < node.getStmtCount(); i++) {
         node.getStmt(i)->accept(*this);
     }
@@ -39,12 +66,12 @@ void *SemanticVisitor::visit(CodeBlockNode &node) {
 
 void *SemanticVisitor::visit(VariableDecNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
-    std::cout << "dec semantic" << std::endl;
+
     if (currentScope.get()->contains(node.getValue())) {
         std::cerr << "Variable redeclaration error" << std::endl;
     }
 
-    Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE);
+    Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE, node.getType());
     currentScope->insertSymbol(newSymbol);
 
     return nullptr;
@@ -66,8 +93,6 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
             if (sym.getCategory() != SymbolCategory::VARIABLE) {
                 std::cerr << "Missing declaration for a identifier used in a variable assign" << std::endl;
             }
-
-            llvm::Type *llvmType = sym.getType();
         }
 
         // TODO: Type check for already declarated variable assign
@@ -80,7 +105,7 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
         }
 
         // Inserting the variable in the Symbol Table
-        Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE);
+        Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE, node.getType());
         currentScope->insertSymbol(newSymbol);
     }
     if (auto val = dynamic_cast<LiteralNode *>(node.getAssign())) {
@@ -89,7 +114,7 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
         }
 
         // Inserting the variable in the Symbol Table
-        Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE);
+        Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE, node.getType());
         currentScope->insertSymbol(newSymbol);
     }
 
@@ -97,6 +122,22 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
 }
 
 void *SemanticVisitor::visit(VariableRefNode &node) {
+    std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
+
+    // Checks if the variable was already declarated
+    if (currentScope->contains(node.getValue())) {
+        // Check for identifier variable status
+        if (currentScope.get()->getSymbol(node.getValue())) {
+            Symbol sym = *currentScope.get()->getSymbol(node.getValue());
+
+            if (sym.getCategory() != SymbolCategory::VARIABLE) {
+                std::cerr << "The symbol in use: " << node.getValue() << " is not a variable" << std::endl;
+            }
+        }
+    } else {
+        std::cerr << "Missing declaration for the identifier: " << node.getValue() << std::endl;
+    }
+
     return nullptr;
 }
 
