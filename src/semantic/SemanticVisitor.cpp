@@ -26,14 +26,14 @@ void *SemanticVisitor::visit(BinaryExprNode &node) {
     // Getting the type of the variables
     if (auto left = dynamic_cast<VariableRefNode *>(node.getLeft())) {
         std::shared_ptr<Scope> scope = symtab.findScope(left->getValue());
-        SupportedTypes type = scope.get()->getSymbol(left->getValue())->getSupportedType();
+        SupportedTypes type = scope.get()->getSymbol(left->getValue())->getType();
 
         LT = type;
     }
 
     if (auto right = dynamic_cast<VariableRefNode *>(node.getRight())) {
         std::shared_ptr<Scope> scope = symtab.findScope(right->getValue());
-        SupportedTypes type = scope.get()->getSymbol(right->getValue())->getSupportedType();
+        SupportedTypes type = scope.get()->getSymbol(right->getValue())->getType();
 
         RT = type;
     }

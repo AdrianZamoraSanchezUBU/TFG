@@ -80,11 +80,6 @@ class Compiler {
     bool parse();
 
     /**
-     * @brief AST getter.
-     */
-    ASTNode *getAST() { return ast.get(); }
-
-    /**
      * @brief Semantic analysis phase of the compiler.
      * @return `true` if success, `false` otherwise.
      */
@@ -99,10 +94,10 @@ class Compiler {
     /**
      * @brief IRGenerator CodegenContext getter;
      */
-    CodegenContext &getIRContext() { return getIRgenerator().getContext(); }
+    CodegenContext &getIRContext() { return IRgen.get()->getContext(); }
 
     /**
-     * @brief llvm IRGenerator getter;
+     * @brief AST getter.
      */
-    IRGenerator &getIRgenerator() { return *IRgen; }
+    ASTNode *getAST() { return ast.get(); }
 };

@@ -9,6 +9,9 @@
 #include <sstream>
 #include <stdexcept>
 
+/**
+ * @brief Data associated with a compiler execution process.
+ */
 struct CompilerFlags {
     std::string inputFile;
     std::string outputFile;

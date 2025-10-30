@@ -58,7 +58,7 @@ class Symbol {
     /**
      * @brief Getter for type.
      */
-    SupportedTypes getSupportedType() { return type; }
+    SupportedTypes getType() { return type; }
 
     /**
      * @brief Setter for type.
@@ -101,7 +101,7 @@ class Scope {
     Scope(int id, int level, std::shared_ptr<Scope> parent) : id(id), level(level), parent(parent) {}
 
     /**
-     * @brief Returns `true`if this scope contains this id, `false`otherwise.
+     * @brief Returns `true` if this scope contains this id, `false`otherwise.
      */
     bool contains(std::string id);
 

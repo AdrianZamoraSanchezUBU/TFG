@@ -45,7 +45,7 @@ class IRGenerator {
      * @param type SupportedType format.
      * @return llvm::Type* format of the type.
      */
-    llvm::Type *llvmTypeConversion(SupportedTypes);
+    llvm::Type *getLlvmType(SupportedTypes);
 
     /**
      * @return Returns the LLVM Context.

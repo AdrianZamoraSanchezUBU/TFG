@@ -24,7 +24,7 @@ class ASTNode;
  * @see ASTNode
  */
 class ASTBuilder {
-    bool visualizeFlag = false;
+    bool visualizeFlag;
 
   public:
     /**
@@ -112,16 +112,16 @@ class ASTBuilder {
     std::unique_ptr<ASTNode> visit(TParser::VariableAssignContext *ctx);
 
     /**
-     * @brief Visits the type context of a variable declaration.
-     * @param ctx Type context in a variable declaration.
-     * @return SupportedTypes A supported type representing the token value.
-     */
-    SupportedTypes visit(TParser::TypeContext *ctx);
-
-    /**
      * @brief Visits the context of a return statement.
      * @param ctx Context of a return statement.
      * @return AST node associated with the return statement.
      */
     std::unique_ptr<ASTNode> visit(TParser::Return_stmtContext *ctx);
+
+    /**
+     * @brief Visits the type context of a variable declaration.
+     * @param ctx Type context in a variable declaration.
+     * @return SupportedTypes A supported type representing the token value.
+     */
+    SupportedTypes visit(TParser::TypeContext *ctx);
 };

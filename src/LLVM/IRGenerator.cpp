@@ -5,7 +5,7 @@ llvm::Value *IRGenerator::visit(CodeBlockNode &node) {
     return nullptr;
 }
 
-llvm::Type *IRGenerator::llvmTypeConversion(SupportedTypes type) {
+llvm::Type *IRGenerator::getLlvmType(SupportedTypes type) {
     switch (type) {
     case SupportedTypes::TYPE_INT:
         return llvm::Type::getInt32Ty(ctx.IRContext);
@@ -17,6 +17,8 @@ llvm::Type *IRGenerator::llvmTypeConversion(SupportedTypes type) {
         return llvm::PointerType::get(llvm::Type::getInt8Ty(ctx.IRContext), 0);
     case SupportedTypes::TYPE_BOOL:
         return llvm::Type::getInt32Ty(ctx.IRContext);
+    default:
+        return llvm::Type::getVoidTy(ctx.IRContext);
     }
 };
 
@@ -139,7 +141,7 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(VariableDecNode &node) {
-    llvm::Type *varType = llvmTypeConversion(node.getType());
+    llvm::Type *varType = getLlvmType(node.getType());
 
     // Gets the current function
     llvm::Function *currentFunction = ctx.getCurrentFunction();
@@ -173,7 +175,7 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
     // (DECLARATION + ASSIGNMENT)
     if (node.getType() != SupportedTypes::TYPE_VOID) {
         // Type dispatch from Supported Type to LLVM::Type
-        llvm::Type *varType = llvmTypeConversion(node.getType());
+        llvm::Type *varType = getLlvmType(node.getType());
 
         // Gets the current function
         llvm::Function *currentFunction = ctx.getCurrentFunction();
