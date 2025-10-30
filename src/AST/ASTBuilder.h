@@ -30,12 +30,12 @@ class ASTBuilder {
     /**
      * @brief ASTBuilder basic constructor
      */
-    ASTBuilder() : visualizeFlag(false) {}
+    explicit ASTBuilder() : visualizeFlag(false) {}
 
     /**
      * @brief ASTBuilder constructor for a visualizeFlag value assignation
      */
-    ASTBuilder(bool flagValue) : visualizeFlag(flagValue) {}
+    explicit ASTBuilder(bool flagValue) : visualizeFlag(flagValue) {}
 
     /**
      * @brief Visits the program and returns the nodes it contains.
@@ -123,5 +123,5 @@ class ASTBuilder {
      * @param ctx Type context in a variable declaration.
      * @return SupportedTypes A supported type representing the token value.
      */
-    SupportedTypes visit(TParser::TypeContext *ctx);
+    static SupportedTypes visit(TParser::TypeContext *ctx);
 };

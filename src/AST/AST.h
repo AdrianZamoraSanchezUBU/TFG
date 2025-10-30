@@ -64,7 +64,7 @@ class ASTNode {
     /**
      * @brief Prints data about this node
      */
-    virtual void print() = 0;
+    virtual void print() const = 0;
 };
 
 /**
@@ -90,7 +90,7 @@ class CodeBlockNode : public ASTNode {
     /**
      * @brief Returns the ammount of statements in this block.
      */
-    int getStmtCount() { return statements.size(); }
+    int getStmtCount() const { return statements.size(); }
 
     /**
      * @brief Returns the statement with index i.
@@ -114,7 +114,7 @@ class CodeBlockNode : public ASTNode {
     }
 
     /// @copydoc ASTNode::print
-    void print() { std::cout << "CODE BLOCK" << std::endl; }
+    void print() const override { std::cout << "CODE BLOCK" << std::endl; }
 
     /// @copydoc ASTNode::accept(SemanticVisitor &)
     void *accept(SemanticVisitor &visitor) override;
@@ -152,7 +152,7 @@ class LiteralNode : public ASTNode {
     /**
      * @brief Getter for type.
      */
-    SupportedTypes getType() { return type; }
+    SupportedTypes getType() const { return type; }
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override {
@@ -172,7 +172,7 @@ class LiteralNode : public ASTNode {
     }
 
     /// @copydoc ASTNode::print
-    void print() { std::cout << "LITERAL NODE" << getValue() << std::endl; }
+    void print() const override { std::cout << "LITERAL NODE" << getValue() << std::endl; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -220,7 +220,7 @@ class BinaryExprNode : public ASTNode {
      * @brief Devuelve el operador asociado al nodo.
      * @return Operador en formato string.
      */
-    std::string getValue() const { return op; }
+    std::string getValue() const override { return op; }
 
     /**
      * @brief Returns the left hand side operator.
@@ -256,7 +256,7 @@ class BinaryExprNode : public ASTNode {
     }
 
     /// @copydoc ASTNode::print
-    void print() { std::cout << "BINARY EXPR NODE" << getValue() << std::endl; }
+    void print() const override { std::cout << "BINARY EXPR NODE" << getValue() << std::endl; }
 
     /// @copydoc ASTNode::accept(SemanticVisitor &)
     void *accept(SemanticVisitor &visitor) override;
@@ -300,7 +300,7 @@ class ReturnNode : public ASTNode {
     SupportedTypes getType() const { return type; }
 
     /// @copydoc ASTNode::print
-    void print() { std::cout << "RETURN STMT NODE" << getValue() << std::endl; }
+    void print() const override { std::cout << "RETURN STMT NODE" << getValue() << std::endl; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -350,7 +350,7 @@ class VariableDecNode : public ASTNode {
     SupportedTypes getType() const { return type; }
 
     /// @copydoc ASTNode::print
-    void print() { std::cout << "VARIABLE DECLARATION NODE" << getValue() << std::endl; }
+    void print() const override { std::cout << "VARIABLE DECLARATION NODE" << getValue() << std::endl; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -407,7 +407,7 @@ class VariableAssignNode : public ASTNode {
     std::string getValue() const override { return identifier; }
 
     /// @copydoc ASTNode::print
-    void print() { std::cout << "VARIABLE ASSIGN NODE" << getValue() << std::endl; }
+    void print() const override { std::cout << "VARIABLE ASSIGN NODE" << getValue() << std::endl; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -450,7 +450,7 @@ class VariableRefNode : public ASTNode {
     std::string getValue() const override { return identifier; }
 
     /// @copydoc ASTNode::print
-    void print() { std::cout << "VARIABLE ASSIGN NODE" << getValue() << std::endl; }
+    void print() const override { std::cout << "VARIABLE ASSIGN NODE" << getValue() << std::endl; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -500,7 +500,7 @@ class FunctionDecNode : public ASTNode {
      * @brief  Indicates if the function is defined or only declared.
      * @return `true` if the function is defined, `false` otherwise.
      */
-    bool isDefined() {
+    bool isDefined() const {
         if (codeBlock) {
             return true;
         }
@@ -509,7 +509,7 @@ class FunctionDecNode : public ASTNode {
     }
 
     /// @copydoc ASTNode::print
-    void print() { std::cout << "FUNCTION DECLARATION NODE: " << getValue() << std::endl; }
+    void print() const override { std::cout << "FUNCTION DECLARATION NODE: " << getValue() << std::endl; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override { return false; }

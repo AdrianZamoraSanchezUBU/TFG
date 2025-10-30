@@ -39,10 +39,10 @@ class Symbol {
     /**
      * @brief Constructor for Symbol.
      */
-    Symbol(std::string id, ASTNode *astnode, llvm::Value *val, SymbolCategory cat, SupportedTypes ty)
+    explicit Symbol(std::string id, ASTNode *astnode, llvm::Value *val, SymbolCategory cat, SupportedTypes ty)
         : ID(id), node(astnode), llvmVal(val), category(cat), type(ty) {}
 
-    Symbol(std::string id, ASTNode *astnode, SymbolCategory cat, SupportedTypes ty)
+    explicit Symbol(std::string id, ASTNode *astnode, SymbolCategory cat, SupportedTypes ty)
         : ID(id), node(astnode), category(cat), type(ty) {}
 
     /**

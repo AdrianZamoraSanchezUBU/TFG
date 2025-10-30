@@ -21,7 +21,7 @@ class SymbolTable {
     /**
      * @brief Constructor for SymbolTable.
      */
-    SymbolTable() {
+    explicit SymbolTable() {
         // Global Scope with level 0
         currentScope = std::make_shared<Scope>(nextScopeId++, 0, nullptr);
         scopes.emplace_back(currentScope);

@@ -328,25 +328,6 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
     throw std::runtime_error("Not a valid literal");
 }
 
-SupportedTypes ASTBuilder::visit(TParser::TypeContext *ctx) {
-    std::string typeString = ctx->getText();
-    SupportedTypes type;
-
-    // Type dispatch from tokens to Supported types
-    if (ctx->TYPE_INT())
-        return SupportedTypes::TYPE_INT;
-    if (ctx->TYPE_FLOAT())
-        return SupportedTypes::TYPE_FLOAT;
-    if (ctx->TYPE_CHAR())
-        return SupportedTypes::TYPE_CHAR;
-    if (ctx->TYPE_STRING())
-        return SupportedTypes::TYPE_STRING;
-    if (ctx->TYPE_BOOLEAN())
-        return SupportedTypes::TYPE_BOOL;
-
-    throw std::runtime_error("Not a valid type");
-}
-
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableDecContext *ctx) {
     SupportedTypes type = visit(ctx->type());
 
@@ -424,4 +405,20 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Return_stmtContext *ctx) {
     }
 
     return std::make_unique<ReturnNode>(std::move(retVal));
+}
+
+SupportedTypes ASTBuilder::visit(TParser::TypeContext *ctx) {
+    // Type dispatch from tokens to Supported types
+    if (ctx->TYPE_INT())
+        return SupportedTypes::TYPE_INT;
+    if (ctx->TYPE_FLOAT())
+        return SupportedTypes::TYPE_FLOAT;
+    if (ctx->TYPE_CHAR())
+        return SupportedTypes::TYPE_CHAR;
+    if (ctx->TYPE_STRING())
+        return SupportedTypes::TYPE_STRING;
+    if (ctx->TYPE_BOOLEAN())
+        return SupportedTypes::TYPE_BOOL;
+
+    throw std::runtime_error("Not a valid type");
 }

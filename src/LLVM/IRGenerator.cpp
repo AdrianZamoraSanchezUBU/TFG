@@ -136,7 +136,8 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
     }
 
     // Checks for invalid operations in the expression
-    llvm::errs() << "Unsupported binary operation: " << op << " on given types.\n";
+    llvm::errs() << "Unsupported binary operation: " << op << " on " << typeToString(LT) << " and " << typeToString(RT)
+                 << ".\n";
     return nullptr;
 }
 

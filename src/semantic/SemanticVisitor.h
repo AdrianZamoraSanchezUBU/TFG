@@ -16,7 +16,7 @@ class SemanticVisitor {
     SymbolTable &symtab;
 
   public:
-    SemanticVisitor(SymbolTable &table) : symtab(table) {}
+    explicit SemanticVisitor(SymbolTable &table) : symtab(table) {}
 
     /**
      * @brief Needed visit

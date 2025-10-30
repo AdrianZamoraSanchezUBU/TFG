@@ -57,6 +57,11 @@ void *SemanticVisitor::visit(BinaryExprNode &node) {
 }
 
 void *SemanticVisitor::visit(CodeBlockNode &node) {
+    if (node.getStmtCount() < 1) {
+        std::cerr << "Empty block of code" << std::endl;
+        return nullptr;
+    }
+
     // Visits all the statements inside the block
     for (int i = 0; i < node.getStmtCount(); i++) {
         node.getStmt(i)->accept(*this);

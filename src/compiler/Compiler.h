@@ -62,7 +62,7 @@ class Compiler {
      * @brief Compiler default constructor.
      * @param flagStruct Structure with the compiler flags data.
      */
-    Compiler(CompilerFlags flagsStruct) : flags(flagsStruct) {
+    explicit Compiler(CompilerFlags flagsStruct) : flags(flagsStruct) {
         analyser = std::make_unique<SemanticVisitor>(symTable);
         IRgen = std::make_unique<IRGenerator>(symTable);
     };
