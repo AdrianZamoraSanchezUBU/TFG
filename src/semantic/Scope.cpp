@@ -21,7 +21,7 @@ std::string Symbol::print() const {
     return cat;
 };
 
-bool Scope::contains(std::string id) {
+bool Scope::contains(const std::string &id) {
     // Look for the id in this Scope
     if (symbols.find(id) != symbols.end()) {
         return true;
@@ -37,6 +37,14 @@ bool Scope::contains(std::string id) {
     return false;
 }
 
+Symbol *Scope::getSymbol(const std::string &id) {
+    auto it = symbols.find(id);
+    if (it != symbols.end())
+        return &it->second;
+
+    return nullptr;
+}
+
 bool Scope::insertSymbol(Symbol symbol) {
     auto ret = symbols.find(symbol.getID());
 
@@ -49,11 +57,12 @@ bool Scope::insertSymbol(Symbol symbol) {
     return false;
 }
 
-void Scope::print() {
+void Scope::print() const {
     std::cout << "Scope nº " << id << " at level " << level << " with symbols:" << std::endl;
 
     // Prints the pairs {key,symbol} in the map
     for (const auto &[key, symbol] : symbols) {
-        std::cout << "- {Key: " << key << ",(" << symbol.print() << ")}" << std::endl;
+        std::cout << "- {Key: " << key << ",(" << symbol.print() << "," << typeToString(symbol.getType()) << ")}"
+                  << std::endl;
     }
 }

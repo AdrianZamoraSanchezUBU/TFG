@@ -40,25 +40,25 @@ class SymbolTable {
     /**
      * @brief Finds the Scope that contains the key.
      */
-    std::shared_ptr<Scope> findScope(std::string key);
+    std::shared_ptr<Scope> findScope(const std::string &);
 
     /**
      * @brief Returns `true` if the first element can reach the second one, `false`otherwise.
      */
-    bool reach(std::string element1, std::string element2);
+    bool reach(const std::string &, const std::string &);
 
     /**
      * @brief Returns the current Scope.
      */
-    std::shared_ptr<Scope> getCurrentScope() { return currentScope; }
+    std::shared_ptr<Scope> getCurrentScope() const { return currentScope; }
 
     /**
      * @brief Adds a llvm value to the Symbol associated with the ID.
      */
-    void addLlvmVal(std::string, llvm::Value *);
+    void addLlvmVal(const std::string &, llvm::Value *) const;
 
     /**
      * @brief Prints all the Scopes and its Symbols.
      */
-    void print();
+    void print() const;
 };

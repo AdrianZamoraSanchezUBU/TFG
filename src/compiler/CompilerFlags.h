@@ -29,7 +29,7 @@ struct CompilerFlags {
  * @return String with the file's content.
  * @throw std::runtime_error If the file does not exist.
  */
-std::string readFile(const std::string);
+std::string readFile(const std::string &);
 
 /**
  * @brief Parses command-line arguments, supporting both simple flags and key-value pairs.

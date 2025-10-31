@@ -2,6 +2,14 @@
 #include <string.h>
 
 llvm::Value *IRGenerator::visit(CodeBlockNode &node) {
+    llvm::Value *result;
+
+    for (int i = 0; i < node.getStmtCount(); i++) {
+        result = node.getStmt(i)->accept(*this);
+    }
+
+    ctx.IRBuilder.CreateRet(result);
+
     return nullptr;
 }
 
@@ -65,8 +73,6 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
     // Left and Right child nodes visit
     llvm::Value *L = node.getLeft()->accept(*this);
     llvm::Value *R = node.getRight()->accept(*this);
-
-    SupportedTypes LT, RT;
     SupportedTypes operationType = node.getType();
 
     // Check for correctness in child nodes visits
@@ -136,8 +142,7 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
     }
 
     // Checks for invalid operations in the expression
-    llvm::errs() << "Unsupported binary operation: " << op << " on " << typeToString(LT) << " and " << typeToString(RT)
-                 << ".\n";
+    llvm::errs() << "Unsupported binary operation: " << op << " on " << typeToString(operationType) << ".\n";
     return nullptr;
 }
 

@@ -32,7 +32,7 @@ class Symbol {
     std::string ID;
     ASTNode *node;
     llvm::Value *llvmVal;
-    SupportedTypes type = SupportedTypes::TYPE_VOID;
+    SupportedTypes type;
     SymbolCategory category;
 
   public:
@@ -48,17 +48,17 @@ class Symbol {
     /**
      * @brief Getter for ID.
      */
-    std::string getID() { return ID; }
+    std::string getID() const { return ID; }
 
     /**
      * @brief Getter for category.
      */
-    SymbolCategory getCategory() { return category; }
+    SymbolCategory getCategory() const { return category; }
 
     /**
      * @brief Getter for type.
      */
-    SupportedTypes getType() { return type; }
+    SupportedTypes getType() const { return type; }
 
     /**
      * @brief Setter for type.
@@ -73,7 +73,7 @@ class Symbol {
     /**
      * @brief Setter for llvmVal.
      */
-    llvm::Value *getLlvmValue() { return llvmVal; }
+    llvm::Value *getLlvmValue() const { return llvmVal; }
 
     /**
      * @brief Prints the Symbol data.
@@ -98,20 +98,17 @@ class Scope {
      * @param level level of visibility of this Scope.
      * @param parent lower level parent Scope.
      */
-    Scope(int id, int level, std::shared_ptr<Scope> parent) : id(id), level(level), parent(parent) {}
+    explicit Scope(int id, int level, std::shared_ptr<Scope> parent) : id(id), level(level), parent(parent) {}
 
     /**
      * @brief Returns `true` if this scope contains this id, `false`otherwise.
      */
-    bool contains(std::string id);
+    bool contains(const std::string &);
 
     /**
      * @brief Returns the parent Scope.
      */
-    std::shared_ptr<Scope> getParent() {
-        return parent.lock();
-        ;
-    }
+    std::shared_ptr<Scope> getParent() const { return parent.lock(); }
 
     /**
      * @brief Inserts a new Symbol in this Scope.
@@ -122,21 +119,15 @@ class Scope {
     /**
      * @brief Getter for Symbol
      */
-    Symbol *getSymbol(const std::string &id) {
-        auto it = symbols.find(id);
-        if (it != symbols.end())
-            return &it->second;
-
-        return nullptr;
-    }
+    Symbol *getSymbol(const std::string &);
 
     /**
      * @brief Returns the level of this Scope.
      */
-    int getLevel() { return level; }
+    int getLevel() const { return level; }
 
     /**
      * @brief Prints Scope data.
      */
-    void print();
+    void print() const;
 };

@@ -95,17 +95,7 @@ bool Compiler::analyze() {
 
 bool Compiler::generateIR() {
     CodegenContext &ctx = IRgen.get()->getContext();
-
-    // FIXME: REMOVE WHEN FUNCTIONS ARE IMPLEMENTED
-    if (auto *block = dynamic_cast<CodeBlockNode *>(getAST())) {
-        llvm::Value *result;
-
-        for (int i = 0; i < block->getStmtCount(); i++) {
-            result = block->getStmt(i)->accept(*IRgen);
-        }
-
-        ctx.IRBuilder.CreateRet(result);
-    }
+    getAST()->accept(*IRgen);
 
     // Debug IR print
     if (flags.debug) {

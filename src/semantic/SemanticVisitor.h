@@ -63,5 +63,5 @@ class SemanticVisitor {
     /**
      * @brief Prints the content of the SymbolTable.
      */
-    void printSymbolTable() { symtab.print(); }
+    void printSymbolTable() const { symtab.print(); }
 };

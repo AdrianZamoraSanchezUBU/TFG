@@ -1,6 +1,6 @@
 #include "CompilerFlags.h"
 
-std::string readFile(const std::string fileName) {
+std::string readFile(const std::string &fileName) {
     std::ifstream testFile(fileName);
 
     // Opens the file

@@ -11,7 +11,6 @@
  */
 int main(int argc, char *argv[]) {
     // File reading
-    std::string fileContent = readFile(argv[1]);
     CompilerFlags flags;
 
     // Extract the flags from the argv

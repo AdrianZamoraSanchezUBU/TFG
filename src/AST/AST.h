@@ -214,7 +214,7 @@ class BinaryExprNode : public ASTNode {
      * @param rhs Right-hand operand.
      */
     explicit BinaryExprNode(const std::string &op, std::unique_ptr<ASTNode> lhs, std::unique_ptr<ASTNode> rhs)
-        : op(op), left(std::move(lhs)), right(std::move(rhs)) {}
+        : op(op), left(std::move(lhs)), right(std::move(rhs)), type(SupportedTypes::TYPE_VOID) {}
 
     /**
      * @brief Devuelve el operador asociado al nodo.
@@ -380,7 +380,7 @@ class VariableDecNode : public ASTNode {
  * @see CodeBlock
  */
 class VariableAssignNode : public ASTNode {
-    SupportedTypes type = SupportedTypes::TYPE_VOID;
+    SupportedTypes type;
     std::string identifier;
     std::unique_ptr<ASTNode> assign;
 
@@ -413,7 +413,7 @@ class VariableAssignNode : public ASTNode {
     bool equals(const ASTNode *other) const override {
         if (auto o = dynamic_cast<const VariableAssignNode *>(other)) {
             // Returns the result of comparing all the attributes
-            return identifier == o->identifier && assign.get()->equals(o->assign.get());
+            return identifier == o->identifier && assign.get()->equals(o->assign.get()) && type == o->type;
         }
 
         return false;

@@ -14,7 +14,7 @@ void SymbolTable::exitScope() {
     }
 }
 
-std::shared_ptr<Scope> SymbolTable::findScope(std::string key) {
+std::shared_ptr<Scope> SymbolTable::findScope(const std::string &key) {
     for (int i = static_cast<int>(scopes.size()) - 1; i >= 0; --i) {
         if (scopes[i]->contains(key)) {
             return scopes[i];
@@ -24,7 +24,7 @@ std::shared_ptr<Scope> SymbolTable::findScope(std::string key) {
     return nullptr;
 }
 
-bool SymbolTable::reach(std::string element1, std::string element2) {
+bool SymbolTable::reach(const std::string &element1, const std::string &element2) {
     std::shared_ptr<Scope> scope1 = findScope(element1);
     std::shared_ptr<Scope> scope2 = findScope(element2);
 
@@ -43,11 +43,11 @@ bool SymbolTable::reach(std::string element1, std::string element2) {
     return false;
 }
 
-void SymbolTable::addLlvmVal(std::string id, llvm::Value *val) {
+void SymbolTable::addLlvmVal(const std::string &id, llvm::Value *val) const {
     getCurrentScope().get()->getSymbol(id)->setLlvmValue(val);
 }
 
-void SymbolTable::print() {
+void SymbolTable::print() const {
     // Prints all the scopes
     for (const auto &scope : scopes) {
         scope->print();

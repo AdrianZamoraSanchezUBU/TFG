@@ -94,10 +94,10 @@ class Compiler {
     /**
      * @brief IRGenerator CodegenContext getter;
      */
-    CodegenContext &getIRContext() { return IRgen.get()->getContext(); }
+    CodegenContext &getIRContext() const { return IRgen.get()->getContext(); }
 
     /**
      * @brief AST getter.
      */
-    ASTNode *getAST() { return ast.get(); }
+    ASTNode *getAST() const { return ast.get(); }
 };

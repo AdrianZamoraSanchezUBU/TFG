@@ -44,5 +44,5 @@ struct CodegenContext {
     /**
      * Getter for current function
      */
-    llvm::Function *getCurrentFunction() { return currentFunction; };
+    llvm::Function *getCurrentFunction() const { return currentFunction; };
 };
