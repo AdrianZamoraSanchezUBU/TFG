@@ -70,6 +70,33 @@ std::string includeTikzStyles() {
         minimum width=4.5em,
         minimum height=2.8em, 
         align=center
+    },functionDecNode/.style={
+        draw, 
+        regular polygon, 
+        regular polygon sides=5, 
+        fill=teal!25!white, 
+        minimum size=3.5em,
+        minimum width=4.5em,
+        minimum height=2.8em, 
+        align=center
+    },functionDefNode/.style={
+        draw, 
+        regular polygon, 
+        regular polygon sides=6, 
+        fill=teal!25!white, 
+        minimum size=3.5em,
+        minimum width=4.5em,
+        minimum height=2.8em, 
+        align=center
+    },functionCallNode/.style={
+        draw, 
+        regular polygon,
+        regular polygon sides=3, 
+        fill=brown!20!white, 
+        minimum size=3.5em,
+        minimum width=4.5em,
+        minimum height=2.8em, 
+        align=center
     }
 })";
 }
@@ -157,6 +184,12 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::StmtContext *ctx) {
         return visit(ctx->variableDec());
     } else if (ctx->variableAssign()) {
         return visit(ctx->variableAssign());
+    } else if (ctx->functionDefinition()) {
+        return visit(ctx->functionDefinition());
+    } else if (ctx->functionDeclaration()) {
+        return visit(ctx->functionDeclaration());
+    } else if (ctx->functionCall()) {
+        return visit(ctx->functionCall());
     }
 
     throw std::runtime_error("Not a valid stmt");
@@ -253,6 +286,10 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::OperandExprContext *ctx) {
 
     if (operand->literal()) {
         return visit(operand->literal());
+    }
+
+    if (operand->functionCall()) {
+        return visit(operand->functionCall());
     }
 
     throw std::runtime_error("Not a valid operand");
@@ -384,6 +421,70 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableAssignContext *ctx) 
     return std::make_unique<VariableAssignNode>(type, varName, std::move(assign));
 }
 
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDefinitionContext *ctx) {
+    std::string id = ctx->IDENTIFIER()->getText();
+    SupportedTypes type = visit(ctx->type());
+
+    if (visualizeFlag) {
+        // Node information
+        std::ofstream texFile("AST.tex", std::ios::app);
+
+        texFile << "[{" << id << "},functionDefNode" << std::endl;
+
+        texFile.close();
+    }
+
+    std::vector<SupportedTypes> params = visit(ctx->params());
+    auto codeBlock = visit(ctx->block());
+    auto functionScope = std::unique_ptr<CodeBlockNode>(static_cast<CodeBlockNode *>(codeBlock.get()));
+
+    if (visualizeFlag) {
+        std::ofstream texFile("AST.tex", std::ios::app);
+        texFile << "]" << std::endl;
+    }
+
+    return std::make_unique<FunctionDefNode>(id, params, type, std::move(functionScope));
+}
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDeclarationContext *ctx) {
+    std::string id = ctx->IDENTIFIER()->getText();
+    SupportedTypes type = visit(ctx->type());
+
+    if (visualizeFlag) {
+        // Node information
+        std::ofstream texFile("AST.tex", std::ios::app);
+
+        texFile << "[{" << id << "},functionDecNode]" << std::endl;
+
+        texFile.close();
+    }
+
+    std::vector<SupportedTypes> params = visit(ctx->params());
+
+    return std::make_unique<FunctionDecNode>(id, params, type);
+}
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionCallContext *ctx) {
+    std::string id = ctx->IDENTIFIER()->getText();
+    std::vector<std::unique_ptr<ASTNode>> params;
+
+    if (visualizeFlag) {
+        // Node information
+        std::ofstream texFile("AST.tex", std::ios::app);
+
+        texFile << "[" << id << ",functionCallNode]" << std::endl;
+
+        texFile.close();
+    }
+
+    // Visits all the types
+    for (int i = 0; i < ctx->expr().size(); i++) {
+        params.emplace_back(visit(ctx->expr(i)));
+    }
+
+    return std::make_unique<FunctionCallNode>(id, std::move(params));
+}
+
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Return_stmtContext *ctx) {
     std::unique_ptr<ASTNode> retVal;
 
@@ -405,6 +506,17 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Return_stmtContext *ctx) {
     }
 
     return std::make_unique<ReturnNode>(std::move(retVal));
+}
+
+std::vector<SupportedTypes> ASTBuilder::visit(TParser::ParamsContext *ctx) {
+    std::vector<SupportedTypes> params;
+
+    // Visits all the types
+    for (int i = 0; i < ctx->type().size(); i++) {
+        params.emplace_back(visit(ctx->type(i)));
+    }
+
+    return params;
 }
 
 SupportedTypes ASTBuilder::visit(TParser::TypeContext *ctx) {

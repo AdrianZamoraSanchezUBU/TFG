@@ -112,6 +112,34 @@ class ASTBuilder {
     std::unique_ptr<ASTNode> visit(TParser::VariableAssignContext *ctx);
 
     /**
+     * @brief Visits the context of params of a function.
+     * @param ctx Variable assignment context.
+     * @return AST node associated the params.
+     */
+    std::vector<SupportedTypes> visit(TParser::ParamsContext *ctx);
+
+    /**
+     * @brief Visit a function definition node.
+     * @param ctx Context of a return statement.
+     * @return AST node associated with the function definition statement.
+     */
+    std::unique_ptr<ASTNode> visit(TParser::FunctionDefinitionContext *ctx);
+
+    /**
+     * @brief Visit a function declaration node.
+     * @param ctx Context of a return statement.
+     * @return AST node associated with the function declaration statement.
+     */
+    std::unique_ptr<ASTNode> visit(TParser::FunctionDeclarationContext *ctx);
+
+    /**
+     * @brief Visit a function call node.
+     * @param ctx Context of a return statement.
+     * @return AST node associated with the function call statement.
+     */
+    std::unique_ptr<ASTNode> visit(TParser::FunctionCallContext *ctx);
+
+    /**
      * @brief Visits the context of a return statement.
      * @param ctx Context of a return statement.
      * @return AST node associated with the return statement.

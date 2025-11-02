@@ -95,6 +95,24 @@ class IRGenerator {
     llvm::Value *visit(VariableRefNode &node);
 
     /**
+     * @brief Visit a function definition node.
+     * @param node Node to be visited.
+     */
+    llvm::Value *visit(FunctionDefNode &node);
+
+    /**
+     * @brief Visit a function declaration node.
+     * @param node Node to be visited.
+     */
+    llvm::Value *visit(FunctionDecNode &node);
+
+    /**
+     * @brief Visit a function call node.
+     * @param node Node to be visited.
+     */
+    llvm::Value *visit(FunctionCallNode &node);
+
+    /**
      * @brief Visits a return statement node.
      * @param node Node to be visited.
      * @return llvm::Value* Value obtained from the visit.

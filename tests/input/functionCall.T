@@ -1,3 +1,3 @@
 {
-    foo(x);
+    foo(param);
 }

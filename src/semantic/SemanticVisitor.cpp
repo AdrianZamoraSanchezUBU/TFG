@@ -159,6 +159,20 @@ void *SemanticVisitor::visit(VariableRefNode &node) {
     return nullptr;
 }
 
+void *SemanticVisitor::visit(FunctionCallNode &node) {
+    return nullptr;
+}
+
+void *SemanticVisitor::visit(FunctionDecNode &node) {
+
+    return nullptr;
+}
+
+void *SemanticVisitor::visit(FunctionDefNode &node) {
+
+    return nullptr;
+}
+
 void *SemanticVisitor::visit(ReturnNode &node) {
     return nullptr;
 }

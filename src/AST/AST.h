@@ -433,16 +433,14 @@ class VariableAssignNode : public ASTNode {
  * it has a identifier and a new value assigned to this identifier.
  *
  * @see ASTNode
- * @see CodeBlock
  */
 class VariableRefNode : public ASTNode {
     std::string identifier;
 
   public:
     /**
-     * @brief Constructor for VariableAssign node.
-     * @param id Identifier of this variable.
-     * @param val Value assigned to the variable.
+     * @brief Constructor for VariableRef node.
+     * @param id Name of this reference.
      */
     explicit VariableRefNode(const std::string &id) : identifier(id){};
 
@@ -450,7 +448,7 @@ class VariableRefNode : public ASTNode {
     std::string getValue() const override { return identifier; }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "VARIABLE ASSIGN NODE" << getValue() << std::endl; }
+    void print() const override { std::cout << "VAIRABLE REFERENCE NODE" << getValue() << std::endl; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -473,43 +471,119 @@ class VariableRefNode : public ASTNode {
  * @brief Represents a function declaration in the AST.
  *
  * This class represents a function declaration within the AST,
+ * it has a identifier, return type and parameters.
+ *
+ * @see ASTNode
+ * @see CodeBlock
+ * @see VariableDecNode
+ */
+class FunctionDecNode : public ASTNode {
+    std::string identifier;
+    SupportedTypes type;
+    std::vector<SupportedTypes> paramList;
+
+  public:
+    /**
+     * @brief Constructor for the FunctionDecNode.
+     * @param id Name of the function.
+     * @param params Params of the function.
+     * @param t Return type of the function.
+     */
+    explicit FunctionDecNode(const std::string &id, std::vector<SupportedTypes> &params, SupportedTypes t)
+        : identifier(id), paramList(std::move(params)), type(t){};
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return identifier; }
+
+    /// @copydoc ASTNode::print
+    void print() const override { std::cout << "FUNCTION DECLARATION NODE: " << getValue() << std::endl; }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override { return false; }
+
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
+    llvm::Value *accept(IRGenerator &visitor) override;
+};
+
+/**
+ * @class FunctionDefNode
+ * @brief Represents a function definition in the AST.
+ *
+ * This class represents a function definition within the AST,
+ * this node provides a code block with additional statements.
+ *
+ * @see ASTNode
+ * @see CodeBlock
+ * @see VariableDecNode
+ */
+class FunctionDefNode : public ASTNode {
+    std::string identifier;
+    SupportedTypes type;
+    std::vector<SupportedTypes> paramList;
+    std::unique_ptr<CodeBlockNode> codeBlock;
+
+  public:
+    /**
+     * @brief Constructor for the FunctionDefNode.
+     * @param id Name of the function.
+     * @param params Types of the params of this function.
+     * @param t Return type of the function.
+     * @param code Block of code executed at function call.
+     */
+    explicit FunctionDefNode(const std::string &id,
+                             std::vector<SupportedTypes> &params,
+                             SupportedTypes t,
+                             std::unique_ptr<CodeBlockNode> code)
+        : identifier(id), paramList(params), type(t), codeBlock(std::move(code)){};
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return identifier; }
+
+    /// @copydoc ASTNode::print
+    void print() const override { std::cout << "FUNCTION DEFINITION NODE: " << getValue() << std::endl; }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override { return false; }
+
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
+    llvm::Value *accept(IRGenerator &visitor) override;
+};
+
+/**
+ * @class FunctionDecNode
+ * @brief Represents a function declaration in the AST.
+ *
+ * This class represents a function declaration within the AST,
  * it has a return type, a CodeBlock and parameters.
  *
  * @see ASTNode
  * @see CodeBlock
+ * @see VariableDecNode
  */
-class FunctionDecNode : public ASTNode {
+class FunctionCallNode : public ASTNode {
     std::string identifier;
-    std::vector<VariableDecNode> paramList;
-    std::unique_ptr<CodeBlockNode> codeBlock;
+    std::vector<std::unique_ptr<ASTNode>> paramList;
 
   public:
     /**
      * @brief Constructor for the FunctionDecNode.
      * @param id Name os the function.
+     * @param params Types of the params of this function.
      */
-    explicit FunctionDecNode(const std::string &id,
-                             std::vector<VariableDecNode> &params,
-                             std::unique_ptr<CodeBlockNode> code)
-        : identifier(id), paramList(std::move(params)), codeBlock(std::move(code)){};
+    explicit FunctionCallNode(const std::string &id, std::vector<std::unique_ptr<ASTNode>> params)
+        : identifier(id), paramList(std::move(params)){};
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return identifier; }
 
-    /**
-     * @brief  Indicates if the function is defined or only declared.
-     * @return `true` if the function is defined, `false` otherwise.
-     */
-    bool isDefined() const {
-        if (codeBlock) {
-            return true;
-        }
-
-        return false;
-    }
-
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "FUNCTION DECLARATION NODE: " << getValue() << std::endl; }
+    void print() const override { std::cout << "FUNCTION CALL NODE: " << getValue() << std::endl; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override { return false; }

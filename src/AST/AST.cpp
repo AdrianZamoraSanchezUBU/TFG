@@ -57,6 +57,33 @@ llvm::Value *VariableRefNode::accept(IRGenerator &visitor) {
     return visitor.visit(*this);
 };
 
+/* FunctionDefNode */
+void *FunctionDefNode::accept(SemanticVisitor &visitor) {
+    return visitor.visit(*this);
+};
+
+llvm::Value *FunctionDefNode::accept(IRGenerator &visitor) {
+    return visitor.visit(*this);
+};
+
+/* FunctionDecNode */
+void *FunctionDecNode::accept(SemanticVisitor &visitor) {
+    return visitor.visit(*this);
+};
+
+llvm::Value *FunctionDecNode::accept(IRGenerator &visitor) {
+    return visitor.visit(*this);
+};
+
+/* FunctionCallNode */
+void *FunctionCallNode::accept(SemanticVisitor &visitor) {
+    return visitor.visit(*this);
+};
+
+llvm::Value *FunctionCallNode::accept(IRGenerator &visitor) {
+    return visitor.visit(*this);
+};
+
 /* ReturnNode */
 void *ReturnNode::accept(SemanticVisitor &visitor) {
     return visitor.visit(*this);

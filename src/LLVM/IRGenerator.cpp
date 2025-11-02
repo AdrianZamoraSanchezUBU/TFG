@@ -228,6 +228,18 @@ llvm::Value *IRGenerator::visit(VariableRefNode &node) {
     return value;
 }
 
+llvm::Value *IRGenerator::visit(FunctionDefNode &node) {
+    return nullptr;
+};
+
+llvm::Value *IRGenerator::visit(FunctionDecNode &node) {
+    return nullptr;
+};
+
+llvm::Value *IRGenerator::visit(FunctionCallNode &node) {
+    return nullptr;
+};
+
 llvm::Value *IRGenerator::visit(ReturnNode &node) {
     return nullptr;
 }
