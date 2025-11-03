@@ -63,9 +63,8 @@ llvm::Value *IRGenerator::visit(LiteralNode &node) {
         return llvm::ConstantInt::get(ctx.IRContext, llvm::APInt(1, v ? 1 : 0, false));
     }
     default:
-        // Checks for invalid types in literal nodes
-        llvm::errs() << "Unsupported type in literal node: " << node.getValue() << "\n";
-        return nullptr;
+        // Throws error for invalid types in literal nodes
+        throw std::runtime_error("Unsupported type in literal node: " + node.getValue());
     }
 }
 
@@ -141,9 +140,8 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
         }
     }
 
-    // Checks for invalid operations in the expression
-    llvm::errs() << "Unsupported binary operation: " << op << " on " << typeToString(operationType) << ".\n";
-    return nullptr;
+    // Throws error
+    throw std::runtime_error("Unsupported binary operation: " + op + " on " + typeToString(operationType));
 }
 
 llvm::Value *IRGenerator::visit(VariableDecNode &node) {
@@ -170,12 +168,12 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
     // Visits the type of assignment
     if (auto expr = dynamic_cast<BinaryExprNode *>(node.getAssign())) {
         assignVal = visit(*expr);
-    }
-    if (auto lit = dynamic_cast<LiteralNode *>(node.getAssign())) {
+    } else if (auto lit = dynamic_cast<LiteralNode *>(node.getAssign())) {
         assignVal = visit(*lit);
-    }
-    if (auto var = dynamic_cast<VariableRefNode *>(node.getAssign())) {
+    } else if (auto var = dynamic_cast<VariableRefNode *>(node.getAssign())) {
         assignVal = visit(*var);
+    } else {
+        throw std::runtime_error("Not a valid assigment for: " + node.getValue());
     }
 
     // (DECLARATION + ASSIGNMENT)
@@ -216,10 +214,18 @@ llvm::Value *IRGenerator::visit(VariableRefNode &node) {
     std::shared_ptr<Scope> scope = symtab.findScope(node.getValue());
     llvm::Value *alloc = scope.get()->getSymbol(node.getValue())->getLlvmValue();
 
+    if (scope == nullptr) {
+        throw std::runtime_error("There is no scope in the symbol table with the symbol: " + node.getValue());
+    } else if (alloc == nullptr) {
+        throw std::runtime_error("There is no alloc related to the symbol: " + node.getValue());
+    }
+
     // Getting the allocated type
     llvm::Type *type;
     if (llvm::AllocaInst *ty = llvm::dyn_cast<llvm::AllocaInst>(alloc)) {
         type = ty->getAllocatedType();
+    } else {
+        throw std::runtime_error("The symbol: " + node.getValue() + " does not exist in the symbol table");
     }
 
     // Reference to value

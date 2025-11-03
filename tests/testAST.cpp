@@ -26,8 +26,13 @@ std::string readFile(const std::string fileName) {
  * @return Root node of the generated AST.
  */
 ASTNode *runASTTest(const std::string &fileName, Compiler &compiler) {
-    compiler.lex();
-    compiler.parse();
+    try {
+        compiler.lex();
+        compiler.parse();
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
+    }
+
     return compiler.getAST();
 }
 

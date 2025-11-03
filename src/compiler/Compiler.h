@@ -69,27 +69,23 @@ class Compiler {
 
     /**
      * @brief Lexical analysis phase of the compiler.
-     * @return `true` if success, `false` otherwise.
      */
-    bool lex();
+    void lex();
 
     /**
      * @brief Syntactic analysis phase of the compiler.
-     * @return `true` if success, `false` otherwise.
      */
-    bool parse();
+    void parse();
 
     /**
      * @brief Semantic analysis phase of the compiler.
-     * @return `true` if success, `false` otherwise.
      */
-    bool analyze();
+    void analyze();
 
     /**
      * @brief IR generation phase of the compiler.
-     * @return `true` if success, `false` otherwise.
      */
-    bool generateIR();
+    void generateIR();
 
     /**
      * @brief IRGenerator CodegenContext getter;

@@ -14,10 +14,14 @@ bool runLexerTest(const std::string &fileName) {
 
     Compiler compiler(flags);
 
-    if (!compiler.lex())
+    try {
+        compiler.lex();
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
         return false;
-    else
-        return true;
+    }
+
+    return true;
 }
 
 TEST(LexerTest, BasicArithmeticExpr) {

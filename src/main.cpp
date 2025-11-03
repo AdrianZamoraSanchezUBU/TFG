@@ -24,14 +24,15 @@ int main(int argc, char *argv[]) {
     // Creates the compiler with the flags
     Compiler compiler(flags);
 
-    if (!compiler.lex())
+    try {
+        compiler.lex();
+        compiler.parse();
+        compiler.analyze();
+        compiler.generateIR();
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
         return 1;
-    if (!compiler.parse())
-        return 1;
-    if (!compiler.analyze())
-        return 1;
-    if (!compiler.generateIR())
-        return 1;
+    }
 
     return 0;
 }

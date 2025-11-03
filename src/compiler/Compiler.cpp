@@ -1,6 +1,6 @@
 #include "Compiler.h"
 
-bool Compiler::lex() {
+void Compiler::lex() {
     // Reads the input file and generates the lexer
     std::string fileContent = readFile(flags.inputFile);
     inputStream = std::make_unique<antlr4::ANTLRInputStream>(fileContent);
@@ -14,8 +14,7 @@ bool Compiler::lex() {
 
     // Checks for error
     if (lexerErrorListener->hasErrors()) {
-        std::cerr << "Error in lexical analysis phase" << std::endl;
-        return false;
+        throw std::runtime_error("Error in lexical analysis phase");
     }
 
     // Fill the token list
@@ -34,11 +33,9 @@ bool Compiler::lex() {
         }
         std::cout << std::endl;
     }
-
-    return true;
 }
 
-bool Compiler::parse() {
+void Compiler::parse() {
     TParser parser(tokenList.get());
 
     // Custom lexer error listener
@@ -48,40 +45,32 @@ bool Compiler::parse() {
 
     // Checks for error
     if (parserErrorListener->hasErrors()) {
-        std::cerr << "Error in syntactic analysis phase" << std::endl;
-        return false;
+        throw std::runtime_error("Error in syntactic analysis phase");
     }
 
     TParser::ProgramContext *programCtx = parser.program();
 
-    try {
-        // AST generation process
-        ASTBuilder builder(flags.visualizeAST || flags.debug);
-        ast = builder.visit(programCtx);
+    // AST generation process
+    ASTBuilder builder(flags.visualizeAST || flags.debug);
+    ast = builder.visit(programCtx);
 
-        // xelatex compilation and cleaning
-        if (std::system("xelatex --version > /dev/null 2>&1") == 0 && (flags.visualizeAST || flags.debug)) {
-            // Compiles the .tex file
-            std::string texName = "AST";
-            std::string command = "xelatex -interaction=nonstopmode " + texName + ".tex > /dev/null 2>&1";
+    // xelatex compilation and cleaning
+    if (std::system("xelatex --version > /dev/null 2>&1") == 0 && (flags.visualizeAST || flags.debug)) {
+        // Compiles the .tex file
+        std::string texName = "AST";
+        std::string command = "xelatex -interaction=nonstopmode " + texName + ".tex > /dev/null 2>&1";
 
-            if (std::system(command.c_str()) == 0 && flags.debug) {
-                std::cout << "****** AST VISUALIZATION GENERATED AT: ./AST.pdf ******\n" << std::endl;
-            }
-
-            // Clean the .log .aux and .tex files
-            std::string cleanupCmd = "rm -f " + texName + ".log " + texName + ".aux " + texName + ".tex";
-            std::system(cleanupCmd.c_str());
+        if (std::system(command.c_str()) == 0 && flags.debug) {
+            std::cout << "****** AST VISUALIZATION GENERATED AT: ./AST.pdf ******\n" << std::endl;
         }
-    } catch (const std::exception &e) {
-        std::cerr << "Error during AST build process: " << e.what() << '\n';
-        return false;
-    }
 
-    return true;
+        // Clean the .log .aux and .tex files
+        std::string cleanupCmd = "rm -f " + texName + ".log " + texName + ".aux " + texName + ".tex";
+        std::system(cleanupCmd.c_str());
+    }
 }
 
-bool Compiler::analyze() {
+void Compiler::analyze() {
     getAST()->accept(*analyser);
 
     if (flags.debug) {
@@ -89,11 +78,9 @@ bool Compiler::analyze() {
         analyser->printSymbolTable();
         std::cout << std::endl;
     }
-
-    return true;
 }
 
-bool Compiler::generateIR() {
+void Compiler::generateIR() {
     CodegenContext &ctx = IRgen.get()->getContext();
     getAST()->accept(*IRgen);
 
@@ -102,6 +89,4 @@ bool Compiler::generateIR() {
         std::cout << "****** GENERATED LLVM IR ******" << std::endl;
         ctx.IRModule->print(llvm::outs(), nullptr);
     }
-
-    return true;
 }

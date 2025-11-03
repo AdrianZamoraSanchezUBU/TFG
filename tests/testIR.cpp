@@ -60,14 +60,15 @@ bool testIR(const std::string &fileName, std::string expectedIR) {
 
     Compiler compiler(flags);
 
-    if (!compiler.lex())
+    try {
+        compiler.lex();
+        compiler.parse();
+        compiler.analyze();
+        compiler.generateIR();
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
         return false;
-    if (!compiler.parse())
-        return false;
-    if (!compiler.analyze())
-        return false;
-    if (!compiler.generateIR())
-        return false;
+    }
 
     std::string rawIRString;
     llvm::raw_string_ostream rso(rawIRString);

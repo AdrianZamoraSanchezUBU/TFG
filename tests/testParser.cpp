@@ -14,10 +14,13 @@ bool runParserTest(const std::string &fileName) {
 
     Compiler compiler(flags);
 
-    if (!compiler.lex())
+    try {
+        compiler.lex();
+        compiler.parse();
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
         return false;
-    if (!compiler.parse())
-        return false;
+    }
 
     return true;
 }

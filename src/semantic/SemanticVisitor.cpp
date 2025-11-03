@@ -6,7 +6,7 @@ class Type;
 
 void *SemanticVisitor::visit(CodeBlockNode &node) {
     if (node.getStmtCount() < 1) {
-        std::cerr << "Empty block of code" << std::endl;
+        throw std::runtime_error("Empty block of code");
         return nullptr;
     }
 
@@ -62,8 +62,8 @@ void *SemanticVisitor::visit(BinaryExprNode &node) {
     if (LT == RT) {
         node.setType(LT);
     } else {
-        std::cerr << "Diferent types in binary experession with left: " << typeToString(LT)
-                  << " and right: " << typeToString(RT) << std::endl;
+        throw std::runtime_error("Diferent types in binary experession with left: " + typeToString(LT) +
+                                 " and right: " + typeToString(RT));
     }
 
     return nullptr;
@@ -73,7 +73,7 @@ void *SemanticVisitor::visit(VariableDecNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
 
     if (currentScope.get()->contains(node.getValue())) {
-        std::cerr << "Variable redeclaration error" << std::endl;
+        throw std::runtime_error("Variable redeclaration error");
     }
 
     Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE, node.getType());
@@ -89,7 +89,7 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
     /* Checks if the variable was already declarated (only assign) */
     if (currentScope->contains(node.getValue())) {
         if (node.getType() != SupportedTypes::TYPE_VOID) {
-            std::cerr << "Variable redeclaration error" << std::endl;
+            throw std::runtime_error("Variable redeclaration error");
         }
 
         // Check for identifier variable status
@@ -97,7 +97,7 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
             Symbol sym = *currentScope.get()->getSymbol(node.getValue());
 
             if (sym.getCategory() != SymbolCategory::VARIABLE) {
-                std::cerr << "Missing declaration for a identifier used in a variable assign" << std::endl;
+                throw std::runtime_error("Missing declaration for a identifier used in a variable assignment");
             }
         }
 
@@ -107,8 +107,8 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
     /* Type check for variable dec + assign */
     if (auto val = dynamic_cast<BinaryExprNode *>(node.getAssign())) {
         if (val->getType() != node.getType()) {
-            std::cerr << "Variable assign with incompatible types, expr: " << typeToString(val->getType())
-                      << " and variable being assign has: " << typeToString(node.getType()) << std::endl;
+            throw std::runtime_error("Variable assign with incompatible types, expr: " + typeToString(val->getType()) +
+                                     " and variable being assign has: " + typeToString(node.getType()));
         }
 
         // Inserting the variable in the Symbol Table
@@ -117,7 +117,9 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
     }
     if (auto val = dynamic_cast<LiteralNode *>(node.getAssign())) {
         if (val->getType() != node.getType()) {
-            std::cerr << "Variable assign with incompatible types" << std::endl;
+            throw std::runtime_error(
+                "Variable assign with incompatible types for value: " + typeToString(val->getType()) +
+                " ,to a varianble declarated as: " + typeToString(node.getType()));
         }
 
         // Inserting the variable in the Symbol Table
@@ -128,7 +130,9 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
         Symbol sym = *currentScope.get()->getSymbol(val->getValue());
 
         if (sym.getType() != node.getType()) {
-            std::cerr << "Incompatible types in variable assign" << std::endl;
+            throw std::runtime_error(
+                "Variable assign with incompatible types for value: " + typeToString(sym.getType()) +
+                " ,to a varianble declarated as: " + typeToString(node.getType()));
         }
 
         // Inserting the variable in the Symbol Table
@@ -149,11 +153,11 @@ void *SemanticVisitor::visit(VariableRefNode &node) {
             Symbol sym = *currentScope.get()->getSymbol(node.getValue());
 
             if (sym.getCategory() != SymbolCategory::VARIABLE) {
-                std::cerr << "The symbol in use: " << node.getValue() << " is not a variable" << std::endl;
+                throw std::runtime_error("The symbol in use: " + node.getValue() + " is not a variable");
             }
         }
     } else {
-        std::cerr << "Missing declaration for the identifier: " << node.getValue() << std::endl;
+        throw std::runtime_error("Missing declaration for the identifier: " + node.getValue());
     }
 
     return nullptr;
