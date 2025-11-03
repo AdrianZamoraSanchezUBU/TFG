@@ -114,7 +114,13 @@ class CodeBlockNode : public ASTNode {
     }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "CODE BLOCK" << std::endl; }
+    void print() const override {
+        std::cout << "CODE BLOCK" << std::endl;
+
+        for (int i = 0; i < getStmtCount(); i++) {
+            getStmt(i)->print();
+        }
+    }
 
     /// @copydoc ASTNode::accept(SemanticVisitor &)
     void *accept(SemanticVisitor &visitor) override;
@@ -256,7 +262,11 @@ class BinaryExprNode : public ASTNode {
     }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "BINARY EXPR NODE" << getValue() << std::endl; }
+    void print() const override {
+        std::cout << "BINARY EXPR NODE" << getValue() << std::endl;
+        left->print();
+        right->print();
+    }
 
     /// @copydoc ASTNode::accept(SemanticVisitor &)
     void *accept(SemanticVisitor &visitor) override;
