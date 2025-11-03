@@ -16,6 +16,13 @@ bool test(const std::string &fileName, ASTNode *expectedAST, const std::string &
     /* Parser test */
     try {
         compiler.parse();
+
+        if (!compiler.getAST()->equals(expectedAST)) {
+            compiler.getAST()->print();
+            std::cout << std::endl;
+            expectedAST->print();
+        }
+
         EXPECT_TRUE(compiler.getAST()->equals(expectedAST));
     } catch (const std::exception &e) {
         ADD_FAILURE() << "Syntactic analysis phase failed: " << e.what();

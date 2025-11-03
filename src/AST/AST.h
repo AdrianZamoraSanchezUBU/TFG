@@ -115,7 +115,7 @@ class CodeBlockNode : public ASTNode {
 
     /// @copydoc ASTNode::print
     void print() const override {
-        std::cout << "CODE BLOCK" << std::endl;
+        std::cout << "CODE BLOCK:" << std::endl;
 
         for (int i = 0; i < getStmtCount(); i++) {
             getStmt(i)->print();
@@ -178,7 +178,7 @@ class LiteralNode : public ASTNode {
     }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "LITERAL NODE" << getValue() << std::endl; }
+    void print() const override { std::cout << "LITERAL NODE: " << getValue() << std::endl; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -263,7 +263,7 @@ class BinaryExprNode : public ASTNode {
 
     /// @copydoc ASTNode::print
     void print() const override {
-        std::cout << "BINARY EXPR NODE" << getValue() << std::endl;
+        std::cout << "BINARY EXPR NODE: " << getValue() << std::endl;
         left->print();
         right->print();
     }
@@ -310,7 +310,7 @@ class ReturnNode : public ASTNode {
     SupportedTypes getType() const { return type; }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "RETURN STMT NODE" << getValue() << std::endl; }
+    void print() const override { std::cout << "RETURN STMT NODE: " << getValue() << std::endl; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -360,7 +360,7 @@ class VariableDecNode : public ASTNode {
     SupportedTypes getType() const { return type; }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "VARIABLE DECLARATION NODE" << getValue() << std::endl; }
+    void print() const override { std::cout << "VARIABLE DECLARATION NODE: " << getValue() << std::endl; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -417,7 +417,10 @@ class VariableAssignNode : public ASTNode {
     std::string getValue() const override { return identifier; }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "VARIABLE ASSIGN NODE" << getValue() << std::endl; }
+    void print() const override {
+        std::cout << "VARIABLE ASSIGN NODE: " << getValue() << std::endl;
+        assign->print();
+    }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -458,7 +461,7 @@ class VariableRefNode : public ASTNode {
     std::string getValue() const override { return identifier; }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "VAIRABLE REFERENCE NODE" << getValue() << std::endl; }
+    void print() const override { std::cout << "VAIRABLE REFERENCE NODE: " << getValue() << std::endl; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {

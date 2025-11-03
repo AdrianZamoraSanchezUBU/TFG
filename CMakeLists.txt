@@ -26,7 +26,7 @@ add_library(compilerLib STATIC
     src/semantic/SymbolTable.cpp
     src/semantic/Scope.cpp
 	src/LLVM/IRGenerator.cpp
-    
+
     tests/testHelpers.cpp
 )
 
@@ -56,6 +56,7 @@ add_definitions(-DTEST_FILES_DIR="${CMAKE_SOURCE_DIR}/tests/input/")
 # Tests souce
 set(TEST_SOURCES
     tests/exprTest.cpp
+    tests/variableTest.cpp
 )
 
 # Build each test

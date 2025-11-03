@@ -3,6 +3,7 @@
 TEST(exprTest, basicArithmeticExpr) {
     const std::string fileName = std::string(TEST_FILES_DIR) + "basicArithmeticExpr.T";
 
+    /* Expected AST */
     auto lhs = std::make_unique<LiteralNode>(2, SupportedTypes::TYPE_INT);
     auto rhs = std::make_unique<LiteralNode>(2, SupportedTypes::TYPE_INT);
     auto expr = std::make_unique<BinaryExprNode>("+", std::move(lhs), std::move(rhs));
@@ -11,6 +12,7 @@ TEST(exprTest, basicArithmeticExpr) {
     statements.push_back(std::move(expr));
     auto root = std::make_unique<CodeBlockNode>(std::move(statements));
 
+    /* Expected IR */
     std::string expectedIR = R"(i32 4)";
 
     test(fileName, root.get(), expectedIR);
@@ -19,6 +21,7 @@ TEST(exprTest, basicArithmeticExpr) {
 TEST(exprTest, basicLogicalExpr) {
     const std::string fileName = std::string(TEST_FILES_DIR) + "basicLogicalExpr.T";
 
+    /* Expected AST */
     auto lhs = std::make_unique<LiteralNode>(2, SupportedTypes::TYPE_INT);
     auto rhs = std::make_unique<LiteralNode>(3, SupportedTypes::TYPE_INT);
     auto expr = std::make_unique<BinaryExprNode>("<", std::move(lhs), std::move(rhs));
@@ -27,6 +30,7 @@ TEST(exprTest, basicLogicalExpr) {
     statements.push_back(std::move(expr));
     auto root = std::make_unique<CodeBlockNode>(std::move(statements));
 
+    /* Expected IR */
     std::string expectedIR = R"(i1 true)";
 
     test(fileName, root.get(), expectedIR);
@@ -35,6 +39,7 @@ TEST(exprTest, basicLogicalExpr) {
 TEST(exprTest, stringLogicalExprEQ) {
     const std::string fileName = std::string(TEST_FILES_DIR) + "stringLogicalExprEQ.T";
 
+    /* Expected AST */
     auto lhs = std::make_unique<LiteralNode>("\"string\"", SupportedTypes::TYPE_STRING);
     auto rhs = std::make_unique<LiteralNode>("\"string\"", SupportedTypes::TYPE_STRING);
     auto expr = std::make_unique<BinaryExprNode>("==", std::move(lhs), std::move(rhs));
@@ -44,16 +49,18 @@ TEST(exprTest, stringLogicalExprEQ) {
     statements.push_back(std::move(expr));
     auto root = std::make_unique<CodeBlockNode>(std::move(statements));
 
+    /* Expected IR */
     std::string expectedIR = R"(i1 true)";
 
     test(fileName, root.get(), expectedIR);
 }
 
-TEST(exprTest, stringLogicalExprEQ) {
+TEST(exprTest, stringLogicalExprNQ) {
     const std::string fileName = std::string(TEST_FILES_DIR) + "stringLogicalExprNQ.T";
 
-    auto lhs = std::make_unique<LiteralNode>("\"a\"", SupportedTypes::TYPE_STRING);
-    auto rhs = std::make_unique<LiteralNode>("\"b\"", SupportedTypes::TYPE_STRING);
+    /* Expected AST */
+    auto lhs = std::make_unique<LiteralNode>("\"string1\"", SupportedTypes::TYPE_STRING);
+    auto rhs = std::make_unique<LiteralNode>("\"string2\"", SupportedTypes::TYPE_STRING);
     auto expr = std::make_unique<BinaryExprNode>("!=", std::move(lhs), std::move(rhs));
     expr.get()->setType(SupportedTypes::TYPE_STRING);
 
@@ -61,6 +68,7 @@ TEST(exprTest, stringLogicalExprEQ) {
     statements.push_back(std::move(expr));
     auto root = std::make_unique<CodeBlockNode>(std::move(statements));
 
+    /* Expected IR */
     std::string expectedIR = R"(i1 true)";
 
     test(fileName, root.get(), expectedIR);
@@ -69,7 +77,7 @@ TEST(exprTest, stringLogicalExprEQ) {
 TEST(exprTest, complexExpr) {
     const std::string fileName = std::string(TEST_FILES_DIR) + "complexExpr.T";
 
-    /* Expected result */
+    /* Expected AST */
     auto leftOperation =
         std::make_unique<BinaryExprNode>("+", std::make_unique<LiteralNode>(3, SupportedTypes::TYPE_INT),
                                          std::make_unique<LiteralNode>(2, SupportedTypes::TYPE_INT));
@@ -85,6 +93,7 @@ TEST(exprTest, complexExpr) {
     statements.push_back(std::move(expr));
     auto root = std::make_unique<CodeBlockNode>(std::move(statements));
 
+    /* Expected IR */
     std::string expectedIR = R"(i32 2)";
 
     test(fileName, root.get(), expectedIR);
