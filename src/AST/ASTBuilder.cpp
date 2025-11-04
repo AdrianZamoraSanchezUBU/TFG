@@ -445,14 +445,16 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDefinitionContext *c
     }
 
     auto codeBlock = visit(ctx->block());
-    auto functionScope = std::unique_ptr<CodeBlockNode>(static_cast<CodeBlockNode *>(codeBlock.get()));
+    auto raw = codeBlock.release();
+    auto functionScope = dynamic_cast<CodeBlockNode *>(raw);
+    std::unique_ptr<CodeBlockNode> codeBlockPtr(functionScope);
 
     if (visualizeFlag) {
         std::ofstream texFile("AST.tex", std::ios::app);
         texFile << "]" << std::endl;
     }
 
-    return std::make_unique<FunctionDefNode>(id, params, type, std::move(functionScope));
+    return std::make_unique<FunctionDefNode>(id, params, type, std::move(codeBlockPtr));
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDeclarationContext *ctx) {

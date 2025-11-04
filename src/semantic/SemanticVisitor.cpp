@@ -14,6 +14,7 @@ void *SemanticVisitor::visit(CodeBlockNode &node) {
     for (int i = 0; i < node.getStmtCount(); i++) {
         node.getStmt(i)->accept(*this);
     }
+
     return nullptr;
 }
 
@@ -190,7 +191,7 @@ void *SemanticVisitor::visit(FunctionDefNode &node) {
         }
     }
 
-    symtab.exitScope();
+    node.getCodeBlock()->accept(*this);
 
     return nullptr;
 }
@@ -211,6 +212,7 @@ void *SemanticVisitor::visit(FunctionCallNode &node) {
 }
 
 void *SemanticVisitor::visit(ReturnNode &node) {
+    node.getStmt()->accept(*this);
     symtab.exitScope();
 
     return nullptr;

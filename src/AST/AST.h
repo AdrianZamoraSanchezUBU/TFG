@@ -286,8 +286,7 @@ class BinaryExprNode : public ASTNode {
  * @see CodeBlock
  */
 class ReturnNode : public ASTNode {
-    SupportedTypes type = SupportedTypes::TYPE_VOID;
-    std::unique_ptr<ASTNode> stmt;
+    std::unique_ptr<ASTNode> stmt; // FIXME: DOES NOT SUPPORT VOID RETURN
 
   public:
     /**
@@ -302,21 +301,21 @@ class ReturnNode : public ASTNode {
     explicit ReturnNode(){};
 
     /// @copydoc ASTNode::getValue
-    std::string getValue() const override { return typeToString(type); }
+    std::string getValue() const override { return "RETURN: " + stmt.get()->getValue(); }
 
     /**
-     * @brief Getter for type.
+     * @brief Getter for stmt.
      */
-    SupportedTypes getType() const { return type; }
+    ASTNode *getStmt() const { return stmt.get(); }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "RETURN STMT NODE: " << getValue() << std::endl; }
+    void print() const override { std::cout << getValue() << std::endl; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
         if (auto o = dynamic_cast<const ReturnNode *>(other)) {
             // Returns the result of comparing all the attributes
-            return type == o->type && stmt.get()->equals(o);
+            return stmt.get()->equals(o);
         }
 
         return false;
@@ -571,6 +570,11 @@ class FunctionDefNode : public ASTNode {
     SupportedTypes getType() const { return type; }
 
     /**
+     * @brief Getter for code block inside this function.
+     */
+    CodeBlockNode *getCodeBlock() const { return codeBlock.get(); }
+
+    /**
      * @brief Returns the ammount of parameters in this block.
      */
     int getParamsCount() const { return paramList.size(); }
@@ -581,7 +585,10 @@ class FunctionDefNode : public ASTNode {
     ASTNode *getParam(int i) const { return paramList[i].get(); }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "FUNCTION DEFINITION NODE: " << getValue() << std::endl; }
+    void print() const override {
+        std::cout << "FUNCTION DEFINITION NODE: " << getValue() << std::endl;
+        codeBlock->print();
+    }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override { return false; }

@@ -11,6 +11,8 @@ std::shared_ptr<Scope> SymbolTable::enterScope() {
 void SymbolTable::exitScope() {
     if (auto parent = currentScope->getParent()) {
         currentScope = parent;
+    } else {
+        std::runtime_error("There is no parent scope");
     }
 }
 
