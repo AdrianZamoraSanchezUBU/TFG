@@ -35,7 +35,7 @@ bool Scope::contains(const std::string &id) {
 
     // No parent (global scope)
     return false;
-}
+};
 
 Symbol *Scope::getSymbol(const std::string &id) {
     auto it = symbols.find(id);
@@ -43,7 +43,7 @@ Symbol *Scope::getSymbol(const std::string &id) {
         return &it->second;
 
     return nullptr;
-}
+};
 
 bool Scope::insertSymbol(Symbol symbol) {
     auto ret = symbols.find(symbol.getID());
@@ -55,7 +55,7 @@ bool Scope::insertSymbol(Symbol symbol) {
     }
 
     return false;
-}
+};
 
 void Scope::print() const {
     std::cout << "Scope nº " << id << " at level " << level << " with symbols:" << std::endl;
@@ -65,4 +65,4 @@ void Scope::print() const {
         std::cout << "- {Key: " << key << ",(" << symbol.print() << "," << typeToString(symbol.getType()) << ")}"
                   << std::endl;
     }
-}
+};

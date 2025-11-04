@@ -434,7 +434,16 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDefinitionContext *c
         texFile.close();
     }
 
-    std::vector<SupportedTypes> params = visit(ctx->params());
+    std::vector<std::unique_ptr<ASTNode>> params;
+
+    // Visits all the types
+    for (int i = 0; i < ctx->params()->IDENTIFIER().size(); i++) {
+        std::string id = ctx->params()->IDENTIFIER(i)->getText();
+        SupportedTypes type = visit(ctx->params()->type(i));
+
+        params.emplace_back(std::make_unique<VariableDecNode>(type, id));
+    }
+
     auto codeBlock = visit(ctx->block());
     auto functionScope = std::unique_ptr<CodeBlockNode>(static_cast<CodeBlockNode *>(codeBlock.get()));
 

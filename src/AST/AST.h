@@ -503,10 +503,20 @@ class FunctionDecNode : public ASTNode {
      * @param t Return type of the function.
      */
     explicit FunctionDecNode(const std::string &id, std::vector<SupportedTypes> &params, SupportedTypes t)
-        : identifier(id), paramList(std::move(params)), type(t){};
+        : identifier(id), paramList(params), type(t){};
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return identifier; }
+
+    /**
+     * @brief Getter for type.
+     */
+    SupportedTypes getType() const { return type; }
+
+    /**
+     * @brief Getter for params.
+     */
+    std::vector<SupportedTypes> getParams() const { return paramList; }
 
     /// @copydoc ASTNode::print
     void print() const override { std::cout << "FUNCTION DECLARATION NODE: " << getValue() << std::endl; }
@@ -535,7 +545,7 @@ class FunctionDecNode : public ASTNode {
 class FunctionDefNode : public ASTNode {
     std::string identifier;
     SupportedTypes type;
-    std::vector<SupportedTypes> paramList;
+    std::vector<std::unique_ptr<ASTNode>> paramList;
     std::unique_ptr<CodeBlockNode> codeBlock;
 
   public:
@@ -547,13 +557,28 @@ class FunctionDefNode : public ASTNode {
      * @param code Block of code executed at function call.
      */
     explicit FunctionDefNode(const std::string &id,
-                             std::vector<SupportedTypes> &params,
+                             std::vector<std::unique_ptr<ASTNode>> &params,
                              SupportedTypes t,
                              std::unique_ptr<CodeBlockNode> code)
-        : identifier(id), paramList(params), type(t), codeBlock(std::move(code)){};
+        : identifier(id), paramList(std::move(params)), type(t), codeBlock(std::move(code)){};
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return identifier; }
+
+    /**
+     * @brief Getter for type.
+     */
+    SupportedTypes getType() const { return type; }
+
+    /**
+     * @brief Returns the ammount of parameters in this block.
+     */
+    int getParamsCount() const { return paramList.size(); }
+
+    /**
+     * @brief Returns the parameters with index i.
+     */
+    ASTNode *getParam(int i) const { return paramList[i].get(); }
 
     /// @copydoc ASTNode::print
     void print() const override { std::cout << "FUNCTION DEFINITION NODE: " << getValue() << std::endl; }
@@ -594,6 +619,16 @@ class FunctionCallNode : public ASTNode {
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return identifier; }
+
+    /**
+     * @brief Returns the ammount of parameters in this block.
+     */
+    int getParamsCount() const { return paramList.size(); }
+
+    /**
+     * @brief Returns the parameters with index i.
+     */
+    ASTNode *getParam(int i) const { return paramList[i].get(); }
 
     /// @copydoc ASTNode::print
     void print() const override { std::cout << "FUNCTION CALL NODE: " << getValue() << std::endl; }

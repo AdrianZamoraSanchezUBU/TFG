@@ -163,20 +163,55 @@ void *SemanticVisitor::visit(VariableRefNode &node) {
     return nullptr;
 }
 
-void *SemanticVisitor::visit(FunctionCallNode &node) {
-    return nullptr;
-}
-
 void *SemanticVisitor::visit(FunctionDecNode &node) {
+    std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
+
+    // Inserts the function identifier in the current scope
+    Symbol newSymbol(node.getValue(), &node, SymbolCategory::FUNCTION, node.getType());
+    currentScope->insertSymbol(newSymbol);
 
     return nullptr;
 }
 
 void *SemanticVisitor::visit(FunctionDefNode &node) {
+    std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
+
+    // Inserts the function identifier in the current scope
+    Symbol newSymbol(node.getValue(), &node, SymbolCategory::FUNCTION, node.getType());
+    currentScope->insertSymbol(newSymbol);
+
+    // Creates a new scope for this function
+    std::shared_ptr<Scope> newScope = symtab.enterScope();
+
+    for (int i = 0; i < node.getParamsCount(); i++) {
+        if (auto var = dynamic_cast<VariableDecNode *>(node.getParam(i))) {
+            Symbol newSymbol(var->getValue(), var, SymbolCategory::VARIABLE, var->getType());
+            newScope->insertSymbol(newSymbol);
+        }
+    }
+
+    symtab.exitScope();
+
+    return nullptr;
+}
+
+void *SemanticVisitor::visit(FunctionCallNode &node) {
+    std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
+
+    for (int i = 0; i < node.getParamsCount(); i++) {
+        if (auto var = dynamic_cast<VariableRefNode *>(node.getParam(i))) {
+            if (!currentScope.get()->contains(var->getValue())) {
+                throw std::runtime_error("Missing declaration for a identifier used in a function call: " +
+                                         node.getParam(i)->getValue());
+            }
+        }
+    }
 
     return nullptr;
 }
 
 void *SemanticVisitor::visit(ReturnNode &node) {
+    symtab.exitScope();
+
     return nullptr;
 }
