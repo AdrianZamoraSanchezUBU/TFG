@@ -309,13 +309,16 @@ class ReturnNode : public ASTNode {
     ASTNode *getStmt() const { return stmt.get(); }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << getValue() << std::endl; }
+    void print() const override {
+        std::cout << getValue() << std::endl;
+        stmt.get()->print();
+    }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
         if (auto o = dynamic_cast<const ReturnNode *>(other)) {
             // Returns the result of comparing all the attributes
-            return stmt.get()->equals(o);
+            return stmt.get()->equals(o->getStmt());
         }
 
         return false;
@@ -518,10 +521,19 @@ class FunctionDecNode : public ASTNode {
     std::vector<SupportedTypes> getParams() const { return paramList; }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "FUNCTION DECLARATION NODE: " << getValue() << std::endl; }
+    void print() const override {
+        std::cout << "FUNCTION DECLARATION NODE: " << typeToString(getType()) << " " << getValue() << std::endl;
+    }
 
     /// @copydoc ASTNode::equals
-    bool equals(const ASTNode *other) const override { return false; }
+    bool equals(const ASTNode *other) const override {
+        if (auto o = dynamic_cast<const FunctionDecNode *>(other)) {
+            // Returns the result of comparing all the attributes
+            return identifier == o->identifier && type == o->type;
+        }
+
+        return false;
+    }
 
     /// @copydoc ASTNode::accept(SemanticVisitor &)
     void *accept(SemanticVisitor &visitor) override;
@@ -586,12 +598,19 @@ class FunctionDefNode : public ASTNode {
 
     /// @copydoc ASTNode::print
     void print() const override {
-        std::cout << "FUNCTION DEFINITION NODE: " << getValue() << std::endl;
+        std::cout << "FUNCTION DEFINITION NODE: " << typeToString(getType()) << " " << getValue() << std::endl;
         codeBlock->print();
     }
 
     /// @copydoc ASTNode::equals
-    bool equals(const ASTNode *other) const override { return false; }
+    bool equals(const ASTNode *other) const override {
+        if (auto o = dynamic_cast<const FunctionDefNode *>(other)) {
+            // Returns the result of comparing all the attributes
+            return identifier == o->identifier && type == o->type && codeBlock.get()->equals(o->codeBlock.get());
+        }
+
+        return false;
+    }
 
     /// @copydoc ASTNode::accept(SemanticVisitor &)
     void *accept(SemanticVisitor &visitor) override;
@@ -641,7 +660,14 @@ class FunctionCallNode : public ASTNode {
     void print() const override { std::cout << "FUNCTION CALL NODE: " << getValue() << std::endl; }
 
     /// @copydoc ASTNode::equals
-    bool equals(const ASTNode *other) const override { return false; }
+    bool equals(const ASTNode *other) const override {
+        if (auto o = dynamic_cast<const FunctionCallNode *>(other)) {
+            // Returns the result of comparing all the attributes
+            return identifier == o->identifier;
+        }
+
+        return false;
+    }
 
     /// @copydoc ASTNode::accept(SemanticVisitor &)
     void *accept(SemanticVisitor &visitor) override;

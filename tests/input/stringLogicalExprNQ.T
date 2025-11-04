@@ -1,1 +1,3 @@
-{"string1" != "string2";}
+bool function foo(){
+    return "string1" != "string2";
+}

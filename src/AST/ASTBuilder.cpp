@@ -144,7 +144,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ProgramContext *ctx) {
         texFile << includeTexHeader() << std::endl;
     }
 
-    auto entryBlock = visit(ctx->block());
+    auto entryBlock = visit(ctx->programMainBlock());
 
     if (visualizeFlag) {
         std::ofstream texFile("AST.tex", std::ios::app);
@@ -158,6 +158,23 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ProgramContext *ctx) {
     }
 
     return entryBlock;
+}
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ProgramMainBlockContext *ctx) {
+    std::vector<std::unique_ptr<ASTNode>> stmt;
+
+    // Visits all the stmts
+    for (auto child : ctx->children) {
+        if (auto stmtCtx = dynamic_cast<TParser::StmtContext *>(child)) {
+            stmt.push_back(visit(stmtCtx));
+        } else if (auto retCtx = dynamic_cast<TParser::Return_stmtContext *>(child)) {
+            stmt.push_back(visit(retCtx));
+        }
+    }
+
+    auto codeBlock = std::make_unique<CodeBlockNode>(std::move(stmt));
+
+    return codeBlock;
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::BlockContext *ctx) {
@@ -437,11 +454,13 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDefinitionContext *c
     std::vector<std::unique_ptr<ASTNode>> params;
 
     // Visits all the types
-    for (int i = 0; i < ctx->params()->IDENTIFIER().size(); i++) {
-        std::string id = ctx->params()->IDENTIFIER(i)->getText();
-        SupportedTypes type = visit(ctx->params()->type(i));
+    if (ctx->params() != nullptr && !ctx->params()->isEmpty()) {
+        for (int i = 0; i < ctx->params()->IDENTIFIER().size(); i++) {
+            std::string id = ctx->params()->IDENTIFIER(i)->getText();
+            SupportedTypes type = visit(ctx->params()->type(i));
 
-        params.emplace_back(std::make_unique<VariableDecNode>(type, id));
+            params.emplace_back(std::make_unique<VariableDecNode>(type, id));
+        }
     }
 
     auto codeBlock = visit(ctx->block());
@@ -470,7 +489,10 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDeclarationContext *
         texFile.close();
     }
 
-    std::vector<SupportedTypes> params = visit(ctx->params());
+    std::vector<SupportedTypes> params;
+    if (ctx->params() != nullptr && !ctx->params()->isEmpty()) {
+        params = visit(ctx->params());
+    }
 
     return std::make_unique<FunctionDecNode>(id, params, type);
 }

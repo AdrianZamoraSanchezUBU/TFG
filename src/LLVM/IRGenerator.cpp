@@ -3,13 +3,9 @@
 #include <string.h>
 
 llvm::Value *IRGenerator::visit(CodeBlockNode &node) {
-    llvm::Value *result;
-
     for (int i = 0; i < node.getStmtCount(); i++) {
-        result = node.getStmt(i)->accept(*this);
+        node.getStmt(i)->accept(*this);
     }
-
-    ctx.IRBuilder.CreateRet(result);
 
     return nullptr;
 }
@@ -253,6 +249,8 @@ llvm::Value *IRGenerator::visit(FunctionDefNode &node) {
         function =
             llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, node.getValue(), ctx.IRModule.get());
     }
+    ctx.saveInsertPoint();
+    ctx.currentFunction = function;
 
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx.IRContext, "entry", function);
     ctx.IRBuilder.SetInsertPoint(entry);
@@ -316,5 +314,6 @@ llvm::Value *IRGenerator::visit(ReturnNode &node) {
     llvm::Value *ret = node.getStmt()->accept(*this);
 
     ctx.IRBuilder.CreateRet(ret);
+    ctx.restoreInsertPoint();
     return nullptr;
 }

@@ -1,3 +1,1 @@
-{
-    int function foo(int x);
-}
+int function foo(int x);

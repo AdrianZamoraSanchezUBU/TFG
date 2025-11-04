@@ -5,11 +5,13 @@ options {
 }
 
 /* Main structures */
-program: block ;
+program: programMainBlock ;
+
+programMainBlock: (stmt)* ; 
 
 block: LBRACE (stmt | return_stmt)* RBRACE ;
 
-return_stmt : RETURN expr? SEMICOLON ;
+return_stmt: RETURN expr? SEMICOLON ;
 
 stmt: variableDec SEMICOLON
 	| variableAssign SEMICOLON

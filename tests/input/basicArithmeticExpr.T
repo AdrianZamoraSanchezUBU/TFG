@@ -1,3 +1,3 @@
-{
-    2 + 2;
+int function foo(){
+    return 2+2;
 }

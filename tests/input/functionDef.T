@@ -1,5 +1,3 @@
-{
-    int function foo(int x){
-        return x*2;
-    }
+int function foo(int x){
+    return x*2;
 }

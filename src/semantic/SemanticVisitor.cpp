@@ -184,10 +184,12 @@ void *SemanticVisitor::visit(FunctionDefNode &node) {
     // Creates a new scope for this function
     std::shared_ptr<Scope> newScope = symtab.enterScope();
 
-    for (int i = 0; i < node.getParamsCount(); i++) {
-        if (auto var = dynamic_cast<VariableDecNode *>(node.getParam(i))) {
-            Symbol newSymbol(var->getValue(), var, SymbolCategory::VARIABLE, var->getType());
-            newScope->insertSymbol(newSymbol);
+    if (node.getParamsCount() > 0) {
+        for (int i = 0; i < node.getParamsCount(); i++) {
+            if (auto var = dynamic_cast<VariableDecNode *>(node.getParam(i))) {
+                Symbol newSymbol(var->getValue(), var, SymbolCategory::VARIABLE, var->getType());
+                newScope->insertSymbol(newSymbol);
+            }
         }
     }
 
@@ -199,11 +201,13 @@ void *SemanticVisitor::visit(FunctionDefNode &node) {
 void *SemanticVisitor::visit(FunctionCallNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
 
-    for (int i = 0; i < node.getParamsCount(); i++) {
-        if (auto var = dynamic_cast<VariableRefNode *>(node.getParam(i))) {
-            if (!currentScope.get()->contains(var->getValue())) {
-                throw std::runtime_error("Missing declaration for a identifier used in a function call: " +
-                                         node.getParam(i)->getValue());
+    if (node.getParamsCount() > 0) {
+        for (int i = 0; i < node.getParamsCount(); i++) {
+            if (auto var = dynamic_cast<VariableRefNode *>(node.getParam(i))) {
+                if (!currentScope.get()->contains(var->getValue())) {
+                    throw std::runtime_error("Missing declaration for a identifier used in a function call: " +
+                                             node.getParam(i)->getValue());
+                }
             }
         }
     }
@@ -213,7 +217,7 @@ void *SemanticVisitor::visit(FunctionCallNode &node) {
 
 void *SemanticVisitor::visit(ReturnNode &node) {
     node.getStmt()->accept(*this);
-    symtab.exitScope();
+    // symtab.exitScope();
 
     return nullptr;
 }

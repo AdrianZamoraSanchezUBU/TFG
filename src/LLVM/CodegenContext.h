@@ -26,6 +26,9 @@ struct CodegenContext {
     /// Current function
     llvm::Function *currentFunction;
 
+    llvm::BasicBlock *savedBlock = nullptr;
+    llvm::Function *savedFunction = nullptr;
+
     /**
      * @brief Module and IRBuilder set up.
      */
@@ -50,4 +53,16 @@ struct CodegenContext {
      * Setter for current function
      */
     void setCurrentFunction(llvm::Function *func) { currentFunction = func; };
+
+    inline void saveInsertPoint() {
+        savedBlock = IRBuilder.GetInsertBlock();
+        savedFunction = currentFunction;
+    }
+
+    inline void restoreInsertPoint() {
+        if (savedBlock) {
+            IRBuilder.SetInsertPoint(savedBlock);
+            currentFunction = savedFunction;
+        }
+    }
 };
