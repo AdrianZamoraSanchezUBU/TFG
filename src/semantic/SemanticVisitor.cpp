@@ -149,11 +149,11 @@ void *SemanticVisitor::visit(VariableRefNode &node) {
 
     // Checks if the variable was already declarated
     if (currentScope->contains(node.getValue())) {
-        // Check for this identifier variable status
+        // Check for this identifier variable or parameter status
         if (currentScope.get()->getSymbol(node.getValue())) {
             Symbol sym = *currentScope.get()->getSymbol(node.getValue());
 
-            if (sym.getCategory() != SymbolCategory::VARIABLE) {
+            if (sym.getCategory() != SymbolCategory::VARIABLE && sym.getCategory() != SymbolCategory::PARAMETER) {
                 throw std::runtime_error("The symbol in use: " + node.getValue() + " is not a variable");
             }
         }
@@ -184,10 +184,11 @@ void *SemanticVisitor::visit(FunctionDefNode &node) {
     // Creates a new scope for this function
     std::shared_ptr<Scope> newScope = symtab.enterScope();
 
+    // Inserting parameters in the function scope
     if (node.getParamsCount() > 0) {
         for (int i = 0; i < node.getParamsCount(); i++) {
             if (auto var = dynamic_cast<VariableDecNode *>(node.getParam(i))) {
-                Symbol newSymbol(var->getValue(), var, SymbolCategory::VARIABLE, var->getType());
+                Symbol newSymbol(var->getValue(), var, SymbolCategory::PARAMETER, var->getType());
                 newScope->insertSymbol(newSymbol);
             }
         }
@@ -201,13 +202,14 @@ void *SemanticVisitor::visit(FunctionDefNode &node) {
 void *SemanticVisitor::visit(FunctionCallNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
 
-    if (node.getParamsCount() > 0) {
-        for (int i = 0; i < node.getParamsCount(); i++) {
-            if (auto var = dynamic_cast<VariableRefNode *>(node.getParam(i))) {
-                if (!currentScope.get()->contains(var->getValue())) {
-                    throw std::runtime_error("Missing declaration for a identifier used in a function call: " +
-                                             node.getParam(i)->getValue());
-                }
+    // TODO: CHECK FOR NUM PARAMS IN FUNCTION DEF == PARAMS IN CALL
+
+    // Checking for uses of undefined variable as params
+    for (int i = 0; i < node.getParamsCount(); i++) {
+        if (auto var = dynamic_cast<VariableRefNode *>(node.getParam(i))) {
+            if (!currentScope.get()->contains(var->getValue())) {
+                throw std::runtime_error("Missing declaration for a identifier used in a function call: " +
+                                         node.getParam(i)->getValue());
             }
         }
     }

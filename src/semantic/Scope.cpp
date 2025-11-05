@@ -53,7 +53,7 @@ Symbol *Scope::getSymbol(const std::string &id) {
     if (it != symbols.end())
         return &it->second;
 
-    std::cerr << "Cant find symbol" << std::endl;
+    std::cerr << "Cant find symbol named: " + id << std::endl;
     return nullptr;
 };
 

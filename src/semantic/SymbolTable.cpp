@@ -17,6 +17,7 @@ void SymbolTable::exitScope() {
 }
 
 std::shared_ptr<Scope> SymbolTable::findScope(const std::string &key) {
+    // Getting the symbol from any scope in the table
     for (int i = static_cast<int>(scopes.size()) - 1; i >= 0; --i) {
         if (auto s = scopes[i]->findLocalScope(key)) {
             return s;
@@ -44,8 +45,28 @@ bool SymbolTable::reach(const std::string &element1, const std::string &element2
     return false;
 }
 
-void SymbolTable::addLlvmVal(const std::string &id, llvm::Value *val) const {
-    getCurrentScope().get()->getSymbol(id)->setLlvmValue(val);
+void SymbolTable::addLlvmValue(const std::string &id, llvm::Value *val) {
+    auto scope = findScope(id);
+
+    // Can not set a value for a symbol that is not in the table
+    if (!scope) {
+        throw std::runtime_error("Symbol not found: " + id);
+    }
+
+    auto symbol = scope->getSymbol(id);
+    return symbol->setLlvmValue(val);
+}
+
+llvm::Value *SymbolTable::getLlvmValue(const std::string &id) {
+    auto scope = findScope(id);
+
+    // Can not get the value from a symbol that is not in the table
+    if (!scope) {
+        throw std::runtime_error("Symbol not found: " + id);
+    }
+
+    auto symbol = scope->getSymbol(id);
+    return symbol->getLlvmValue();
 }
 
 void SymbolTable::print() const {

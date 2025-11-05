@@ -154,7 +154,7 @@ llvm::Value *IRGenerator::visit(VariableDecNode &node) {
     llvm::AllocaInst *allocaInst = tmpBuilder.CreateAlloca(varType, nullptr, node.getValue());
 
     // Registers this new allocation associated with the Symbol in the SymbolTable
-    symtab.addLlvmVal(node.getValue(), allocaInst);
+    symtab.addLlvmValue(node.getValue(), allocaInst);
 
     return allocaInst;
 }
@@ -188,19 +188,17 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
         llvm::AllocaInst *allocaInst = tmpBuilder.CreateAlloca(varType, nullptr, node.getValue());
 
         // Registers this new allocation associated with the Symbol in the SymbolTable
-        symtab.addLlvmVal(node.getValue(), allocaInst);
-        std::shared_ptr<Scope> scope = symtab.findScope(node.getValue());
+        symtab.addLlvmValue(node.getValue(), allocaInst);
 
         // Getting the memory address where the value is stored
-        llvm::Value *alloc = scope.get()->getSymbol(node.getValue())->getLlvmValue();
+        llvm::Value *alloc = symtab.getLlvmValue(node.getValue());
         ctx.IRBuilder.CreateStore(assignVal, alloc);
 
         return alloc;
     }
 
     // Gets the memory address and stores the value (ONLY ASSIGNMENT)
-    std::shared_ptr<Scope> scope = symtab.findScope(node.getValue());
-    llvm::Value *alloc = scope.get()->getSymbol(node.getValue())->getLlvmValue();
+    llvm::Value *alloc = symtab.getLlvmValue(node.getValue());
     ctx.IRBuilder.CreateStore(assignVal, alloc);
 
     return alloc;
@@ -209,31 +207,37 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
 llvm::Value *IRGenerator::visit(VariableRefNode &node) {
     // Finding the ptr of the variable
     std::shared_ptr<Scope> scope = symtab.findScope(node.getValue());
-    llvm::Value *alloc = scope.get()->getSymbol(node.getValue())->getLlvmValue();
-
-    if (scope == nullptr) {
+    if (!scope) {
         throw std::runtime_error("There is no scope in the symbol table with the symbol: " + node.getValue());
-    } else if (alloc == nullptr) {
+    }
+
+    auto symbol = scope->getSymbol(node.getValue());
+    if (!symbol) {
+        throw std::runtime_error("Symbol not found in scope: " + node.getValue());
+    }
+
+    llvm::Value *alloc = symtab.getLlvmValue(node.getValue());
+    if (!alloc) {
         throw std::runtime_error("There is no value associated to the symbol: " + node.getValue());
     }
 
-    // Getting the allocated type
+    // Loading the allocated type
     llvm::Type *type;
-    if (llvm::AllocaInst *ty = llvm::dyn_cast<llvm::AllocaInst>(alloc)) {
-        type = ty->getAllocatedType();
-    } else {
-        throw std::runtime_error("The symbol: " + node.getValue() + " does not have a valid allocation");
+    if (llvm::AllocaInst *alloca = llvm::dyn_cast<llvm::AllocaInst>(alloc)) {
+        llvm::Type *type = alloca->getAllocatedType();
+        return ctx.IRBuilder.CreateLoad(type, alloca, node.getValue());
     }
 
-    // Reference to value
-    llvm::Value *value = ctx.IRBuilder.CreateLoad(type, alloc, node.getValue());
+    // Returning a direct value
+    if (llvm::isa<llvm::Argument>(alloc) || llvm::isa<llvm::Constant>(alloc)) {
+        return alloc;
+    }
 
-    return value;
+    throw std::runtime_error("The symbol: " + node.getValue() + " does not have a valid allocation");
 }
 
 llvm::Value *IRGenerator::visit(FunctionDefNode &node) {
-    llvm::Type *returnType = getLlvmType(node.getType());
-
+    // Getting the param definition (only types)
     std::vector<llvm::Type *> paramTypes;
     for (int i = 0; i < node.getParamsCount(); i++) {
         if (auto var = dynamic_cast<VariableDecNode *>(node.getParam(i))) {
@@ -241,8 +245,9 @@ llvm::Value *IRGenerator::visit(FunctionDefNode &node) {
         }
     }
 
+    // Function generation
+    llvm::Type *returnType = getLlvmType(node.getType());
     llvm::FunctionType *funcType = llvm::FunctionType::get(returnType, paramTypes, false);
-
     llvm::Function *function = ctx.IRModule->getFunction(node.getValue());
 
     if (!function) {
@@ -250,42 +255,40 @@ llvm::Value *IRGenerator::visit(FunctionDefNode &node) {
             llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, node.getValue(), ctx.IRModule.get());
     }
 
+    // Basic block generation and stack push
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx.IRContext, "entry", function);
     ctx.IRBuilder.SetInsertPoint(entry);
     ctx.pushFunction(entry);
 
+    // Setting all the params as arguments in their symbol in the symbol table
     unsigned idx = 0;
     for (auto &arg : function->args()) {
         auto *varNode = dynamic_cast<VariableDecNode *>(node.getParam(idx++));
+
+        // Sets the value of a arg for direct value access
         std::string name = varNode ? varNode->getValue() : "arg" + std::to_string(idx);
         arg.setName(name);
 
-        // Creates the alloc for the param
-        llvm::AllocaInst *alloca = ctx.IRBuilder.CreateAlloca(arg.getType(), nullptr, name);
-
-        // Saves its value in mem
-        ctx.IRBuilder.CreateStore(&arg, alloca);
-
-        // Sets the symbol alloc
-        std::shared_ptr<Scope> scope = symtab.findScope(name);
-        scope.get()->getSymbol(name)->setLlvmValue(alloca);
+        symtab.addLlvmValue(name, &arg);
     }
 
     llvm::verifyFunction(*function);
 
+    // IR generation for all the function statements
     node.getCodeBlock()->accept(*this);
 
     return function;
 };
 
 llvm::Value *IRGenerator::visit(FunctionDecNode &node) {
-    llvm::Type *returnType = getLlvmType(node.getType());
-
+    // Getting the param definition (only types)
     std::vector<llvm::Type *> paramTypes;
     for (auto param : node.getParams()) {
         paramTypes.push_back(getLlvmType(param));
     }
 
+    // Function generation
+    llvm::Type *returnType = getLlvmType(node.getType());
     llvm::FunctionType *funcType = llvm::FunctionType::get(returnType, paramTypes, false);
 
     llvm::Function *function =
@@ -295,24 +298,40 @@ llvm::Value *IRGenerator::visit(FunctionDecNode &node) {
 };
 
 llvm::Value *IRGenerator::visit(FunctionCallNode &node) {
-
+    // Function caller
     llvm::Function *callee = ctx.IRModule->getFunction(node.getValue());
     if (!callee) {
         throw std::runtime_error("Undefined function: " + node.getValue());
     }
 
+    // Getting the arguments values
     std::vector<llvm::Value *> args;
     for (int i = 0; i < node.getParamsCount(); i++) {
-        args.push_back(node.getParam(i)->accept(*this));
+        llvm::Value *argVal;
+
+        if (symtab.findScope(node.getParam(i)->getValue())) {
+            // Already stored value
+            argVal = symtab.getLlvmValue(node.getParam(i)->getValue());
+            args.push_back(argVal);
+        } else {
+            // Expressions and literal values are generated here
+            argVal = node.getParam(i)->accept(*this);
+            args.push_back(argVal);
+        }
     }
 
+    // Returns the function call IR
     return ctx.IRBuilder.CreateCall(callee, args, callee->getReturnType()->isVoidTy() ? "" : "calltmp");
 };
 
 llvm::Value *IRGenerator::visit(ReturnNode &node) {
+    // Generates the return value
     llvm::Value *ret = node.getStmt()->accept(*this);
 
+    // Return IR statement
     ctx.IRBuilder.CreateRet(ret);
+
+    // Block stack pop
     ctx.popFunction();
     return nullptr;
 }

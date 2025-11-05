@@ -54,8 +54,19 @@ class SymbolTable {
 
     /**
      * @brief Adds a llvm value to the Symbol associated with the ID.
+     *
+     * This is a direct binding from SymbolTable to Symbol, this method should only
+     * be used in a compiler phase posterior to semantic analysis.
      */
-    void addLlvmVal(const std::string &, llvm::Value *) const;
+    void addLlvmValue(const std::string &, llvm::Value *);
+
+    /**
+     * @brief Gets a llvm value from the Symbol associated with the ID.
+     *
+     * This is a direct binding from SymbolTable to Symbol, this method should only
+     * be used in a compiler phase posterior to semantic analysis.
+     */
+    llvm::Value *getLlvmValue(const std::string &);
 
     /**
      * @brief Prints all the Scopes and its Symbols.
