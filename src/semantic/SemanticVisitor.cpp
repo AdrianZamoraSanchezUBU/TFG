@@ -217,7 +217,7 @@ void *SemanticVisitor::visit(FunctionCallNode &node) {
 
 void *SemanticVisitor::visit(ReturnNode &node) {
     node.getStmt()->accept(*this);
-    // symtab.exitScope();
+    symtab.exitScope();
 
     return nullptr;
 }

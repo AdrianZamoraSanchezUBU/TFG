@@ -85,7 +85,7 @@ class Symbol {
  * @brief Represents a single scope/block in the program.
  * @see SymbolTable.h
  */
-class Scope {
+class Scope : public std::enable_shared_from_this<Scope> {
     int id;
     int level;
     std::weak_ptr<Scope> parent;
@@ -101,9 +101,14 @@ class Scope {
     explicit Scope(int id, int level, std::shared_ptr<Scope> parent) : id(id), level(level), parent(parent) {}
 
     /**
-     * @brief Returns `true` if this scope contains this id, `false`otherwise.
+     * @brief Returns `true` if this scope or his parents contains this id, `false`otherwise.
      */
     bool contains(const std::string &);
+
+    /**
+     * @brief Returns this scope if it contains the key.
+     */
+    std::shared_ptr<Scope> findLocalScope(const std::string &id);
 
     /**
      * @brief Returns the parent Scope.

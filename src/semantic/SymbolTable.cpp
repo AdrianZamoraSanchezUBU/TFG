@@ -18,11 +18,10 @@ void SymbolTable::exitScope() {
 
 std::shared_ptr<Scope> SymbolTable::findScope(const std::string &key) {
     for (int i = static_cast<int>(scopes.size()) - 1; i >= 0; --i) {
-        if (scopes[i]->contains(key)) {
-            return scopes[i];
+        if (auto s = scopes[i]->findLocalScope(key)) {
+            return s;
         }
     }
-
     return nullptr;
 }
 

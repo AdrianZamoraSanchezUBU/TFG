@@ -23,11 +23,8 @@ struct CodegenContext {
     /// Module of the program to generate.
     std::unique_ptr<llvm::Module> IRModule;
 
-    /// Current function
-    llvm::Function *currentFunction;
-
-    llvm::BasicBlock *savedBlock = nullptr;
-    llvm::Function *savedFunction = nullptr;
+    /// Stack of IR code blocks.
+    std::vector<llvm::BasicBlock *> blockStack;
 
     /**
      * @brief Module and IRBuilder set up.
@@ -38,31 +35,26 @@ struct CodegenContext {
         llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, "main", IRModule.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(IRContext, "entry", F);
 
-        // Sets the current function in the CodegenContext
-        currentFunction = F;
-
+        // Sets the current basic block in the stack
         IRBuilder.SetInsertPoint(BB);
+        pushFunction(BB);
     }
 
     /**
-     * Getter for current function
+     * @brief Pushes a new basic block to the stack.
+     * @param BB New basic block.
      */
-    llvm::Function *getCurrentFunction() const { return currentFunction; };
+    void pushFunction(llvm::BasicBlock *BB) { blockStack.push_back(BB); }
 
     /**
-     * Setter for current function
+     * @brief Changes the current function to the next basic block in the stack.
      */
-    void setCurrentFunction(llvm::Function *func) { currentFunction = func; };
+    void popFunction() {
+        blockStack.pop_back();
 
-    inline void saveInsertPoint() {
-        savedBlock = IRBuilder.GetInsertBlock();
-        savedFunction = currentFunction;
-    }
-
-    inline void restoreInsertPoint() {
-        if (savedBlock) {
-            IRBuilder.SetInsertPoint(savedBlock);
-            currentFunction = savedFunction;
+        if (!blockStack.empty()) {
+            auto &prev = blockStack.back();
+            IRBuilder.SetInsertPoint(prev);
         }
     }
 };

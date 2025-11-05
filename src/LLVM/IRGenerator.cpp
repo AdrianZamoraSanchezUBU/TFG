@@ -145,10 +145,10 @@ llvm::Value *IRGenerator::visit(VariableDecNode &node) {
     llvm::Type *varType = getLlvmType(node.getType());
 
     // Gets the current function
-    llvm::Function *currentFunction = ctx.getCurrentFunction();
+    llvm::BasicBlock *currentFunction = ctx.blockStack.back();
 
     // Creates a temporal builder that points to the begin of the current basic block
-    llvm::IRBuilder<> tmpBuilder(&currentFunction->getEntryBlock(), currentFunction->getEntryBlock().begin());
+    llvm::IRBuilder<> tmpBuilder(currentFunction, currentFunction->begin());
 
     // Allocating memory for the variable
     llvm::AllocaInst *allocaInst = tmpBuilder.CreateAlloca(varType, nullptr, node.getValue());
@@ -179,10 +179,10 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
         llvm::Type *varType = getLlvmType(node.getType());
 
         // Gets the current function
-        llvm::Function *currentFunction = ctx.getCurrentFunction();
+        llvm::BasicBlock *currentFunction = ctx.blockStack.back();
 
         // Creates a temporal builder that points to the begin of the current basic block
-        llvm::IRBuilder<> tmpBuilder(&currentFunction->getEntryBlock(), currentFunction->getEntryBlock().begin());
+        llvm::IRBuilder<> tmpBuilder(currentFunction, currentFunction->begin());
 
         // Allocating memory for the variable
         llvm::AllocaInst *allocaInst = tmpBuilder.CreateAlloca(varType, nullptr, node.getValue());
@@ -249,11 +249,10 @@ llvm::Value *IRGenerator::visit(FunctionDefNode &node) {
         function =
             llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, node.getValue(), ctx.IRModule.get());
     }
-    ctx.saveInsertPoint();
-    ctx.currentFunction = function;
 
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx.IRContext, "entry", function);
     ctx.IRBuilder.SetInsertPoint(entry);
+    ctx.pushFunction(entry);
 
     unsigned idx = 0;
     for (auto &arg : function->args()) {
@@ -272,9 +271,9 @@ llvm::Value *IRGenerator::visit(FunctionDefNode &node) {
         scope.get()->getSymbol(name)->setLlvmValue(alloca);
     }
 
-    node.getCodeBlock()->accept(*this);
-
     llvm::verifyFunction(*function);
+
+    node.getCodeBlock()->accept(*this);
 
     return function;
 };
@@ -314,6 +313,6 @@ llvm::Value *IRGenerator::visit(ReturnNode &node) {
     llvm::Value *ret = node.getStmt()->accept(*this);
 
     ctx.IRBuilder.CreateRet(ret);
-    ctx.restoreInsertPoint();
+    ctx.popFunction();
     return nullptr;
 }

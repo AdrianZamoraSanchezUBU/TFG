@@ -37,11 +37,23 @@ bool Scope::contains(const std::string &id) {
     return false;
 };
 
+std::shared_ptr<Scope> Scope::findLocalScope(const std::string &id) {
+    if (symbols.find(id) != symbols.end()) {
+        return shared_from_this();
+    }
+    if (auto p = parent.lock()) {
+        return p->findLocalScope(id);
+    }
+    return nullptr;
+}
+
 Symbol *Scope::getSymbol(const std::string &id) {
     auto it = symbols.find(id);
+
     if (it != symbols.end())
         return &it->second;
 
+    std::cerr << "Cant find symbol" << std::endl;
     return nullptr;
 };
 
@@ -54,6 +66,7 @@ bool Scope::insertSymbol(Symbol symbol) {
         return true;
     }
 
+    std::cerr << "Symbol already present in symbol table" << std::endl;
     return false;
 };
 
