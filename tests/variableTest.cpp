@@ -85,7 +85,7 @@ TEST(variableTest, variableCall) {
 }
 
 /**
- * @brief Runs the tests associated with the parser.
+ * @brief Runs the tests associated with variables.
  */
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

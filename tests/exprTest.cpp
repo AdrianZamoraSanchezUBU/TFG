@@ -9,16 +9,10 @@ TEST(exprTest, basicArithmeticExpr) {
     auto expr = std::make_unique<BinaryExprNode>("+", std::move(lhs), std::move(rhs));
     auto ret = std::make_unique<ReturnNode>(std::move(expr));
 
-    std::vector<std::unique_ptr<ASTNode>> functionBlockStmts;
-    functionBlockStmts.push_back(std::move(ret));
-    auto functionBlock = std::make_unique<CodeBlockNode>(std::move(functionBlockStmts));
+    std::vector<std::unique_ptr<ASTNode>> mainBlock;
+    mainBlock.push_back(std::move(ret));
 
-    std::vector<std::unique_ptr<ASTNode>> params;
-    auto func = std::make_unique<FunctionDefNode>("foo", params, SupportedTypes::TYPE_INT, std::move(functionBlock));
-
-    std::vector<std::unique_ptr<ASTNode>> statements;
-    statements.push_back(std::move(func));
-    auto root = std::make_unique<CodeBlockNode>(std::move(statements));
+    auto root = std::make_unique<CodeBlockNode>(std::move(mainBlock));
 
     /* Expected IR */
     std::string expectedIR = R"(i32 4)";
@@ -35,16 +29,10 @@ TEST(exprTest, basicLogicalExpr) {
     auto expr = std::make_unique<BinaryExprNode>("<", std::move(lhs), std::move(rhs));
     auto ret = std::make_unique<ReturnNode>(std::move(expr));
 
-    std::vector<std::unique_ptr<ASTNode>> functionBlockStmts;
-    functionBlockStmts.push_back(std::move(ret));
-    auto functionBlock = std::make_unique<CodeBlockNode>(std::move(functionBlockStmts));
+    std::vector<std::unique_ptr<ASTNode>> mainBlock;
+    mainBlock.push_back(std::move(ret));
 
-    std::vector<std::unique_ptr<ASTNode>> params;
-    auto func = std::make_unique<FunctionDefNode>("foo", params, SupportedTypes::TYPE_INT, std::move(functionBlock));
-
-    std::vector<std::unique_ptr<ASTNode>> statements;
-    statements.push_back(std::move(func));
-    auto root = std::make_unique<CodeBlockNode>(std::move(statements));
+    auto root = std::make_unique<CodeBlockNode>(std::move(mainBlock));
 
     /* Expected IR */
     std::string expectedIR = R"(i1 true)";
@@ -62,16 +50,10 @@ TEST(exprTest, stringLogicalExprEQ) {
     expr.get()->setType(SupportedTypes::TYPE_STRING);
     auto ret = std::make_unique<ReturnNode>(std::move(expr));
 
-    std::vector<std::unique_ptr<ASTNode>> functionBlockStmts;
-    functionBlockStmts.push_back(std::move(ret));
-    auto functionBlock = std::make_unique<CodeBlockNode>(std::move(functionBlockStmts));
+    std::vector<std::unique_ptr<ASTNode>> mainBlock;
+    mainBlock.push_back(std::move(ret));
 
-    std::vector<std::unique_ptr<ASTNode>> params;
-    auto func = std::make_unique<FunctionDefNode>("foo", params, SupportedTypes::TYPE_BOOL, std::move(functionBlock));
-
-    std::vector<std::unique_ptr<ASTNode>> statements;
-    statements.push_back(std::move(func));
-    auto root = std::make_unique<CodeBlockNode>(std::move(statements));
+    auto root = std::make_unique<CodeBlockNode>(std::move(mainBlock));
 
     /* Expected IR */
     std::string expectedIR = R"(i1 true)";
@@ -89,16 +71,10 @@ TEST(exprTest, stringLogicalExprNQ) {
     expr.get()->setType(SupportedTypes::TYPE_STRING);
     auto ret = std::make_unique<ReturnNode>(std::move(expr));
 
-    std::vector<std::unique_ptr<ASTNode>> functionBlockStmts;
-    functionBlockStmts.push_back(std::move(ret));
-    auto functionBlock = std::make_unique<CodeBlockNode>(std::move(functionBlockStmts));
+    std::vector<std::unique_ptr<ASTNode>> mainBlock;
+    mainBlock.push_back(std::move(ret));
 
-    std::vector<std::unique_ptr<ASTNode>> params;
-    auto func = std::make_unique<FunctionDefNode>("foo", params, SupportedTypes::TYPE_BOOL, std::move(functionBlock));
-
-    std::vector<std::unique_ptr<ASTNode>> statements;
-    statements.push_back(std::move(func));
-    auto root = std::make_unique<CodeBlockNode>(std::move(statements));
+    auto root = std::make_unique<CodeBlockNode>(std::move(mainBlock));
 
     /* Expected IR */
     std::string expectedIR = R"(i1 true)";
@@ -122,16 +98,10 @@ TEST(exprTest, complexExpr) {
         std::make_unique<BinaryExprNode>("-", std::move(leftOperation), std::move(rightOperation));
     auto ret = std::make_unique<ReturnNode>(std::move(expr));
 
-    std::vector<std::unique_ptr<ASTNode>> functionBlockStmts;
-    functionBlockStmts.push_back(std::move(ret));
-    auto functionBlock = std::make_unique<CodeBlockNode>(std::move(functionBlockStmts));
+    std::vector<std::unique_ptr<ASTNode>> mainBlock;
+    mainBlock.push_back(std::move(ret));
 
-    std::vector<std::unique_ptr<ASTNode>> params;
-    auto func = std::make_unique<FunctionDefNode>("foo", params, SupportedTypes::TYPE_INT, std::move(functionBlock));
-
-    std::vector<std::unique_ptr<ASTNode>> statements;
-    statements.push_back(std::move(func));
-    auto root = std::make_unique<CodeBlockNode>(std::move(statements));
+    auto root = std::make_unique<CodeBlockNode>(std::move(mainBlock));
 
     /* Expected IR */
     std::string expectedIR = R"(i32 2)";
@@ -140,7 +110,7 @@ TEST(exprTest, complexExpr) {
 }
 
 /**
- * @brief Runs the tests associated with the parser.
+ * @brief Runs the tests associated with expressions.
  */
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

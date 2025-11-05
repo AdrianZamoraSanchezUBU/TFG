@@ -97,6 +97,14 @@ std::string includeTikzStyles() {
         minimum width=4.5em,
         minimum height=2.8em, 
         align=center
+    },paramsNode/.style={
+        draw, 
+        rectangle, 
+        fill=violet!10!white, 
+        minimum size=2.5em,
+        minimum width=2.5em,
+        minimum height=2em, 
+        align=center
     }
 })";
 }
@@ -505,14 +513,41 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionCallContext *ctx) {
         // Node information
         std::ofstream texFile("AST.tex", std::ios::app);
 
-        texFile << "[" << id << ",functionCallNode]" << std::endl;
+        texFile << "[" << id << ",functionCallNode" << std::endl;
 
         texFile.close();
     }
 
     // Visits all the types
     for (int i = 0; i < ctx->expr().size(); i++) {
+        if (visualizeFlag) {
+            // Node information
+            std::ofstream texFile("AST.tex", std::ios::app);
+
+            texFile << "[" << id << " params ,paramsNode" << std::endl;
+
+            texFile.close();
+        }
+
         params.emplace_back(visit(ctx->expr(i)));
+
+        if (visualizeFlag) {
+            // Node information
+            std::ofstream texFile("AST.tex", std::ios::app);
+
+            texFile << "]" << std::endl;
+
+            texFile.close();
+        }
+    }
+
+    if (visualizeFlag) {
+        // Node information
+        std::ofstream texFile("AST.tex", std::ios::app);
+
+        texFile << "]" << std::endl;
+
+        texFile.close();
     }
 
     return std::make_unique<FunctionCallNode>(id, std::move(params));

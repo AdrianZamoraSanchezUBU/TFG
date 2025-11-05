@@ -1,3 +1,1 @@
-bool function foo(){
-    return "string" == "string";
-}
+return "string" == "string";

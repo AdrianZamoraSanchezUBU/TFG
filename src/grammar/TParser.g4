@@ -7,7 +7,7 @@ options {
 /* Main structures */
 program: programMainBlock ;
 
-programMainBlock: (stmt)* ; 
+programMainBlock: (stmt | return_stmt)* ; 
 
 block: LBRACE (stmt | return_stmt)* RBRACE ;
 
