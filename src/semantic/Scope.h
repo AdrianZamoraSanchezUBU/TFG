@@ -34,6 +34,7 @@ class Symbol {
     llvm::Value *llvmVal;
     SupportedTypes type;
     SymbolCategory category;
+    int numParams;
 
   public:
     /**
@@ -64,6 +65,16 @@ class Symbol {
      * @brief Setter for type.
      */
     void setType(SupportedTypes ty) { type = ty; }
+
+    /**
+     * @brief Getter for number of params.
+     */
+    int getNumParams() const { return numParams; }
+
+    /**
+     * @brief Setter for number of params.
+     */
+    void setNumParams(int params) { numParams = params; }
 
     /**
      * @brief Setter for llvmVal.

@@ -169,6 +169,7 @@ void *SemanticVisitor::visit(FunctionDecNode &node) {
 
     // Inserts the function identifier in the current scope
     Symbol newSymbol(node.getValue(), &node, SymbolCategory::FUNCTION, node.getType());
+    newSymbol.setNumParams(node.getParamsCount());
     currentScope->insertSymbol(newSymbol);
 
     return nullptr;
@@ -179,6 +180,7 @@ void *SemanticVisitor::visit(FunctionDefNode &node) {
 
     // Inserts the function identifier in the current scope
     Symbol newSymbol(node.getValue(), &node, SymbolCategory::FUNCTION, node.getType());
+    newSymbol.setNumParams(node.getParamsCount());
     currentScope->insertSymbol(newSymbol);
 
     // Creates a new scope for this function
@@ -201,8 +203,14 @@ void *SemanticVisitor::visit(FunctionDefNode &node) {
 
 void *SemanticVisitor::visit(FunctionCallNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
+    int expectedParams = currentScope.get()->getSymbol(node.getValue())->getNumParams();
 
     // TODO: CHECK FOR NUM PARAMS IN FUNCTION DEF == PARAMS IN CALL
+    if (node.getParamsCount() != expectedParams) {
+        throw std::runtime_error("The function " + node.getValue() + " was declared with " +
+                                 std::to_string(expectedParams) + " but is being called with " +
+                                 std::to_string(node.getParamsCount()));
+    }
 
     // Checking for uses of undefined variable as params
     for (int i = 0; i < node.getParamsCount(); i++) {

@@ -516,6 +516,11 @@ class FunctionDecNode : public ASTNode {
     SupportedTypes getType() const { return type; }
 
     /**
+     * @brief Getter for the params size.
+     */
+    int getParamsCount() const { return paramList.size(); }
+
+    /**
      * @brief Getter for params.
      */
     std::vector<SupportedTypes> getParams() const { return paramList; }
