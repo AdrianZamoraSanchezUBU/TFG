@@ -91,6 +91,18 @@ class SemanticVisitor {
     void *visit(ElseNode &node);
 
     /**
+     * @brief Visits a while loop statement node.
+     * @param node Node to be visited.
+     */
+    void *visit(WhileNode &node);
+
+    /**
+     * @brief Visits a for loop statement node.
+     * @param node Node to be visited.
+     */
+    void *visit(ForNode &node);
+
+    /**
      * @brief Prints the content of the SymbolTable.
      */
     void printSymbolTable() const { symtab.print(); }

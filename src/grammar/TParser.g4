@@ -20,6 +20,7 @@ stmt
 	| functionDeclaration SEMICOLON
 	| functionDefinition
 	| if
+	| loop 
 	| expr SEMICOLON
 	;
 
@@ -74,6 +75,11 @@ else
     : if
     | block
     ;
+
+loop
+	: WHILE LPAREN expr RPAREN block
+	| FOR LPAREN variableAssign SEMICOLON expr SEMICOLON variableAssign RPAREN block
+	;
 
 type
 	: TYPE_INT

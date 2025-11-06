@@ -132,4 +132,18 @@ class IRGenerator {
      * @return llvm::Value* Value obtained from the visit.
      */
     llvm::Value *visit(ElseNode &node);
+
+    /**
+     * @brief Visits a while loop statement node.
+     * @param node Node to be visited.
+     * @return llvm::Value* Value obtained from the visit.
+     */
+    llvm::Value *visit(WhileNode &node);
+
+    /**
+     * @brief Visits a for loop statement node.
+     * @param node Node to be visited.
+     * @return llvm::Value* Value obtained from the visit.
+     */
+    llvm::Value *visit(ForNode &node);
 };

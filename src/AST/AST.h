@@ -766,3 +766,92 @@ class ElseNode : public ASTNode {
     /// @copydoc ASTNode::accept(IRGenerator &visitor)
     llvm::Value *accept(IRGenerator &visitor) override;
 };
+
+/**
+ * @class ElseNode
+ * @brief Represents a else statement in the AST.
+ * @see ASTNode
+ * @see CodeBlock
+ */
+class WhileNode : public ASTNode {
+    std::unique_ptr<CodeBlockNode> codeBlock;
+    std::unique_ptr<ASTNode> expr;
+
+  public:
+    /**
+     * @brief Constructor for the while statement node.
+     * @param stmt Block of code or other if statement.
+     */
+    explicit WhileNode(std::unique_ptr<ASTNode> expression, std::unique_ptr<CodeBlockNode> block)
+        : expr(std::move(expression)), codeBlock(std::move(block)){};
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return "WHILE"; }
+
+    /// @copydoc ASTNode::print
+    void print() const override { std::cout << "WHILE NODE: " << std::endl; }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override {
+        if (auto o = dynamic_cast<const WhileNode *>(other)) {
+            // Returns the result of comparing all the attributes
+            return codeBlock.get()->equals(o->codeBlock.get()) && expr.get()->equals(o->expr.get());
+        }
+
+        return false;
+    }
+
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
+    llvm::Value *accept(IRGenerator &visitor) override;
+};
+
+/**
+ * @class ForNode
+ * @brief Represents a else statement in the AST.
+ * @see ASTNode
+ * @see CodeBlock
+ */
+class ForNode : public ASTNode {
+    std::unique_ptr<CodeBlockNode> codeBlock;
+    std::unique_ptr<ASTNode> def;
+    std::unique_ptr<ASTNode> condition;
+    std::unique_ptr<ASTNode> assign;
+
+  public:
+    /**
+     * @brief Constructor for the for statement node.
+     * @param stmt Block of code or other if statement.
+     */
+    explicit ForNode(std::unique_ptr<ASTNode> definition,
+                     std::unique_ptr<ASTNode> loopCondition,
+                     std::unique_ptr<ASTNode> assignation,
+                     std::unique_ptr<CodeBlockNode> block)
+        : def(std::move(definition)), condition(std::move(loopCondition)), assign(std::move(assignation)),
+          codeBlock(std::move(block)){};
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return "FOR"; }
+
+    /// @copydoc ASTNode::print
+    void print() const override { std::cout << "FOR LOOP NODE: " << std::endl; }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override {
+        if (auto o = dynamic_cast<const ForNode *>(other)) {
+            // Returns the result of comparing all the attributes
+            return codeBlock.get()->equals(o->codeBlock.get()) && def.get()->equals(o->def.get()) &&
+                   condition.get()->equals(o->condition.get()) && assign.get()->equals(o->assign.get());
+        }
+
+        return false;
+    }
+
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
+    llvm::Value *accept(IRGenerator &visitor) override;
+};

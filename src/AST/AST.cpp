@@ -110,3 +110,21 @@ void *ElseNode::accept(SemanticVisitor &visitor) {
 llvm::Value *ElseNode::accept(IRGenerator &visitor) {
     return visitor.visit(*this);
 };
+
+/* WhileNode */
+void *WhileNode::accept(SemanticVisitor &visitor) {
+    return visitor.visit(*this);
+};
+
+llvm::Value *WhileNode::accept(IRGenerator &visitor) {
+    return visitor.visit(*this);
+};
+
+/* ForNode */
+void *ForNode::accept(SemanticVisitor &visitor) {
+    return visitor.visit(*this);
+};
+
+llvm::Value *ForNode::accept(IRGenerator &visitor) {
+    return visitor.visit(*this);
+};

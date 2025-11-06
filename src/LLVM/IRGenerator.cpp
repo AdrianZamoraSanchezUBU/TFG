@@ -343,3 +343,11 @@ llvm::Value *IRGenerator::visit(IfNode &node) {
 llvm::Value *IRGenerator::visit(ElseNode &node) {
     return nullptr;
 }
+
+llvm::Value *IRGenerator::visit(WhileNode &node) {
+    return nullptr;
+}
+
+llvm::Value *IRGenerator::visit(ForNode &node) {
+    return nullptr;
+}

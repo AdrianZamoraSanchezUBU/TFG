@@ -173,4 +173,11 @@ class ASTBuilder {
      * @return SupportedTypes A supported type representing the token value.
      */
     static SupportedTypes visit(TParser::TypeContext *ctx);
+
+    /**
+     * @brief Visits the type context of a loop statement.
+     * @param ctx Context of a loop statement.
+     * @return AST node associated with the else statement.
+     */
+    std::unique_ptr<ASTNode> visit(TParser::LoopContext *ctx);
 };

@@ -121,6 +121,15 @@ std::string includeTikzStyles() {
         minimum width=3.2em,
         minimum height=2.2em, 
         align=center
+    },LoopNode/.style={
+        draw, 
+        regular polygon,
+        regular polygon sides=3, 
+        fill=red!20!white, 
+        minimum size=3.5em,
+        minimum width=4.5em,
+        minimum height=2.8em, 
+        align=center
     }
 })";
 }
@@ -233,6 +242,8 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::StmtContext *ctx) {
         return visit(ctx->functionCall());
     } else if (ctx->if_()) {
         return visit(ctx->if_());
+    } else if (ctx->loop()) {
+        return visit(ctx->loop());
     }
 
     throw std::runtime_error("Not a valid stmt");
@@ -683,3 +694,52 @@ SupportedTypes ASTBuilder::visit(TParser::TypeContext *ctx) {
 
     throw std::runtime_error("Not a valid type");
 }
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopContext *ctx) {
+    if (ctx->WHILE()) {
+        if (visualizeFlag) {
+            // Node information
+            std::ofstream texFile("AST.tex", std::ios::app);
+            texFile << "[WHILE,LoopNode" << std::endl;
+            texFile.close();
+        }
+
+        auto expr = visit(ctx->expr());
+
+        auto block = visit(ctx->block());
+        auto whileBlock = std::unique_ptr<CodeBlockNode>(static_cast<CodeBlockNode *>(block.release()));
+
+        if (visualizeFlag) {
+            std::ofstream texFile("AST.tex", std::ios::app);
+            texFile << "]" << std::endl;
+            texFile.close();
+        }
+
+        return std::make_unique<WhileNode>(std::move(expr), std::move(whileBlock));
+    }
+
+    if (ctx->FOR()) {
+        if (visualizeFlag) {
+            // Node information
+            std::ofstream texFile("AST.tex", std::ios::app);
+            texFile << "[FOR,LoopNode" << std::endl;
+            texFile.close();
+        }
+        auto def = visit(ctx->variableAssign(0));
+        auto condition = visit(ctx->expr());
+        auto assign = visit(ctx->variableAssign(1));
+
+        auto block = visit(ctx->block());
+        auto forBlock = std::unique_ptr<CodeBlockNode>(static_cast<CodeBlockNode *>(block.release()));
+
+        if (visualizeFlag) {
+            std::ofstream texFile("AST.tex", std::ios::app);
+            texFile << "]" << std::endl;
+            texFile.close();
+        }
+
+        return std::make_unique<ForNode>(std::move(def), std::move(condition), std::move(assign), std::move(forBlock));
+    }
+
+    return nullptr;
+};

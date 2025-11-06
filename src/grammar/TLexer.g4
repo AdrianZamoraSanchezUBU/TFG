@@ -9,6 +9,8 @@ FUNCTION : 'function' ;
 RETURN : 'return' ;
 IF : 'if' ;
 ELSE : 'else' ;
+WHILE : 'while' ;
+FOR : 'for' ;
 
 // Types
 TYPE_INT    : 'int' ;

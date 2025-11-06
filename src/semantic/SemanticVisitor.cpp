@@ -225,13 +225,17 @@ void *SemanticVisitor::visit(FunctionCallNode &node) {
     return nullptr;
 }
 
-void *SemanticVisitor::visit(IfNode &node) {}
-
-void *SemanticVisitor::visit(ElseNode &node) {}
-
 void *SemanticVisitor::visit(ReturnNode &node) {
     node.getStmt()->accept(*this);
     symtab.exitScope();
 
     return nullptr;
 }
+
+void *SemanticVisitor::visit(IfNode &node) {}
+
+void *SemanticVisitor::visit(ElseNode &node) {}
+
+void *SemanticVisitor::visit(WhileNode &node) {}
+
+void *SemanticVisitor::visit(ForNode &node) {}
