@@ -79,6 +79,18 @@ class SemanticVisitor {
     void *visit(ReturnNode &node);
 
     /**
+     * @brief Visits a if statement node.
+     * @param node Node to be visited.
+     */
+    void *visit(IfNode &node);
+
+    /**
+     * @brief Visits a else statement node.
+     * @param node Node to be visited.
+     */
+    void *visit(ElseNode &node);
+
+    /**
      * @brief Prints the content of the SymbolTable.
      */
     void printSymbolTable() const { symtab.print(); }

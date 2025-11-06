@@ -335,3 +335,11 @@ llvm::Value *IRGenerator::visit(ReturnNode &node) {
     ctx.popFunction();
     return nullptr;
 }
+
+llvm::Value *IRGenerator::visit(IfNode &node) {
+    return nullptr;
+}
+
+llvm::Value *IRGenerator::visit(ElseNode &node) {
+    return nullptr;
+}

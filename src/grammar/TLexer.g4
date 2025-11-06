@@ -7,6 +7,8 @@ options {
 /* KEYWORDs */
 FUNCTION : 'function' ;
 RETURN : 'return' ;
+IF : 'if' ;
+ELSE : 'else' ;
 
 // Types
 TYPE_INT    : 'int' ;

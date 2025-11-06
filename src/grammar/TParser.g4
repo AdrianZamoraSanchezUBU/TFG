@@ -13,11 +13,13 @@ block: LBRACE (stmt | return_stmt)* RBRACE ;
 
 return_stmt: RETURN expr? SEMICOLON ;
 
-stmt: variableDec SEMICOLON
+stmt
+	: variableDec SEMICOLON
 	| variableAssign SEMICOLON
 	| functionCall SEMICOLON 
 	| functionDeclaration SEMICOLON
 	| functionDefinition
+	| if
 	| expr SEMICOLON
 	;
 
@@ -51,20 +53,27 @@ literal
 	| boolean_literal
    	;
 
-variableDec : type IDENTIFIER ;
+variableDec: type IDENTIFIER ;
 
-variableAssign : 
-	| IDENTIFIER ASSIGN_OPERATOR expr
+variableAssign 
+	: IDENTIFIER ASSIGN_OPERATOR expr
 	| variableDec ASSIGN_OPERATOR expr
 	;
 
-functionDefinition : type FUNCTION IDENTIFIER LPAREN params? RPAREN block ;
+functionDefinition: type FUNCTION IDENTIFIER LPAREN params? RPAREN block ;
 
 functionDeclaration: type FUNCTION IDENTIFIER LPAREN params? RPAREN  ;
 
 functionCall: IDENTIFIER LPAREN (expr (COMMA expr)*)? RPAREN ;
 
 params: type IDENTIFIER (COMMA type IDENTIFIER)* ;
+
+if: IF LPAREN expr RPAREN block (ELSE else)?;
+
+else
+    : if
+    | block
+    ;
 
 type
 	: TYPE_INT

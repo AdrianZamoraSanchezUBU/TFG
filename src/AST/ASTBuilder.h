@@ -154,6 +154,20 @@ class ASTBuilder {
     std::unique_ptr<ASTNode> visit(TParser::Return_stmtContext *ctx);
 
     /**
+     * @brief Visits the context of a if statement.
+     * @param ctx Context of a if statement.
+     * @return AST node associated with the if statement.
+     */
+    std::unique_ptr<ASTNode> visit(TParser::IfContext *ctx);
+
+    /**
+     * @brief Visits the context of a else statement.
+     * @param ctx Context of a else statement.
+     * @return AST node associated with the else statement.
+     */
+    std::unique_ptr<ASTNode> visit(TParser::ElseContext *ctx);
+
+    /**
      * @brief Visits the type context of a variable declaration.
      * @param ctx Type context in a variable declaration.
      * @return SupportedTypes A supported type representing the token value.

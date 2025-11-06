@@ -92,3 +92,21 @@ void *ReturnNode::accept(SemanticVisitor &visitor) {
 llvm::Value *ReturnNode::accept(IRGenerator &visitor) {
     return visitor.visit(*this);
 };
+
+/* IfNode */
+void *IfNode::accept(SemanticVisitor &visitor) {
+    return visitor.visit(*this);
+};
+
+llvm::Value *IfNode::accept(IRGenerator &visitor) {
+    return visitor.visit(*this);
+};
+
+/* ElseNode */
+void *ElseNode::accept(SemanticVisitor &visitor) {
+    return visitor.visit(*this);
+};
+
+llvm::Value *ElseNode::accept(IRGenerator &visitor) {
+    return visitor.visit(*this);
+};

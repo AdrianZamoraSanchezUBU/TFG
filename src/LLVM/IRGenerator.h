@@ -118,4 +118,18 @@ class IRGenerator {
      * @return llvm::Value* Value obtained from the visit.
      */
     llvm::Value *visit(ReturnNode &node);
+
+    /**
+     * @brief Visits a if statement node.
+     * @param node Node to be visited.
+     * @return llvm::Value* Value obtained from the visit.
+     */
+    llvm::Value *visit(IfNode &node);
+
+    /**
+     * @brief Visits a else statement node.
+     * @param node Node to be visited.
+     * @return llvm::Value* Value obtained from the visit.
+     */
+    llvm::Value *visit(ElseNode &node);
 };

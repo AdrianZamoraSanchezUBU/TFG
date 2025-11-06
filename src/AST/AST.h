@@ -642,7 +642,7 @@ class FunctionCallNode : public ASTNode {
   public:
     /**
      * @brief Constructor for the FunctionDecNode.
-     * @param id Name os the function.
+     * @param id Name of the function.
      * @param params Types of the params of this function.
      */
     explicit FunctionCallNode(const std::string &id, std::vector<std::unique_ptr<ASTNode>> params)
@@ -669,6 +669,92 @@ class FunctionCallNode : public ASTNode {
         if (auto o = dynamic_cast<const FunctionCallNode *>(other)) {
             // Returns the result of comparing all the attributes
             return identifier == o->identifier;
+        }
+
+        return false;
+    }
+
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
+    llvm::Value *accept(IRGenerator &visitor) override;
+};
+
+/**
+ * @class IfNode
+ * @brief Represents a if statement in the AST.
+ * @see ASTNode
+ * @see CodeBlock
+ * @see BinaryExprNode
+ */
+class IfNode : public ASTNode {
+    std::unique_ptr<CodeBlockNode> codeBlock;
+    std::unique_ptr<ASTNode> expr;
+    std::unique_ptr<ASTNode> elseStmt;
+
+  public:
+    /**
+     * @brief Constructor for the IfNode.
+     * @param expression Expression to be evaluated.
+     * @param block Block of code executed if the expression is true.
+     */
+    explicit IfNode(std::unique_ptr<ASTNode> expression,
+                    std::unique_ptr<CodeBlockNode> block,
+                    std::unique_ptr<ASTNode> els = nullptr)
+        : expr(std::move(expression)), codeBlock(std::move(block)), elseStmt(std::move(els)){};
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return "IF"; }
+
+    /// @copydoc ASTNode::print
+    void print() const override { std::cout << "IF NODE: " << std::endl; }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override {
+        if (auto o = dynamic_cast<const IfNode *>(other)) {
+            // Returns the result of comparing all the attributes
+            return codeBlock.get()->equals(o->codeBlock.get()) && expr.get()->equals(o->expr.get());
+        }
+
+        return false;
+    }
+
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
+    llvm::Value *accept(IRGenerator &visitor) override;
+};
+
+/**
+ * @class ElseNode
+ * @brief Represents a else statement in the AST.
+ * @see ASTNode
+ * @see CodeBlock
+ * @see IfNode
+ */
+class ElseNode : public ASTNode {
+    std::unique_ptr<ASTNode> stmt;
+
+  public:
+    /**
+     * @brief Constructor for the ElseNode.
+     * @param stmt Block of code or other if statement.
+     */
+    explicit ElseNode(std::unique_ptr<ASTNode> elseStmt) : stmt(std::move(elseStmt)){};
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return "ELSE"; }
+
+    /// @copydoc ASTNode::print
+    void print() const override { std::cout << "ELSE NODE: " << std::endl; }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override {
+        if (auto o = dynamic_cast<const ElseNode *>(other)) {
+            // Returns the result of comparing all the attributes
+            return stmt.get()->equals(o->stmt.get());
         }
 
         return false;

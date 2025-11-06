@@ -100,10 +100,26 @@ std::string includeTikzStyles() {
     },paramsNode/.style={
         draw, 
         rectangle, 
-        fill=violet!10!white, 
+        fill=orange!10!white, 
         minimum size=2.5em,
         minimum width=2.5em,
         minimum height=2em, 
+        align=center
+    },IfNode/.style={
+        draw, 
+        rectangle, 
+        fill=violet!10!white, 
+        minimum size=2.7em,
+        minimum width=3.2em,
+        minimum height=2.2em, 
+        align=center
+    },ElseNode/.style={
+        draw, 
+        rectangle, 
+        fill=violet!10!white, 
+        minimum size=2.7em,
+        minimum width=3.2em,
+        minimum height=2.2em, 
         align=center
     }
 })";
@@ -215,6 +231,8 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::StmtContext *ctx) {
         return visit(ctx->functionDeclaration());
     } else if (ctx->functionCall()) {
         return visit(ctx->functionCall());
+    } else if (ctx->if_()) {
+        return visit(ctx->if_());
     }
 
     throw std::runtime_error("Not a valid stmt");
@@ -554,8 +572,6 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionCallContext *ctx) {
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Return_stmtContext *ctx) {
-    std::unique_ptr<ASTNode> retVal;
-
     if (visualizeFlag) {
         // Node information
         std::ofstream texFile("AST.tex", std::ios::app);
@@ -566,6 +582,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Return_stmtContext *ctx) {
     }
 
     // Visits the expr that gives this variable its value
+    std::unique_ptr<ASTNode> retVal;
     retVal = visit(ctx->expr());
 
     if (visualizeFlag) {
@@ -585,6 +602,70 @@ std::vector<SupportedTypes> ASTBuilder::visit(TParser::ParamsContext *ctx) {
     }
 
     return params;
+}
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::IfContext *ctx) {
+    if (visualizeFlag) {
+        // Node information
+        std::ofstream texFile("AST.tex", std::ios::app);
+        texFile << "[IF,IfNode" << std::endl;
+        texFile.close();
+    }
+
+    // Expr for entering the if code block
+    auto expr = visit(ctx->expr());
+
+    // Block of code in the if statement
+    auto block = visit(ctx->block());
+    auto ifBlock = std::unique_ptr<CodeBlockNode>(static_cast<CodeBlockNode *>(block.release()));
+
+    std::unique_ptr<ASTNode> ifNode;
+
+    // Vistis a else statement if there is one present
+    if (ctx->else_()) {
+        auto elseStmt = visit(ctx->else_());
+        ifNode = std::make_unique<IfNode>(std::move(expr), std::move(ifBlock), std::move(elseStmt));
+    } else {
+        ifNode = std::make_unique<IfNode>(std::move(expr), std::move(ifBlock));
+    }
+
+    if (visualizeFlag) {
+        std::ofstream texFile("AST.tex", std::ios::app);
+        texFile << "]" << std::endl;
+    }
+
+    return std::move(ifNode);
+}
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ElseContext *ctx) {
+    if (visualizeFlag) {
+        // Node information
+        std::ofstream texFile("AST.tex", std::ios::app);
+        texFile << "[ELSE,ElseNode" << std::endl;
+        texFile.close();
+    }
+
+    std::unique_ptr<ASTNode> node;
+
+    // Vistis a nested else if statement
+    if (ctx->if_()) {
+        auto ifStmt = visit(ctx->if_());
+        node = std::make_unique<ElseNode>(std::move(ifStmt));
+    }
+
+    // Vistis the else block
+    if (ctx->block()) {
+        auto block = visit(ctx->block());
+        node = std::make_unique<ElseNode>(std::move(block));
+    }
+
+    if (visualizeFlag) {
+        std::ofstream texFile("AST.tex", std::ios::app);
+        texFile << "]" << std::endl;
+        texFile.close();
+    }
+
+    return node;
 }
 
 SupportedTypes ASTBuilder::visit(TParser::TypeContext *ctx) {
