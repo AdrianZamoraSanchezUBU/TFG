@@ -10,9 +10,19 @@ void *SemanticVisitor::visit(CodeBlockNode &node) {
         return nullptr;
     }
 
+    bool ret = false;
+
     // Visits all the statements inside the block
     for (int i = 0; i < node.getStmtCount(); i++) {
+        if (auto returnBlock = dynamic_cast<CodeBlockNode *>(node.getStmt(i))) {
+            ret = true;
+            break;
+        }
         node.getStmt(i)->accept(*this);
+    }
+
+    if (ret = false) {
+        symtab.exitScope();
     }
 
     return nullptr;
@@ -227,15 +237,56 @@ void *SemanticVisitor::visit(FunctionCallNode &node) {
 
 void *SemanticVisitor::visit(ReturnNode &node) {
     node.getStmt()->accept(*this);
+
+    // Exists the scope
     symtab.exitScope();
 
     return nullptr;
 }
 
-void *SemanticVisitor::visit(IfNode &node) {}
+void *SemanticVisitor::visit(IfNode &node) {
+    // Visits the condition
+    if (node.getExpr() != nullptr) {
+        node.getExpr()->accept(*this);
+    }
 
-void *SemanticVisitor::visit(ElseNode &node) {}
+    // Visits the code block
+    if (node.getCodeBlock() != nullptr) {
+        // Enters a new scope
+        symtab.enterScope();
+        node.getCodeBlock()->accept(*this);
+    }
 
-void *SemanticVisitor::visit(WhileNode &node) {}
+    // Visits the else statement if there is one present
+    if (node.getElseStmt() != nullptr) {
+        node.getElseStmt()->accept(*this);
+    } else {
+        // Ends the if statement scope
+        symtab.exitScope();
+    }
 
-void *SemanticVisitor::visit(ForNode &node) {}
+    return nullptr;
+}
+
+void *SemanticVisitor::visit(ElseNode &node) {
+    // When an if stmt does not create a new scope (the if statement creates its own)
+    if (auto stmt = dynamic_cast<IfNode *>(node.getStmt())) {
+        node.getStmt()->accept(*this);
+    }
+
+    // When in a block of code, it needs a new scope
+    if (auto stmt = dynamic_cast<CodeBlockNode *>(node.getStmt())) {
+        symtab.enterScope();
+        node.getStmt()->accept(*this);
+    }
+
+    return nullptr;
+}
+
+void *SemanticVisitor::visit(WhileNode &node) {
+    return nullptr;
+}
+
+void *SemanticVisitor::visit(ForNode &node) {
+    return nullptr;
+}

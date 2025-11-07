@@ -704,6 +704,15 @@ class IfNode : public ASTNode {
                     std::unique_ptr<ASTNode> els = nullptr)
         : expr(std::move(expression)), codeBlock(std::move(block)), elseStmt(std::move(els)){};
 
+    /// @brief Getter for the expr.
+    ASTNode *getExpr() { return expr.get(); }
+
+    /// @brief Getter for the codeBlock.
+    ASTNode *getCodeBlock() { return codeBlock.get(); }
+
+    /// @brief Getter for the elseStmt.
+    ASTNode *getElseStmt() { return elseStmt.get(); }
+
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return "IF"; }
 
@@ -743,6 +752,11 @@ class ElseNode : public ASTNode {
      * @param stmt Block of code or other if statement.
      */
     explicit ElseNode(std::unique_ptr<ASTNode> elseStmt) : stmt(std::move(elseStmt)){};
+
+    /**
+     * @brief Getter for the stmt.
+     */
+    ASTNode *getStmt() { return stmt.get(); }
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return "ELSE"; }

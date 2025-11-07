@@ -221,16 +221,16 @@ llvm::Value *IRGenerator::visit(VariableRefNode &node) {
         throw std::runtime_error("There is no value associated to the symbol: " + node.getValue());
     }
 
+    // Returning a direct value
+    if (llvm::isa<llvm::Argument>(alloc) || llvm::isa<llvm::Constant>(alloc)) {
+        return alloc;
+    }
+
     // Loading the allocated type
     llvm::Type *type;
     if (llvm::AllocaInst *alloca = llvm::dyn_cast<llvm::AllocaInst>(alloc)) {
         llvm::Type *type = alloca->getAllocatedType();
         return ctx.IRBuilder.CreateLoad(type, alloca, node.getValue());
-    }
-
-    // Returning a direct value
-    if (llvm::isa<llvm::Argument>(alloc) || llvm::isa<llvm::Constant>(alloc)) {
-        return alloc;
     }
 
     throw std::runtime_error("The symbol: " + node.getValue() + " does not have a valid allocation");
@@ -337,10 +337,56 @@ llvm::Value *IRGenerator::visit(ReturnNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(IfNode &node) {
+    // Evaluates the condition
+    llvm::Value *condVal = node.getExpr()->accept(*this);
+    if (!condVal) {
+        throw std::runtime_error("There is no condition in the if statement");
+        return nullptr;
+    }
+
+    // Creates a i1 condition
+    condVal = ctx.IRBuilder.CreateICmpNE(condVal, llvm::ConstantInt::get(condVal->getType(), 0), "ifcond");
+
+    llvm::Function *function = ctx.IRBuilder.GetInsertBlock()->getParent();
+
+    // Blocks for each part
+    llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(ctx.IRContext, "then", function);
+    llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(ctx.IRContext, "else", function);
+    llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(ctx.IRContext, "endif", function);
+
+    // Creates the conditional break point
+    ctx.IRBuilder.CreateCondBr(condVal, thenBB, elseBB);
+
+    // Generates the if block
+    ctx.pushFunction(thenBB);
+    node.getCodeBlock()->accept(*this);
+
+    // Inserts the merge block
+    if (!ctx.IRBuilder.GetInsertBlock()->getTerminator())
+        ctx.IRBuilder.CreateBr(mergeBB);
+
+    ctx.popFunction();
+
+    // Adds the else node if there is one present
+    ctx.pushFunction(elseBB);
+    if (node.getElseStmt()) {
+        node.getElseStmt()->accept(*this);
+        ctx.IRBuilder.CreateBr(mergeBB);
+    } else {
+        ctx.IRBuilder.CreateBr(mergeBB);
+    }
+    ctx.popFunction();
+
+    // Adds the exit block
+    ctx.pushFunction(mergeBB);
+
     return nullptr;
 }
 
 llvm::Value *IRGenerator::visit(ElseNode &node) {
+    // Visits the statement
+    node.getStmt()->accept(*this);
+
     return nullptr;
 }
 

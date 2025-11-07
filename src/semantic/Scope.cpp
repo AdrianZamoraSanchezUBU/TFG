@@ -50,10 +50,19 @@ std::shared_ptr<Scope> Scope::findLocalScope(const std::string &id) {
 Symbol *Scope::getSymbol(const std::string &id) {
     auto it = symbols.find(id);
 
-    if (it != symbols.end())
+    if (it != symbols.end()) {
         return &it->second;
+    }
 
-    std::cerr << "Cant find symbol named: " + id << std::endl;
+    // Not found in this scope, try parent
+    if (auto p = parent.lock()) {
+        return p->getSymbol(id);
+    }
+
+    std::cerr << "Cant find symbol named: " + id + " in Scope at level: " + std::to_string(level) +
+                     " with id: " + std::to_string(this->id)
+              << std::endl;
+
     return nullptr;
 };
 

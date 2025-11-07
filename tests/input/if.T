@@ -1,3 +1,8 @@
+int a = 1;
+
 if(2 < 3){
-    int a;
+    return a;
 }
+
+int b = 0;
+return b;

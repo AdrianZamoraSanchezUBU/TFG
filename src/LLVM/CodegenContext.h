@@ -41,13 +41,16 @@ struct CodegenContext {
     }
 
     /**
-     * @brief Pushes a new basic block to the stack.
+     * @brief Pushes a new basic block to the stack and sets it as the new insert point.
      * @param BB New basic block.
      */
-    void pushFunction(llvm::BasicBlock *BB) { blockStack.push_back(BB); }
+    void pushFunction(llvm::BasicBlock *BB) {
+        blockStack.push_back(BB);
+        IRBuilder.SetInsertPoint(BB);
+    }
 
     /**
-     * @brief Changes the current function to the next basic block in the stack.
+     * @brief Sets the current insert point to the next basic block in the stack.
      */
     void popFunction() {
         blockStack.pop_back();
