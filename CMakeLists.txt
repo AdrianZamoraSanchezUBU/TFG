@@ -58,6 +58,7 @@ set(TEST_SOURCES
     tests/exprTest.cpp
     tests/variableTest.cpp
     tests/functionTest.cpp
+    tests/ifElseTest.cpp
 )
 
 # Build each test

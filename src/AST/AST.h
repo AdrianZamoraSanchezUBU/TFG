@@ -301,7 +301,7 @@ class ReturnNode : public ASTNode {
     explicit ReturnNode(){};
 
     /// @copydoc ASTNode::getValue
-    std::string getValue() const override { return "RETURN: " + stmt.get()->getValue(); }
+    std::string getValue() const override { return "RETURN: "; }
 
     /**
      * @brief Getter for stmt.
@@ -717,7 +717,13 @@ class IfNode : public ASTNode {
     std::string getValue() const override { return "IF"; }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "IF NODE: " << std::endl; }
+    void print() const override {
+        std::cout << "IF NODE: " << std::endl;
+        expr->print();
+        codeBlock->print();
+        if (elseStmt != nullptr)
+            elseStmt->print();
+    }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -762,7 +768,10 @@ class ElseNode : public ASTNode {
     std::string getValue() const override { return "ELSE"; }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "ELSE NODE: " << std::endl; }
+    void print() const override {
+        std::cout << "ELSE NODE: " << std::endl;
+        stmt->print();
+    }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -803,7 +812,11 @@ class WhileNode : public ASTNode {
     std::string getValue() const override { return "WHILE"; }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "WHILE NODE: " << std::endl; }
+    void print() const override {
+        std::cout << "WHILE NODE: " << std::endl;
+        expr->print();
+        codeBlock->print();
+    }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -850,7 +863,13 @@ class ForNode : public ASTNode {
     std::string getValue() const override { return "FOR"; }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "FOR LOOP NODE: " << std::endl; }
+    void print() const override {
+        std::cout << "FOR LOOP NODE: " << std::endl;
+        def->print();
+        condition->print();
+        assign->print();
+        codeBlock->print();
+    }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
