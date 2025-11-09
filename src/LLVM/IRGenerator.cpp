@@ -73,7 +73,7 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
 
     // Check for correctness in child nodes visits
     if (!L || !R) {
-        llvm::errs() << "Null operand in binary expression.\n";
+        std::runtime_error("Null operand in binary expression.");
         return nullptr;
     }
 
@@ -337,16 +337,6 @@ llvm::Value *IRGenerator::visit(ReturnNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(IfNode &node) {
-    // Evaluates the condition
-    llvm::Value *condVal = node.getExpr()->accept(*this);
-    if (!condVal) {
-        throw std::runtime_error("There is no condition in the if statement");
-        return nullptr;
-    }
-
-    // Creates a i1 condition
-    condVal = ctx.IRBuilder.CreateICmpNE(condVal, llvm::ConstantInt::get(condVal->getType(), 0), "ifcond");
-
     llvm::Function *function = ctx.IRBuilder.GetInsertBlock()->getParent();
 
     // Blocks for each part
@@ -355,7 +345,7 @@ llvm::Value *IRGenerator::visit(IfNode &node) {
     llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(ctx.IRContext, "endif", function);
 
     // Creates the conditional break point
-    ctx.IRBuilder.CreateCondBr(condVal, thenBB, elseBB);
+    ctx.IRBuilder.CreateCondBr(node.getExpr()->accept(*this), thenBB, elseBB);
 
     // Generates the if block
     ctx.pushFunction(thenBB);
@@ -391,9 +381,76 @@ llvm::Value *IRGenerator::visit(ElseNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(WhileNode &node) {
+    llvm::Function *function = ctx.IRBuilder.GetInsertBlock()->getParent();
+
+    // Blocks for each part
+    llvm::BasicBlock *condBB = llvm::BasicBlock::Create(ctx.IRContext, "condition", function);
+    llvm::BasicBlock *loopBB = llvm::BasicBlock::Create(ctx.IRContext, "loop", function);
+    llvm::BasicBlock *endLoopBB = llvm::BasicBlock::Create(ctx.IRContext, "endLoop", function);
+
+    // Jumps to the condition evaluation
+    ctx.IRBuilder.CreateBr(condBB);
+    ctx.pushFunction(condBB);
+
+    // Creates the conditional break point
+    ctx.IRBuilder.CreateCondBr(node.getExpr()->accept(*this), loopBB, endLoopBB);
+    ctx.popFunction();
+
+    // Generates the while block
+    ctx.pushFunction(loopBB);
+    node.getCodeBlock()->accept(*this);
+
+    // Check if the block had a return
+    if (ctx.IRBuilder.GetInsertBlock() == loopBB) {
+        // At the end of the block jumps to the condition
+        ctx.IRBuilder.CreateBr(condBB);
+    }
+
+    // Exits the basic block
+    ctx.popFunction();
+
+    // The code after the loop must be in the end loop block
+    ctx.pushFunction(endLoopBB);
+
     return nullptr;
 }
 
 llvm::Value *IRGenerator::visit(ForNode &node) {
+    llvm::Function *function = ctx.IRBuilder.GetInsertBlock()->getParent();
+
+    // Blocks for each part
+    llvm::BasicBlock *condBB = llvm::BasicBlock::Create(ctx.IRContext, "condition", function);
+    llvm::BasicBlock *loopBB = llvm::BasicBlock::Create(ctx.IRContext, "loop", function);
+    llvm::BasicBlock *endLoopBB = llvm::BasicBlock::Create(ctx.IRContext, "endLoop", function);
+
+    node.getDef()->accept(*this);
+
+    // Jumps to the condition evaluation
+    ctx.IRBuilder.CreateBr(condBB);
+    ctx.pushFunction(condBB);
+
+    // Creates the conditional break point
+    ctx.IRBuilder.CreateCondBr(node.getCondition()->accept(*this), loopBB, endLoopBB);
+    ctx.popFunction();
+
+    // Generates the while block
+    ctx.pushFunction(loopBB);
+    node.getCodeBlock()->accept(*this);
+
+    // Check if the block had a return
+    if (ctx.IRBuilder.GetInsertBlock() == loopBB) {
+        // Generates the condition variable operation
+        node.getAssign()->accept(*this);
+
+        // At the end of the block jumps to the condition
+        ctx.IRBuilder.CreateBr(condBB);
+    }
+
+    // Exits the basic block
+    ctx.popFunction();
+
+    // The code after the loop must be in the end loop block
+    ctx.pushFunction(endLoopBB);
+
     return nullptr;
 }

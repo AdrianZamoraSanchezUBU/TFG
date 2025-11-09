@@ -1,3 +1,5 @@
-while( 3 < 2){
-    return 0;
+int a = 0;
+
+while(a < 5) {
+    a = a + 1;
 }

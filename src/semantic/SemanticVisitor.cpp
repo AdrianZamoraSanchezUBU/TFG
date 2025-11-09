@@ -284,9 +284,25 @@ void *SemanticVisitor::visit(ElseNode &node) {
 }
 
 void *SemanticVisitor::visit(WhileNode &node) {
+    // Visits its components
+    node.getExpr()->accept(*this);
+
+    // New scope for this code block
+    symtab.enterScope();
+    node.getCodeBlock()->accept(*this);
+
     return nullptr;
 }
 
 void *SemanticVisitor::visit(ForNode &node) {
+    // Visits its components
+    node.getDef()->accept(*this);
+    node.getCondition()->accept(*this);
+    node.getAssign()->accept(*this);
+
+    // New scope for this code block
+    symtab.enterScope();
+    node.getCodeBlock()->accept(*this);
+
     return nullptr;
 }

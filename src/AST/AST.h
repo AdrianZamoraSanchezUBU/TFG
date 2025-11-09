@@ -808,6 +808,16 @@ class WhileNode : public ASTNode {
     explicit WhileNode(std::unique_ptr<ASTNode> expression, std::unique_ptr<CodeBlockNode> block)
         : expr(std::move(expression)), codeBlock(std::move(block)){};
 
+    /**
+     * @brief Getter for the expr.
+     */
+    ASTNode *getExpr() { return expr.get(); }
+
+    /**
+     * @brief Getter for the code block.
+     */
+    ASTNode *getCodeBlock() { return codeBlock.get(); }
+
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return "WHILE"; }
 
@@ -858,6 +868,26 @@ class ForNode : public ASTNode {
                      std::unique_ptr<CodeBlockNode> block)
         : def(std::move(definition)), condition(std::move(loopCondition)), assign(std::move(assignation)),
           codeBlock(std::move(block)){};
+
+    /**
+     * @brief Getter for the condition definition.
+     */
+    ASTNode *getDef() { return def.get(); }
+
+    /**
+     * @brief Getter for the condition expr.
+     */
+    ASTNode *getCondition() { return condition.get(); }
+
+    /**
+     * @brief Getter for the condition assign.
+     */
+    ASTNode *getAssign() { return assign.get(); }
+
+    /**
+     * @brief Getter for the code block.
+     */
+    ASTNode *getCodeBlock() { return codeBlock.get(); }
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return "FOR"; }
