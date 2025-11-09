@@ -31,11 +31,9 @@ TEST(ifElseTest, ifStatement) {
 
     /* Expected IR */
     std::vector<std::string> regexpr;
-    regexpr.push_back("br i1 true, label %then, label %else");
+    regexpr.push_back("br i1 true, label %then, label %endif");
     regexpr.push_back("then:");
-    regexpr.push_back("else:");
-    regexpr.push_back("br label %endif");
-    regexpr.push_back("endif:                                            ; preds = %else");
+    regexpr.push_back("endif:                                            ; preds = %entry");
 
     test(fileName, root.get(), regexpr);
 }
@@ -118,14 +116,12 @@ TEST(ifElseTest, nestedIf) {
 
     /* Expected IR */
     std::vector<std::string> regexpr;
-    regexpr.push_back("br i1 %ifcond, label %then, label %else");
-    regexpr.push_back("br i1 %ifcond3, label %then4, label %else5");
+    regexpr.push_back("br i1 %lttmp, label %then, label %endif");
+    regexpr.push_back("br i1 %eqtmp, label %then1, label %endif2");
     regexpr.push_back("then:                                             ; preds = %entry");
-    regexpr.push_back("else:                                             ; preds = %entry");
-    regexpr.push_back("endif:                                            ; preds = %else");
-    regexpr.push_back("then4:                                            ; preds = %then");
-    regexpr.push_back("else5:                                            ; preds = %then");
-    regexpr.push_back("endif6:                                           ; preds = %else5");
+    regexpr.push_back("endif:                                            ; preds = %entry");
+    regexpr.push_back("then1:                                            ; preds = %then");
+    regexpr.push_back("endif2:                                           ; preds = %then");
 
     test(fileName, root.get(), regexpr);
 }

@@ -341,11 +341,22 @@ llvm::Value *IRGenerator::visit(IfNode &node) {
 
     // Blocks for each part
     llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(ctx.IRContext, "then", function);
-    llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(ctx.IRContext, "else", function);
+
+    llvm::BasicBlock *elseBB;
+    if (node.getElseStmt()) {
+        elseBB = llvm::BasicBlock::Create(ctx.IRContext, "else", function);
+    }
+
     llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(ctx.IRContext, "endif", function);
 
     // Creates the conditional break point
-    ctx.IRBuilder.CreateCondBr(node.getExpr()->accept(*this), thenBB, elseBB);
+    if (node.getElseStmt()) {
+        // If the else is present, a false condition jumps to the else block
+        ctx.IRBuilder.CreateCondBr(node.getExpr()->accept(*this), thenBB, elseBB);
+    } else {
+        // If the else is present, a false condition jumps to the endif block
+        ctx.IRBuilder.CreateCondBr(node.getExpr()->accept(*this), thenBB, mergeBB);
+    }
 
     // Generates the if block
     ctx.pushFunction(thenBB);
@@ -358,14 +369,13 @@ llvm::Value *IRGenerator::visit(IfNode &node) {
     ctx.popFunction();
 
     // Adds the else node if there is one present
-    ctx.pushFunction(elseBB);
+
     if (node.getElseStmt()) {
+        ctx.pushFunction(elseBB);
         node.getElseStmt()->accept(*this);
         ctx.IRBuilder.CreateBr(mergeBB);
-    } else {
-        ctx.IRBuilder.CreateBr(mergeBB);
+        ctx.popFunction();
     }
-    ctx.popFunction();
 
     // Adds the exit block
     ctx.pushFunction(mergeBB);
