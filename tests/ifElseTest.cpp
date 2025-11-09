@@ -119,13 +119,13 @@ TEST(ifElseTest, nestedIf) {
     /* Expected IR */
     std::vector<std::string> regexpr;
     regexpr.push_back("br i1 %ifcond, label %then, label %else");
-    regexpr.push_back("br i1 %ifcond5, label %then6, label %else7");
+    regexpr.push_back("br i1 %ifcond3, label %then4, label %else5");
     regexpr.push_back("then:                                             ; preds = %entry");
     regexpr.push_back("else:                                             ; preds = %entry");
     regexpr.push_back("endif:                                            ; preds = %else");
-    regexpr.push_back("then6:                                            ; preds = %then");
-    regexpr.push_back("else7:                                            ; preds = %then");
-    regexpr.push_back("endif8:                                           ; preds = %else7");
+    regexpr.push_back("then4:                                            ; preds = %then");
+    regexpr.push_back("else5:                                            ; preds = %then");
+    regexpr.push_back("endif6:                                           ; preds = %else5");
 
     test(fileName, root.get(), regexpr);
 }

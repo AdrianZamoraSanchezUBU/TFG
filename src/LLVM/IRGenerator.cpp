@@ -151,7 +151,7 @@ llvm::Value *IRGenerator::visit(VariableDecNode &node) {
     llvm::IRBuilder<> tmpBuilder(currentFunction, currentFunction->begin());
 
     // Allocating memory for the variable
-    llvm::AllocaInst *allocaInst = tmpBuilder.CreateAlloca(varType, nullptr, node.getValue());
+    llvm::AllocaInst *allocaInst = tmpBuilder.CreateAlloca(varType, nullptr, node.getValue() + "_ptr");
 
     // Registers this new allocation associated with the Symbol in the SymbolTable
     symtab.addLlvmValue(node.getValue(), allocaInst);
@@ -185,7 +185,7 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
         llvm::IRBuilder<> tmpBuilder(currentFunction, currentFunction->begin());
 
         // Allocating memory for the variable
-        llvm::AllocaInst *allocaInst = tmpBuilder.CreateAlloca(varType, nullptr, node.getValue());
+        llvm::AllocaInst *allocaInst = tmpBuilder.CreateAlloca(varType, nullptr, node.getValue() + "_ptr");
 
         // Registers this new allocation associated with the Symbol in the SymbolTable
         symtab.addLlvmValue(node.getValue(), allocaInst);
@@ -230,7 +230,7 @@ llvm::Value *IRGenerator::visit(VariableRefNode &node) {
     llvm::Type *type;
     if (llvm::AllocaInst *alloca = llvm::dyn_cast<llvm::AllocaInst>(alloc)) {
         llvm::Type *type = alloca->getAllocatedType();
-        return ctx.IRBuilder.CreateLoad(type, alloca, node.getValue());
+        return ctx.IRBuilder.CreateLoad(type, alloca, node.getValue() + "_val");
     }
 
     throw std::runtime_error("The symbol: " + node.getValue() + " does not have a valid allocation");

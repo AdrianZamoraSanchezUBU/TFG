@@ -11,7 +11,7 @@ TEST(variableTest, variableDec) {
     auto root = std::make_unique<CodeBlockNode>(std::move(statements));
 
     /* Expected IR */
-    std::string expectedIR = R"(%a = alloca i32, align 4)";
+    std::string expectedIR = R"(%a_ptr = alloca i32, align 4)";
 
     test(fileName, root.get(), expectedIR);
 }
@@ -31,7 +31,7 @@ TEST(variableTest, variableAssign) {
     auto root = std::make_unique<CodeBlockNode>(std::move(statements));
 
     /* Expected IR */
-    std::string expectedIR = R"(store i32 2, ptr %a, align 4)";
+    std::string expectedIR = R"(store i32 2, ptr %a_ptr, align 4)";
 
     test(fileName, root.get(), expectedIR);
 }
@@ -49,7 +49,7 @@ TEST(variableTest, variableDecAssign) {
     auto root = std::make_unique<CodeBlockNode>(std::move(statements));
 
     /* Expected IR */
-    std::string expectedIR = R"(store i32 2, ptr %a, align 4)";
+    std::string expectedIR = R"(store i32 2, ptr %a_ptr, align 4)";
 
     test(fileName, root.get(), expectedIR);
 }
@@ -79,7 +79,7 @@ TEST(variableTest, variableCall) {
     auto root = std::make_unique<CodeBlockNode>(std::move(statements));
 
     /* Expected IR */
-    std::string expectedIR = R"(%addtmp = add i32 %x1, 2)";
+    std::string expectedIR = R"(%addtmp = add i32 %x_val, 2)";
 
     test(fileName, root.get(), expectedIR);
 }
