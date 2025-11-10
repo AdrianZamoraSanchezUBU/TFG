@@ -59,6 +59,7 @@ set(TEST_SOURCES
     tests/variableTest.cpp
     tests/functionTest.cpp
     tests/ifElseTest.cpp
+    tests/loopTest.cpp
 )
 
 # Build each test
