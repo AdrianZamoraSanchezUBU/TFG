@@ -306,3 +306,7 @@ void *SemanticVisitor::visit(ForNode &node) {
 
     return nullptr;
 }
+
+void *SemanticVisitor::visit(LoopControlStatementNode &node) {
+    return nullptr;
+}

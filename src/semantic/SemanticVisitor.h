@@ -103,6 +103,12 @@ class SemanticVisitor {
     void *visit(ForNode &node);
 
     /**
+     * @brief Visits a for loop control statement node.
+     * @param node Node to be visited.
+     */
+    void *visit(LoopControlStatementNode &node);
+
+    /**
      * @brief Prints the content of the SymbolTable.
      */
     void printSymbolTable() const { symtab.print(); }

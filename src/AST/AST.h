@@ -494,8 +494,8 @@ class VariableRefNode : public ASTNode {
  */
 class FunctionDecNode : public ASTNode {
     std::string identifier;
-    SupportedTypes type;
     std::vector<SupportedTypes> paramList;
+    SupportedTypes type;
 
   public:
     /**
@@ -560,8 +560,8 @@ class FunctionDecNode : public ASTNode {
  */
 class FunctionDefNode : public ASTNode {
     std::string identifier;
-    SupportedTypes type;
     std::vector<std::unique_ptr<ASTNode>> paramList;
+    SupportedTypes type;
     std::unique_ptr<CodeBlockNode> codeBlock;
 
   public:
@@ -689,8 +689,8 @@ class FunctionCallNode : public ASTNode {
  * @see BinaryExprNode
  */
 class IfNode : public ASTNode {
-    std::unique_ptr<CodeBlockNode> codeBlock;
     std::unique_ptr<ASTNode> expr;
+    std::unique_ptr<CodeBlockNode> codeBlock;
     std::unique_ptr<ASTNode> elseStmt;
 
   public:
@@ -797,8 +797,8 @@ class ElseNode : public ASTNode {
  * @see CodeBlock
  */
 class WhileNode : public ASTNode {
-    std::unique_ptr<CodeBlockNode> codeBlock;
     std::unique_ptr<ASTNode> expr;
+    std::unique_ptr<CodeBlockNode> codeBlock;
 
   public:
     /**
@@ -852,10 +852,10 @@ class WhileNode : public ASTNode {
  * @see CodeBlock
  */
 class ForNode : public ASTNode {
-    std::unique_ptr<CodeBlockNode> codeBlock;
     std::unique_ptr<ASTNode> def;
     std::unique_ptr<ASTNode> condition;
     std::unique_ptr<ASTNode> assign;
+    std::unique_ptr<CodeBlockNode> codeBlock;
 
   public:
     /**
@@ -907,6 +907,39 @@ class ForNode : public ASTNode {
             // Returns the result of comparing all the attributes
             return codeBlock.get()->equals(o->codeBlock.get()) && def.get()->equals(o->def.get()) &&
                    condition.get()->equals(o->condition.get()) && assign.get()->equals(o->assign.get());
+        }
+
+        return false;
+    }
+
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
+    llvm::Value *accept(IRGenerator &visitor) override;
+};
+
+class LoopControlStatementNode : public ASTNode {
+    std::string id;
+
+  public:
+    /**
+     * @brief Constructor for the loop control statement node.
+     * @param id Keyword of the statement, could be continue or break.
+     */
+    explicit LoopControlStatementNode(std::string identifier) : id(identifier){};
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return id; }
+
+    /// @copydoc ASTNode::print
+    void print() const override { std::cout << "LOOP CONTROL STATEMENT: " << id << std::endl; }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override {
+        if (auto o = dynamic_cast<const LoopControlStatementNode *>(other)) {
+            // Returns the result of comparing all the attributes
+            return id == o->id;
         }
 
         return false;

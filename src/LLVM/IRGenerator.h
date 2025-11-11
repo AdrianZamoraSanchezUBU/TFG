@@ -32,6 +32,13 @@ class IRGenerator {
     CodegenContext ctx;  /// LLVM Context.
     SymbolTable &symtab; /// Symbol Table reference.
 
+    struct LoopContext {
+        llvm::BasicBlock *condBB;
+        llvm::BasicBlock *endLoopBB;
+    };
+
+    LoopContext loopContext;
+
   public:
     /**
      * @brief IRGenerator constructor.
@@ -146,4 +153,11 @@ class IRGenerator {
      * @return llvm::Value* Value obtained from the visit.
      */
     llvm::Value *visit(ForNode &node);
+
+    /**
+     * @brief Visits a for loop control statement node.
+     * @param node Node to be visited.
+     * @return llvm::Value* Value obtained from the visit.
+     */
+    llvm::Value *visit(LoopControlStatementNode &node);
 };

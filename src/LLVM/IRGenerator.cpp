@@ -397,6 +397,8 @@ llvm::Value *IRGenerator::visit(WhileNode &node) {
     llvm::BasicBlock *condBB = llvm::BasicBlock::Create(ctx.IRContext, "condition", function);
     llvm::BasicBlock *loopBB = llvm::BasicBlock::Create(ctx.IRContext, "loop", function);
     llvm::BasicBlock *endLoopBB = llvm::BasicBlock::Create(ctx.IRContext, "endLoop", function);
+    loopContext.condBB = condBB;
+    loopContext.endLoopBB = endLoopBB;
 
     // Jumps to the condition evaluation
     ctx.IRBuilder.CreateBr(condBB);
@@ -422,6 +424,9 @@ llvm::Value *IRGenerator::visit(WhileNode &node) {
     // The code after the loop must be in the end loop block
     ctx.pushFunction(endLoopBB);
 
+    loopContext.condBB = nullptr;
+    loopContext.endLoopBB = nullptr;
+
     return nullptr;
 }
 
@@ -432,6 +437,8 @@ llvm::Value *IRGenerator::visit(ForNode &node) {
     llvm::BasicBlock *condBB = llvm::BasicBlock::Create(ctx.IRContext, "condition", function);
     llvm::BasicBlock *loopBB = llvm::BasicBlock::Create(ctx.IRContext, "loop", function);
     llvm::BasicBlock *endLoopBB = llvm::BasicBlock::Create(ctx.IRContext, "endLoop", function);
+    loopContext.condBB = condBB;
+    loopContext.endLoopBB = endLoopBB;
 
     node.getDef()->accept(*this);
 
@@ -461,6 +468,19 @@ llvm::Value *IRGenerator::visit(ForNode &node) {
 
     // The code after the loop must be in the end loop block
     ctx.pushFunction(endLoopBB);
+
+    loopContext.condBB = nullptr;
+    loopContext.endLoopBB = nullptr;
+
+    return nullptr;
+}
+
+llvm::Value *IRGenerator::visit(LoopControlStatementNode &node) {
+    if (node.getValue() == "continue") {
+        ctx.IRBuilder.CreateBr(loopContext.condBB);
+    } else {
+        ctx.IRBuilder.CreateBr(loopContext.endLoopBB);
+    }
 
     return nullptr;
 }

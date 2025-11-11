@@ -128,3 +128,12 @@ void *ForNode::accept(SemanticVisitor &visitor) {
 llvm::Value *ForNode::accept(IRGenerator &visitor) {
     return visitor.visit(*this);
 };
+
+/* LoopControlStatementNode */
+void *LoopControlStatementNode::accept(SemanticVisitor &visitor) {
+    return visitor.visit(*this);
+};
+
+llvm::Value *LoopControlStatementNode::accept(IRGenerator &visitor) {
+    return visitor.visit(*this);
+};

@@ -6,17 +6,21 @@ options {
 
 /* KEYWORDs */
 FUNCTION : 'function' ;
-RETURN : 'return' ;
-IF : 'if' ;
+RETURN   : 'return' ;
+
+IF   : 'if' ;
 ELSE : 'else' ;
-WHILE : 'while' ;
-FOR : 'for' ;
+
+WHILE    : 'while' ;
+FOR      : 'for' ;
+CONTINUE : 'continue' ;
+BREAK    : 'break' ;
 
 // Types
-TYPE_INT    : 'int' ;
-TYPE_FLOAT  : 'float' ;
-TYPE_CHAR   : 'char' ;
-TYPE_STRING : 'string' ;
+TYPE_INT     : 'int' ;
+TYPE_FLOAT   : 'float' ;
+TYPE_CHAR    : 'char' ;
+TYPE_STRING  : 'string' ;
 TYPE_BOOLEAN : 'bool' ;
 
 /* SYMBOLS */

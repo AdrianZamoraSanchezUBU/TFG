@@ -11,6 +11,8 @@ programMainBlock: (stmt | return_stmt)* ;
 
 block: LBRACE (stmt | return_stmt)* RBRACE ;
 
+loopBlock: LBRACE (stmt | CONTINUE SEMICOLON | BREAK SEMICOLON | return_stmt)* RBRACE ;
+
 return_stmt: RETURN expr? SEMICOLON ;
 
 stmt
@@ -77,8 +79,8 @@ else
     ;
 
 loop
-	: WHILE LPAREN expr RPAREN block
-	| FOR LPAREN variableAssign SEMICOLON expr SEMICOLON variableAssign RPAREN block
+	: WHILE LPAREN expr RPAREN loopBlock
+	| FOR LPAREN variableAssign SEMICOLON expr SEMICOLON variableAssign RPAREN loopBlock
 	;
 
 type
