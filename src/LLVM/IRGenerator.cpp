@@ -21,9 +21,11 @@ llvm::Type *IRGenerator::getLlvmType(SupportedTypes type) {
     case SupportedTypes::TYPE_STRING:
         return llvm::PointerType::get(llvm::Type::getInt8Ty(ctx.IRContext), 0);
     case SupportedTypes::TYPE_BOOL:
-        return llvm::Type::getInt32Ty(ctx.IRContext);
-    default:
+        return llvm::Type::getInt1Ty(ctx.IRContext);
+    case SupportedTypes::TYPE_VOID:
         return llvm::Type::getVoidTy(ctx.IRContext);
+    default:
+        throw std::runtime_error("Unsupported type in IR generation");
     }
 };
 
@@ -325,11 +327,17 @@ llvm::Value *IRGenerator::visit(FunctionCallNode &node) {
 };
 
 llvm::Value *IRGenerator::visit(ReturnNode &node) {
-    // Generates the return value
-    llvm::Value *ret = node.getStmt()->accept(*this);
+    // Checks if the return is from a value or void
+    if (node.getStmt()) {
+        // Generates the return value
+        llvm::Value *ret = node.getStmt()->accept(*this);
 
-    // Return IR statement
-    ctx.IRBuilder.CreateRet(ret);
+        // Return IR statement
+        ctx.IRBuilder.CreateRet(ret);
+    } else {
+        // Void return
+        ctx.IRBuilder.CreateRetVoid();
+    }
 
     // Block stack pop
     ctx.popFunction();

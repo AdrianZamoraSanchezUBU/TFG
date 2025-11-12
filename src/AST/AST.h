@@ -286,7 +286,7 @@ class BinaryExprNode : public ASTNode {
  * @see CodeBlock
  */
 class ReturnNode : public ASTNode {
-    std::unique_ptr<ASTNode> stmt; // FIXME: DOES NOT SUPPORT VOID RETURN
+    std::unique_ptr<ASTNode> stmt;
 
   public:
     /**

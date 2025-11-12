@@ -236,7 +236,11 @@ void *SemanticVisitor::visit(FunctionCallNode &node) {
 }
 
 void *SemanticVisitor::visit(ReturnNode &node) {
-    node.getStmt()->accept(*this);
+    // If the return stmt returns a value
+    if (node.getStmt()) {
+        // Visits the return value
+        node.getStmt()->accept(*this);
+    }
 
     // Exists the scope
     symtab.exitScope();

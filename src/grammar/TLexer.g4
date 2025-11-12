@@ -22,6 +22,10 @@ TYPE_FLOAT   : 'float' ;
 TYPE_CHAR    : 'char' ;
 TYPE_STRING  : 'string' ;
 TYPE_BOOLEAN : 'bool' ;
+TYPE_VOID    : 'void' ;
+
+BOOL_TRUE_LITERAL  : 'true'  ;
+BOOL_FALSE_LITERAL : 'false' ;
 
 /* SYMBOLS */
 PLUS  : '+' ;
@@ -54,9 +58,6 @@ IDENTIFIER     : LETTER+ DIGIT* LETTER* ;
 STRING_LITERAL : '"' ~["]* '"';
 NUMBER_LITERAL : DIGIT+ ;
 FLOAT_LITERAL  : DIGIT+ '.' DIGIT+ ;
-
-BOOL_TRUE_LITERAL   : 'true'  ;
-BOOL_FALSE_LITERAL : 'false' ;
 
 /* BLANKS */
 COMMNET : '//' ~[\r\n]* -> skip ;

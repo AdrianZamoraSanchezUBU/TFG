@@ -13,7 +13,7 @@ block: LBRACE (stmt | return_stmt)* RBRACE ;
 
 loopBlock: LBRACE (stmt | CONTINUE SEMICOLON | BREAK SEMICOLON | return_stmt)* RBRACE ;
 
-return_stmt: RETURN expr? SEMICOLON ;
+return_stmt: RETURN (expr)? SEMICOLON ;
 
 stmt
 	: variableDec SEMICOLON
@@ -89,6 +89,7 @@ type
 	| TYPE_CHAR
 	| TYPE_STRING
 	| TYPE_BOOLEAN
+	| TYPE_VOID
 	;
 
 boolean_literal 

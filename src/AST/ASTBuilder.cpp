@@ -366,6 +366,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
 
         return node;
     }
+
     if (ctx->boolean_literal()) {
         bool value = false;
 
@@ -386,6 +387,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
 
         return node;
     }
+
     if (ctx->FLOAT_LITERAL()) {
         float value = stof(ctx->FLOAT_LITERAL()->getText());
         auto node = std::make_unique<LiteralNode>(value, SupportedTypes::TYPE_FLOAT);
@@ -401,6 +403,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
 
         return node;
     }
+
     if (ctx->STRING_LITERAL()) {
         auto node = std::make_unique<LiteralNode>(ctx->STRING_LITERAL()->getText(), SupportedTypes::TYPE_STRING);
 
@@ -594,14 +597,21 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Return_stmtContext *ctx) {
 
     // Visits the expr that gives this variable its value
     std::unique_ptr<ASTNode> retVal;
-    retVal = visit(ctx->expr());
+    if (ctx->expr()) {
+        retVal = visit(ctx->expr());
+    }
 
     if (visualizeFlag) {
         std::ofstream texFile("AST.tex", std::ios::app);
         texFile << "]" << std::endl;
     }
 
-    return std::make_unique<ReturnNode>(std::move(retVal));
+    // Returns a value or void
+    if (ctx->expr()) {
+        return std::make_unique<ReturnNode>(std::move(retVal));
+    } else {
+        return std::make_unique<ReturnNode>();
+    }
 }
 
 std::vector<SupportedTypes> ASTBuilder::visit(TParser::ParamsContext *ctx) {
@@ -691,6 +701,8 @@ SupportedTypes ASTBuilder::visit(TParser::TypeContext *ctx) {
         return SupportedTypes::TYPE_STRING;
     if (ctx->TYPE_BOOLEAN())
         return SupportedTypes::TYPE_BOOL;
+    if (ctx->TYPE_VOID())
+        return SupportedTypes::TYPE_VOID;
 
     throw std::runtime_error("Not a valid type");
 }
