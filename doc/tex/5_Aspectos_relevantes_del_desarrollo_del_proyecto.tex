@@ -1,10 +1,77 @@
-\capitulo{5}{Aspectos relevantes del desarrollo del proyecto}
-
+\capitulo{5}{Aspectos relevantes del proyecto} 
 El comienzo del proyecto parte del objetivo de conseguir una versión MVP (Minimal Viable Product) que pudiese aportar una base sólida y fácil de ampliar. En este caso el MVP se enfocó en la creación de un micro compilador capaz de procesar expresiones aritméticas y lógicas, puesto que esta estructura es básica y está presente en todos los lenguajes de programación.
 
-La primera fase de este desarrollo comienza con la creación de un lexer donde se definen algunas estructuras básicas como los lierales de número entero, número con decimales o las cadenas de caracteres, así como los operadores que se van a emplear para estas expresiones. Una vez obtenido el lexer el siguiente paso es construir un parser capaz de reconocer estructuras gramaticales más complejas donde se conectan el uso de los operadores y los literales definidos anteriormente.
+\subsection{Antes de compilar} % TODO
+El compilador antes de comenzar el proceso de compilación debe leer el código de entrada...
+
+\subsection{Proceso de compilación}
+Como el compilador se ha planificado como modular, a continuación se recorrerá el proceso de compilación completo con el contenido del MVP. 
+
+\subsubsection{Análisis léxico}
+La primera fase de este desarrollo comienza con la creación de un lexer donde se definen algunas estructuras básicas como los literales de números enteros, números con decimales o las cadenas de caracteres, así como los operadores que se van a emplear para estas expresiones. 
+
+En este momento se definen los tipos básicos del lenguaje:
+\begin{verbatim}
+    TYPE_INT     : 'int'    ;
+    TYPE_FLOAT   : 'float'  ;
+    TYPE_CHAR    : 'char'   ;
+    TYPE_STRING  : 'string' ;
+    TYPE_BOOLEAN : 'bool'   ;
+    TYPE_VOID    : 'void'   ;
+\end{verbatim}
+
+Se definen los operadores aritméticos y lógicos:
+\begin{verbatim}
+    PLUS  : '+' ;
+    MINUS : '-' ;
+    MUL   : '*' ;
+    DIV   : '/' ;
+
+    EQ : '==' ;
+    NE : '!=' ;
+    LT : '<'  ;
+    LE : '<=' ;
+    GT : '>'  ;
+    GE : '>=' ;
+\end{verbatim}
+
+\subsubsection{Análisis sintáctico}
+Una vez obtenido el lexer el siguiente paso es construir un parser capaz de reconocer estructuras gramaticales más complejas donde se conectan el uso de los operadores y los literales definidos anteriormente.
+
+Los operadores y las operaciones sobre estas estructuras de definen en el lenguaje ANTLR4 de la siguiente forma:
+\begin{verbatim}
+expr
+    : expr op=(MUL|DIV) expr        # arithmeticExpr
+    | expr op=(PLUS|MINUS) expr     # arithmeticExpr
+    | expr comparisonOperator expr  # logicalExpr
+    | operand                       # operandExpr
+    | LPAREN expr RPAREN            # parenExpr
+    ;
+
+comparisonOperator
+    : EQ 
+    | NE
+    | LT 
+    | LE 
+    | GT
+    | GE
+    ;
+
+operand
+    : literal
+    ;
+\end{verbatim}
 
 A continuación se debe implementar una estructura de datos que sea capaz de representar cualquier tipo de estructura sintáctica bien formada de este lenguaje, la estructura del árbol de sintaxis abstracta (AST por sus siglas en inglés) será la encargada de crear este representacion en tiempo de ejecución del compilador, almacenando los datos relevantes de cada estructura para su posterior análisis en las siguientes fases.
+
 Para formar este AST se empleará un visitor patterns (patrón de visita), objeto que recibe el nombre de ASTBuilder, el cual se encarga de visitar cada contexto generado de forma automática por el parser de ANTLR, dando por resultado unos nodos enlazados, el AST. Adicionalmente, ASTBuilder será el encargado de generar una representación visual del árbol a medida que lo va construyendo, para conseguir esto se escriben cada nodo en el formato de la biblioteca `forest` de LaTex a medida que estos se van formando, garantizando su orden y asociación correctos.
 
+\imagen{AST_ejemplo_expr}{Ejemplo de expresión 2 + 3 * 5}{0.55}
 
+\subsubsection{Análisis semántico} % TODO
+
+\subsubsection{Generación de LLVM IR} % TODO
+
+\subsubsection{Optimizaciones} % TODO
+
+\subsubsection{Generación del ejecutable} % TODO

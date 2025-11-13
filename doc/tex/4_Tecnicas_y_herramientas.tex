@@ -62,3 +62,27 @@ Entre sus principales ventajas destacan:
 
 \textbf{Justificación de la elección:}  
 LLVM ofrece el equilibrio ideal entre potencial, documentación y flexibilidad, su diseño modular permite construir un compilador completamente funcional sin preocuparse por la dependencia de la arquitectura de destino. Además, su integración con C++ simplifica enormemente la generación de IR y la gestión de optimizaciones.
+
+\subsection{Entorno WSL}
+\textbf{Justificación de la elección:}  
+El entorno Linux (conseguido mediente WSL) es especialmente sencillo para trabajar con las dependencias de este proyecto sin requerir capas de compatibilización adicionales requeridas por Windows (como MSYS2 o MinGW). 
+
+Sus principales ventajas frente a Windows:
+\begin{itemize}
+    \item \textbf{Simpleza:} Con un entono únicamente de CLI permite un gran rendimiento y mantiene una sencillez coherente con el desarrollo de un compilador.
+    \item \textbf{Shell scripting:} Permite crear rutinas de ejecución sencillas que ahorran repetir trabajo a la hora de compilar y probar código.
+    \item \textbf{Integración:} Todos los paquetes están preparados para su uso en Unix-like, no se requiere ningún parche para compatibilizar las herramientas entre si. 
+\end{itemize}
+
+\subsection{Visual Studio Code}
+\textbf{Justificación de la elección:}  
+La elección de Visual Studio Code como IDE se da por su simpleza y conocimiento previo, evitando tener que aprender sobre cómo usar un IDE más específico como Visual Studio, pero a su vez potente gracias a su sistema de extensiones, que permite modificarlo según las necesidades del desarrollo. 
+
+En mi caso lo he personalizado con las siguientes extensiones:
+\begin{itemize}
+    \item \textbf{WSL:} Permite la integración con WSL como si se tratase del sistema host.
+    \item \textbf{CMake y CMake Tools:} Permite ejecutar las rutinas de CMake creadas en el proyecto.
+    \item \textbf{LaTex Workshop:} Integración con LaTex y comodidad de compilación al guardar los archivos para ver los cambios inmediatamente.
+    \item \textbf{C/C++ Extension pack:} Agrega IntelliSense, linting, herramientas de debugging y code browsing para C y C++. 
+    \item \textbf{Clang-Format:} Herramienta configurable que permite establecer reglas de estilo consistentes en todos los archivos de código, en mi caso utilizo el estándar de LLVM.  
+\end{itemize}
