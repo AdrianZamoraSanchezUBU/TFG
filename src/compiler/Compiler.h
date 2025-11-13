@@ -39,6 +39,23 @@
 // LLVM
 #include "IRGenerator.h"
 
+#include "/usr/include/llvm-18/llvm/TargetParser/Host.h"
+#include "llvm/AsmParser/Parser.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/LegacyPassManager.h"
+#include "llvm/IR/Module.h"
+#include "llvm/MC/TargetRegistry.h"
+#include "llvm/Passes/PassBuilder.h"
+#include "llvm/Passes/PassPlugin.h"
+#include "llvm/Support/FileSystem.h"
+#include "llvm/Support/Program.h"
+#include "llvm/Support/SourceMgr.h"
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/Target/TargetOptions.h"
+
 class Compiler {
     CompilerFlags flags; ///< Flags
 
@@ -86,6 +103,16 @@ class Compiler {
      * @brief IR generation phase of the compiler.
      */
     void generateIR();
+
+    /**
+     * @brief Object code generation phase of the compiler.
+     */
+    void generateObjectCode();
+
+    /**
+     * @brief Object code linkage and executable generation.
+     */
+    void linkObjectFile();
 
     /**
      * @brief IRGenerator CodegenContext getter;

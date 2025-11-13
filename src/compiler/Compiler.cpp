@@ -73,6 +73,7 @@ void Compiler::parse() {
 void Compiler::analyze() {
     getAST()->accept(*analyser);
 
+    // Debug symbol table print
     if (flags.debug) {
         std::cout << "****** SYMBOL TABLE ******" << std::endl;
         analyser->printSymbolTable();
@@ -89,4 +90,47 @@ void Compiler::generateIR() {
         std::cout << "****** GENERATED LLVM IR ******" << std::endl;
         ctx.IRModule->print(llvm::outs(), nullptr);
     }
+}
+
+void Compiler::generateObjectCode() {
+    // LLVM and CodegenContext set up
+    llvm::InitializeNativeTarget();
+    llvm::InitializeNativeTargetAsmPrinter();
+    llvm::InitializeNativeTargetAsmParser();
+    CodegenContext &ctx = IRgen.get()->getContext();
+
+    // Getting the target tiple for this machine architecture
+    std::string error;
+    auto targetTriple = llvm::sys::getDefaultTargetTriple();
+    const llvm::Target *target = llvm::TargetRegistry::lookupTarget(targetTriple, error);
+
+    // Set up for target options
+    llvm::TargetOptions opt;
+    auto relocModel = std::optional<llvm::Reloc::Model>();
+    std::unique_ptr<llvm::TargetMachine> targetMachine(
+        target->createTargetMachine(targetTriple, "generic", "", opt, relocModel));
+
+    // Module data layout and target tiple configuration
+    ctx.IRModule.get()->setDataLayout(targetMachine->createDataLayout());
+    ctx.IRModule->setTargetTriple(targetTriple);
+
+    // Object file destination
+    std::error_code EC;
+    llvm::raw_fd_ostream dest(std::string(BUILD_DIR) + "/" + flags.outputFile, EC, llvm::sys::fs::OF_None);
+
+    // Object file emission
+    llvm::legacy::PassManager emitPM;
+    targetMachine->addPassesToEmitFile(emitPM, dest, nullptr, llvm::CodeGenFileType::ObjectFile);
+    emitPM.run(*ctx.IRModule);
+    dest.flush();
+}
+
+void Compiler::linkObjectFile() {
+    std::string runtime = std::string(BUILD_DIR) + "/runtime.o ";
+    std::string programObjecFile = std::string(BUILD_DIR) + "/" + flags.outputFile;
+
+    // Links object file with the runtime.o to have a executable entry point
+    std::string command = "ld.lld " + runtime + " " + programObjecFile + " -o program";
+    std::system(command.c_str());
+    std::system(("rm " + programObjecFile).c_str());
 }

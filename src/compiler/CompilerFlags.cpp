@@ -31,7 +31,7 @@ CompilerFlags argvToFlags(int argc, char **argv) {
             if (arg == "-o") {
                 if (i + 1 >= argc)
                     throw std::invalid_argument("Missing output file after -o");
-                flags.inputFile = argv[++i];
+                flags.outputFile = argv[++i];
             } else if (arg == "--visualizeAST") {
                 flags.visualizeAST = true;
             } else if (arg == "--debug") {

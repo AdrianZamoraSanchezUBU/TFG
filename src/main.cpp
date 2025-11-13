@@ -25,10 +25,13 @@ int main(int argc, char *argv[]) {
     Compiler compiler(flags);
 
     try {
+        // Compilation process
         compiler.lex();
         compiler.parse();
         compiler.analyze();
         compiler.generateIR();
+        compiler.generateObjectCode();
+        compiler.linkObjectFile();
     } catch (const std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;

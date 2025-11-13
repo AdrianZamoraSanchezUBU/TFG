@@ -15,6 +15,8 @@ include_directories(
 )
 link_directories(/usr/local/lib)
 
+set(BUILD_DIR "${CMAKE_SOURCE_DIR}/build")
+
 add_library(compilerLib STATIC
     src/compiler/Compiler.cpp
     src/compiler/CompilerFlags.cpp
@@ -29,6 +31,9 @@ add_library(compilerLib STATIC
 
     tests/testHelpers.cpp
 )
+
+# Passing the build folder location to the main.cpp
+target_compile_definitions(compilerLib PUBLIC BUILD_DIR="${BUILD_DIR}")
 
 # Libs LLVM
 find_package(LLVM REQUIRED CONFIG)
