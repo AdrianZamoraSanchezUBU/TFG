@@ -24,6 +24,7 @@ stmt
 	| if
 	| loop 
 	| expr SEMICOLON
+	| event
 	;
 
 expr
@@ -54,6 +55,7 @@ literal
 	| FLOAT_LITERAL	
 	| STRING_LITERAL
 	| boolean_literal
+	| time_literal
    	;
 
 variableDec: type IDENTIFIER ;
@@ -90,9 +92,29 @@ type
 	| TYPE_STRING
 	| TYPE_BOOLEAN
 	| TYPE_VOID
+	| TYPE_TIME
 	;
 
 boolean_literal 
 				: BOOL_TRUE_LITERAL
 				| BOOL_FALSE_LITERAL
 				;
+
+time_literal 
+			: NUMBER_LITERAL TIME_TICK
+			| NUMBER_LITERAL TIME_SEC
+			| NUMBER_LITERAL TIME_MIN
+			| NUMBER_LITERAL TIME_HR
+			;
+
+
+event 
+	: EVENT IDENTIFIER EVERY time_literal eventBlock
+	| EVENT IDENTIFIER AT time_literal eventBlock
+	| EVENT IDENTIFIER AFTER time_literal eventBlock
+	| EVENT IDENTIFIER WHEN expr eventBlock
+	;
+
+eventBlock : LBRACE (stmt | exitStmt)* RBRACE ;
+
+exitStmt : EXIT IDENTIFIER ;

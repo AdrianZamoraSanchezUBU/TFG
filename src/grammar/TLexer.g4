@@ -6,26 +6,39 @@ options {
 
 /* KEYWORDs */
 FUNCTION : 'function' ;
-RETURN   : 'return' ;
+RETURN   : 'return'   ;
 
-IF   : 'if' ;
+IF   : 'if'   ;
 ELSE : 'else' ;
 
-WHILE    : 'while' ;
-FOR      : 'for' ;
+WHILE    : 'while'    ;
+FOR      : 'for'      ;
 CONTINUE : 'continue' ;
-BREAK    : 'break' ;
+BREAK    : 'break'    ;
+
+EVERY : 'every' ;
+AT    : 'at'    ;
+AFTER : 'after' ;
+WHEN  : 'when'  ;
+EXIT  : 'exit'  ;
+EVENT : 'event' ;
 
 // Types
-TYPE_INT     : 'int' ;
-TYPE_FLOAT   : 'float' ;
-TYPE_CHAR    : 'char' ;
+TYPE_INT     : 'int'    ;
+TYPE_FLOAT   : 'float'  ;
+TYPE_CHAR    : 'char'   ;
 TYPE_STRING  : 'string' ;
-TYPE_BOOLEAN : 'bool' ;
-TYPE_VOID    : 'void' ;
+TYPE_BOOLEAN : 'bool'   ;
+TYPE_VOID    : 'void'   ;
+TYPE_TIME    : 'time'   ;
 
 BOOL_TRUE_LITERAL  : 'true'  ;
 BOOL_FALSE_LITERAL : 'false' ;
+
+TIME_TICK : 'tick' ;
+TIME_SEC  : 'sec'  ;
+TIME_MIN  : 'min'  ;
+TIME_HR   : 'hr'   ;
 
 /* SYMBOLS */
 PLUS  : '+' ;
@@ -35,9 +48,9 @@ DIV   : '/' ;
 
 EQ : '==' ;
 NE : '!=' ;
-LT : '<' ;
+LT : '<'  ;
 LE : '<=' ;
-GT : '>' ;
+GT : '>'  ;
 GE : '>=' ;
 ASSIGN_OPERATOR : '=' ;
 
@@ -48,7 +61,7 @@ LBRACE : '{' ;
 RBRACE : '}' ;
 
 SEMICOLON : ';' ;
-COMMA : ',' ;
+COMMA     : ',' ;
 
 /* COMPONENTS */
 fragment DIGIT  : [0-9] ;
