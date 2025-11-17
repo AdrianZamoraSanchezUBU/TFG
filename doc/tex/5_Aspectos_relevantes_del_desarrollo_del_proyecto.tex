@@ -64,14 +64,66 @@ operand
 
 A continuación se debe implementar una estructura de datos que sea capaz de representar cualquier tipo de estructura sintáctica bien formada de este lenguaje, la estructura del árbol de sintaxis abstracta (AST por sus siglas en inglés) será la encargada de crear este representacion en tiempo de ejecución del compilador, almacenando los datos relevantes de cada estructura para su posterior análisis en las siguientes fases.
 
-Para formar este AST se empleará un visitor patterns (patrón de visita), objeto que recibe el nombre de ASTBuilder, el cual se encarga de visitar cada contexto generado de forma automática por el parser de ANTLR, dando por resultado unos nodos enlazados, el AST. Adicionalmente, ASTBuilder será el encargado de generar una representación visual del árbol a medida que lo va construyendo, para conseguir esto se escriben cada nodo en el formato de la biblioteca `forest` de LaTex a medida que estos se van formando, garantizando su orden y asociación correctos.
+Para formar este AST se empleará un visitor patterns (patrón de visita), objeto que recibe el nombre de ASTBuilder, el cual se encarga de visitar cada contexto generado de forma automática por el parser de ANTLR, dando por resultado unos nodos enlazados, el AST.
+
+
+Adicionalmente, ASTBuilder será el encargado de generar una representación visual del árbol a medida que lo va construyendo, para conseguir esto se escriben cada nodo en el formato de la biblioteca `forest` de LaTex a medida que estos se van formando, garantizando su orden y asociación correctos.
 
 \imagen{AST_ejemplo_expr}{Ejemplo de expresión 2 + 3 * 5}{0.55}
 
-\subsubsection{Análisis semántico} % TODO
+\subsubsection{Análisis semántico}
+Durante la fase de análisis semántico se examina principalmente el uso de los identificadores, como los nombres de variables y funciones. Entre las comprobaciones más relevantes se incluyen:
+\begin{itemize}
+    \item La creación de un scope para cada bloque de código.
+    \item La inserción de los identificadores en su scope correspondiente.
+    \item La verificación del alcance en cada acceso a un identificador.
+    \item Las comprobaciones de tipos en asignaciones, operaciones y sentencias de retorno.
+\end{itemize}
 
-\subsubsection{Generación de LLVM IR} % TODO
+La tabla de símbolos está estructurada como una lista de scopes. Para los distintos bloques anidados se establecen referencias entre cada scope hijo y su scope padre, lo que permite verificar fácilmente los alcances y resolver identificadores de forma correcta.
+
+Para poder comprobar la corrección del uso de tipos, el análisis semántico debe ser capaz de entender los tipos, tanto de los literales como de las variables y funciones, para ello se implementa un sistema de representación de tipos en una enumeración llamada SupportedTypes que da soporte a los tipos:
+\begin{itemize}
+    \item TYPE\_INT
+    \item TYPE\_FLOAT
+    \item TYPE\_CHAR
+    \item TYPE\_STRING
+    \item TYPE\_BOOLEAN
+    \item TYPE\_VOID
+\end{itemize}
+
+\subsubsection{Generación de LLVM IR}
+Para la generación de IR es emplea un struct que almacena los datos necesarios para que LLVM pueda generar el IR de forma automática, para ello se inicializan dentro del CodegenContext los siguientes tres elementos:
+
+\begin{itemize}
+    \item Un módulo de LLVM
+    \item Un contexto de LLVM
+    \item Un builder de LLVM
+\end{itemize}
+
+Durante el proceso de generación de código IR, se vuelve a recorer el AST con un visitor pattern, el cual emplea principalmente el builder para generar las instrucciones a partir de los datos contenidos en los nodos del AST.
+
+Algunas de las consideraciones necesarias para compatibilizar el AST y el generación de IR serían los tipos que se manejan en cada uno, para poder hacer una conversión correcta se implementa una función capaz de transformar:
+\begin{table}[ht]
+    \centering
+    \begin{tabularx}{\linewidth}{ p{0.5\columnwidth} p{0.5\columnwidth} }
+    \toprule
+    \textbf{Tipo AST} & \textbf{Tipo LLVM} \\
+    \midrule
+    TYPE\_INT     & i32 \\
+    TYPE\_FLOAT   & float \\
+    TYPE\_CHAR    & i8 \\
+    TYPE\_STRING  & i8* \\
+    TYPE\_BOOLEAN & i1 \\
+    TYPE\_VOID    & void \\
+    \bottomrule
+    \end{tabularx}
+    \caption{Correspondencia entre tipos del AST y tipos de LLVM IR}
+\end{table}
+
 
 \subsubsection{Optimizaciones} % TODO
+TODO
 
 \subsubsection{Generación del ejecutable} % TODO
+TODO
