@@ -48,6 +48,16 @@ target_link_libraries(compilerLib PUBLIC
 
 add_executable(TCompiler src/main.cpp)
 
+# Compiling the runtime and standard lib as an independent object file 
+add_custom_target(runtime_obj ALL
+    # Compiled without nostdlib as it is pure ASM
+    COMMAND clang -c ${CMAKE_SOURCE_DIR}/src/runtime/entry.s -o ${CMAKE_BINARY_DIR}/entry.o 
+
+    # Compiled without stdlib as they are only called from the entry.o (the _start: )
+    COMMAND clang -c -nostdlib ${CMAKE_SOURCE_DIR}/src/runtime/runtime.c ${CMAKE_BINARY_DIR}/entry.o -o ${CMAKE_BINARY_DIR}/runtime.o
+    COMMAND clang -c -nostdlib ${CMAKE_SOURCE_DIR}/src/runtime/TLib.c -o ${CMAKE_BINARY_DIR}/TLib.o
+)
+
 # Linking with antlr4-runtime
 target_link_libraries(TCompiler PRIVATE compilerLib)
 

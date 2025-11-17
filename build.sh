@@ -1,9 +1,6 @@
 #!/bin/bash
 set -e # Stop in case of error
 
-# Compiles the runtime and places the object file in build/
-as ./src/runtime/runtime.s -o build/runtime.o
-
 # Grammar cpp target generation
 cd ./src/grammar/
 java -Xmx500M -cp "$HOME/tools/antlr/antlr-4.13.1-complete.jar" org.antlr.v4.Tool -Dlanguage=Cpp TLexer.g4
