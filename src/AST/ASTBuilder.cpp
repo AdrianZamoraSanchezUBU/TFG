@@ -411,7 +411,16 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
             std::ofstream texFile("AST.tex", std::ios::app);
 
             // Node information
-            texFile << "[{" << ctx->STRING_LITERAL()->getText() << "},literalNode]" << std::endl;
+            std::string text = ctx->STRING_LITERAL()->getText();
+
+            // replacing % for \\% in order to fit printf macros
+            size_t pos = 0;
+            while ((pos = text.find('%', pos)) != std::string::npos) {
+                text.replace(pos, 1, "\\%");
+                pos += 2;
+            }
+
+            texFile << "[{" << text << "},literalNode]" << std::endl;
 
             texFile.close();
         }

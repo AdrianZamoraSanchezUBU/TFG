@@ -150,6 +150,19 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
         Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE, node.getType());
         currentScope->insertSymbol(newSymbol);
     }
+    if (auto val = dynamic_cast<FunctionCallNode *>(node.getAssign())) {
+        Symbol sym = *currentScope.get()->getSymbol(val->getValue());
+
+        if (sym.getType() != node.getType()) {
+            throw std::runtime_error(
+                "Variable assign with incompatible types for value: " + typeToString(sym.getType()) +
+                " ,to a varianble declarated as: " + typeToString(node.getType()));
+        }
+
+        // Inserting the variable in the Symbol Table
+        Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE, node.getType());
+        currentScope->insertSymbol(newSymbol);
+    }
 
     return nullptr;
 }
@@ -215,7 +228,9 @@ void *SemanticVisitor::visit(FunctionCallNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
     int expectedParams = currentScope.get()->getSymbol(node.getValue())->getNumParams();
 
-    // TODO: CHECK FOR NUM PARAMS IN FUNCTION DEF == PARAMS IN CALL
+    if (node.getValue() == "printf" || node.getValue() == "strlen" || node.getValue() == "toString")
+        return nullptr;
+
     if (node.getParamsCount() != expectedParams) {
         throw std::runtime_error("The function " + node.getValue() + " was declared with " +
                                  std::to_string(expectedParams) + " but is being called with " +

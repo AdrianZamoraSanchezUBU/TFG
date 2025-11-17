@@ -52,8 +52,16 @@ llvm::Value *IRGenerator::visit(LiteralNode &node) {
         return llvm::ConstantInt::get(ctx.IRContext, llvm::APInt(8, v, false));
     }
     case SupportedTypes::TYPE_STRING: {
-        // Generates a UndefValue as placeholder for future constant folding
-        return llvm::UndefValue::get(llvm::PointerType::get(llvm::Type::getInt8Ty(ctx.IRContext), 0));
+        std::string v = node.getValue();
+
+        // Elimination of the double quote symbols e.g: "a" -> a
+        if (v.size() >= 2) {
+            v.erase(0, 1);
+            v.erase(v.size() - 1, 1);
+        }
+
+        // STRING: global string
+        return ctx.IRBuilder.CreateGlobalStringPtr(v);
     }
     case SupportedTypes::TYPE_BOOL: {
         bool v = std::get<bool>(value);
@@ -68,10 +76,18 @@ llvm::Value *IRGenerator::visit(LiteralNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
-    // Left and Right child nodes visit
-    llvm::Value *L = node.getLeft()->accept(*this);
-    llvm::Value *R = node.getRight()->accept(*this);
     SupportedTypes operationType = node.getType();
+
+    // Left and Right child nodes visit
+    llvm::Value *L, *R;
+    if (operationType == SupportedTypes::TYPE_STRING) {
+        // Generates a UndefValue as placeholder for future constant folding
+        L = llvm::UndefValue::get(llvm::PointerType::get(llvm::Type::getInt8Ty(ctx.IRContext), 0));
+        R = llvm::UndefValue::get(llvm::PointerType::get(llvm::Type::getInt8Ty(ctx.IRContext), 0));
+    } else {
+        L = node.getLeft()->accept(*this);
+        R = node.getRight()->accept(*this);
+    }
 
     // Check for correctness in child nodes visits
     if (!L || !R) {
@@ -171,6 +187,8 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
         assignVal = visit(*lit);
     } else if (auto var = dynamic_cast<VariableRefNode *>(node.getAssign())) {
         assignVal = visit(*var);
+    } else if (auto fn = dynamic_cast<FunctionCallNode *>(node.getAssign())) {
+        assignVal = visit(*fn);
     } else {
         throw std::runtime_error("Not a valid assigment for: " + node.getValue());
     }
@@ -311,15 +329,21 @@ llvm::Value *IRGenerator::visit(FunctionCallNode &node) {
     for (int i = 0; i < node.getParamsCount(); i++) {
         llvm::Value *argVal;
 
-        if (symtab.findScope(node.getParam(i)->getValue())) {
-            // Already stored value
-            argVal = symtab.getLlvmValue(node.getParam(i)->getValue());
-            args.push_back(argVal);
-        } else {
-            // Expressions and literal values are generated here
-            argVal = node.getParam(i)->accept(*this);
-            args.push_back(argVal);
+        Symbol *symb = nullptr;
+        if (symtab.findScope(node.getParam(i)->getValue()) != nullptr) {
+            symb = symtab.findScope(node.getParam(i)->getValue())->getSymbol(node.getParam(i)->getValue());
         }
+
+        // Checks if the value is stored or if it is a string
+        // if (symb && symb->getType() != SupportedTypes::TYPE_STRING || ) {
+        //    // Already stored value
+        //    argVal = symtab.getLlvmValue(node.getParam(i)->getValue());
+        //    args.push_back(argVal);
+        //} else {
+        // Expressions, strings and literal values are generated here
+        argVal = node.getParam(i)->accept(*this);
+        args.push_back(argVal);
+        //}
     }
 
     // Returns the function call IR

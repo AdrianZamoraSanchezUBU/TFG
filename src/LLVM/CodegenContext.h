@@ -30,9 +30,19 @@ struct CodegenContext {
      * @brief Module and IRBuilder set up.
      */
     explicit CodegenContext() : IRBuilder(IRContext), IRModule(std::make_unique<llvm::Module>("program", IRContext)) {
+        llvm::LLVMContext &C = IRContext;
+        llvm::Type *i8PtrTy = llvm::PointerType::get(llvm::Type::getInt8Ty(C), 0);
+        llvm::Type *i32Ty = llvm::Type::getInt32Ty(C);
+
+        // Inserta la función C si no existe
+        llvm::FunctionCallee toStringFn =
+            IRModule->getOrInsertFunction("toString", llvm::FunctionType::get(i8PtrTy, {i32Ty}, false));
+        IRModule->getOrInsertFunction("printf", llvm::FunctionType::get(i32Ty, {i8PtrTy}, true));
+        IRModule->getOrInsertFunction("strlen", llvm::FunctionType::get(i32Ty, {i8PtrTy}, false));
+
         // Program main function and basic block set up
         llvm::FunctionType *FT = llvm::FunctionType::get(llvm::Type::getInt32Ty(IRContext), false);
-        llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, "main", IRModule.get());
+        llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, "mainLLVM", IRModule.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(IRContext, "entry", F);
 
         // Sets the current basic block in the stack

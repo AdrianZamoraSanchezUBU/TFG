@@ -46,6 +46,9 @@ class Symbol {
     explicit Symbol(std::string id, ASTNode *astnode, SymbolCategory cat, SupportedTypes ty)
         : ID(id), node(astnode), category(cat), type(ty) {}
 
+    explicit Symbol(std::string id, SymbolCategory cat, SupportedTypes ty)
+        : ID(id), node(nullptr), category(cat), type(ty) {}
+
     /**
      * @brief Getter for ID.
      */

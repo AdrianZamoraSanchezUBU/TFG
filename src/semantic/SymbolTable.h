@@ -24,6 +24,17 @@ class SymbolTable {
     explicit SymbolTable() {
         // Global Scope with level 0
         currentScope = std::make_shared<Scope>(nextScopeId++, 0, nullptr);
+
+        // Adding language integrated functions
+        Symbol printf("printf", SymbolCategory::FUNCTION, SupportedTypes::TYPE_INT);
+        currentScope->insertSymbol(printf);
+
+        Symbol strlen("strlen", SymbolCategory::FUNCTION, SupportedTypes::TYPE_INT);
+        currentScope->insertSymbol(strlen);
+
+        Symbol toString("toString", SymbolCategory::FUNCTION, SupportedTypes::TYPE_STRING);
+        currentScope->insertSymbol(toString);
+
         scopes.emplace_back(currentScope);
     }
 
