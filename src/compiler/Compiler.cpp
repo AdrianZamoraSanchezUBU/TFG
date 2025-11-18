@@ -123,6 +123,10 @@ void Compiler::generateObjectCode() {
     targetMachine->addPassesToEmitFile(emitPM, dest, nullptr, llvm::CodeGenFileType::ObjectFile);
     emitPM.run(*ctx.IRModule);
     dest.flush();
+
+    if (flags.debug) {
+        std::cout << "****** GENERATED OBJECT FILE ******" << std::endl;
+    }
 }
 
 void Compiler::linkObjectFile() {
@@ -134,4 +138,8 @@ void Compiler::linkObjectFile() {
     std::string command = "clang -no-pie " + runtime + programObjecFile + " " + basicLib + " -o program";
     std::system(command.c_str());
     std::system(("rm " + programObjecFile).c_str());
+
+    if (flags.debug) {
+        std::cout << "****** GENERATED EXECUTABLE ******" << std::endl;
+    }
 }

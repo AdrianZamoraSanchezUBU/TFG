@@ -33,13 +33,35 @@ void *SemanticVisitor::visit(LiteralNode &node) {
 }
 
 void *SemanticVisitor::visit(TimeLiteralNode &node) {
+    int time = node.getTime();
+
+    // Unvalid time value
+    if (time < 0) {
+        throw std::runtime_error("Error in time literal, the time amount cant be negative");
+    }
+
+    switch (node.getTimeStamp()) {
+    case TimeStamp::TYPE_SEC:
+        node.setValue(time * 10);
+        break;
+    case TimeStamp::TYPE_MIN:
+        node.setValue(time * 10 * 60);
+        break;
+    case TimeStamp::TYPE_HR:
+        node.setValue(time * 10 * 60 * 60);
+        break;
+    default:
+        throw std::runtime_error("Error in time literal, unknown time stamp");
+    }
+
+    // The time should now be in tick format
+    node.setTime(TimeStamp::TYPE_TICK);
     return nullptr;
 }
 
 void *SemanticVisitor::visit(BinaryExprNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
-    SupportedTypes LT;
-    SupportedTypes RT;
+    SupportedTypes LT, RT;
 
     /* Propagation of the type */
     node.getLeft()->accept(*this);

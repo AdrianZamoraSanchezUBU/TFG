@@ -219,12 +219,27 @@ class TimeLiteralNode : public ASTNode {
     explicit TimeLiteralNode(float val, TimeStamp t) : value(val), type(t) {}
 
     /**
-     * @brief Getter for type.
+     * @brief Getter for value.
      */
     float getTime() const { return value; }
 
+    /**
+     * @brief Getter for type.
+     */
+    TimeStamp getTimeStamp() const { return type; }
+
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return timeToString(type); }
+
+    /**
+     * @brief Setter for value.
+     */
+    void setValue(int val) { value = val; }
+
+    /**
+     * @brief Setter for type.
+     */
+    void setTime(TimeStamp newTimeType) { type = newTimeType; }
 
     /// @copydoc ASTNode::print
     void print() const override { std::cout << "LITERAL TIME NODE: " << getValue() << std::endl; }
