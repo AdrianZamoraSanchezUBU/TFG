@@ -428,7 +428,48 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
         return node;
     }
 
+    if (ctx->time_literal()) {
+        return visit(ctx->time_literal());
+    }
+
     throw std::runtime_error("Not a valid literal");
+}
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Time_literalContext *ctx) {
+    // Float value of the time type
+    float value;
+
+    // Int value of the time type
+    if (ctx->NUMBER_LITERAL()) {
+        value = std::stof(ctx->NUMBER_LITERAL()->getText());
+    } else {
+        value = std::stof(ctx->FLOAT_LITERAL()->getText());
+    }
+
+    // Time stamp of the time type
+    TimeStamp time;
+    if (ctx->TIME_TICK()) {
+        time = TimeStamp::TYPE_TICK;
+    } else if (ctx->TIME_SEC()) {
+        time = TimeStamp::TYPE_SEC;
+    } else if (ctx->TIME_MIN()) {
+        time = TimeStamp::TYPE_MIN;
+    } else if (ctx->TIME_HR()) {
+        time = TimeStamp::TYPE_HR;
+    } else {
+        throw std::runtime_error("Not a valid time literal");
+    }
+
+    if (visualizeFlag) {
+        std::ofstream texFile("AST.tex", std::ios::app);
+
+        // Node information
+        texFile << "[{" << ctx->FLOAT_LITERAL()->getText() << timeToString(time) << "},literalNode]" << std::endl;
+
+        texFile.close();
+    }
+
+    return std::make_unique<TimeLiteralNode>(value, time);
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableDecContext *ctx) {
@@ -712,6 +753,8 @@ SupportedTypes ASTBuilder::visit(TParser::TypeContext *ctx) {
         return SupportedTypes::TYPE_BOOL;
     if (ctx->TYPE_VOID())
         return SupportedTypes::TYPE_VOID;
+    if (ctx->TYPE_TIME())
+        return SupportedTypes::TYPE_TIME;
 
     throw std::runtime_error("Not a valid type");
 }

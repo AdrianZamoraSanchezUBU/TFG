@@ -21,6 +21,15 @@ llvm::Value *LiteralNode::accept(IRGenerator &visitor) {
     return visitor.visit(*this);
 }
 
+/* TimeLiteralNode visitors */
+void *TimeLiteralNode::accept(SemanticVisitor &visitor) {
+    return visitor.visit(*this);
+}
+
+llvm::Value *TimeLiteralNode::accept(IRGenerator &visitor) {
+    return visitor.visit(*this);
+}
+
 /* BinaryExprNode visitors */
 void *BinaryExprNode::accept(SemanticVisitor &visitor) {
     return visitor.visit(*this);

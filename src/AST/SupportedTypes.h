@@ -1,13 +1,10 @@
 #pragma once
 #include <iostream>
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
 #include <string>
 /**
  * @brief Supported types in the AST
  */
-enum SupportedTypes { TYPE_INT, TYPE_FLOAT, TYPE_CHAR, TYPE_STRING, TYPE_BOOL, TYPE_VOID };
+enum SupportedTypes { TYPE_INT, TYPE_FLOAT, TYPE_CHAR, TYPE_STRING, TYPE_BOOL, TYPE_VOID, TYPE_TIME };
 
 inline std::string typeToString(SupportedTypes type) {
     switch (type) {
@@ -23,6 +20,8 @@ inline std::string typeToString(SupportedTypes type) {
         return "bool";
     case SupportedTypes::TYPE_VOID:
         return "void";
+    case SupportedTypes::TYPE_TIME:
+        return "time";
     default:
         return "UnknownType";
     }

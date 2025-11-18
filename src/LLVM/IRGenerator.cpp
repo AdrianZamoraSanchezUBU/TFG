@@ -75,6 +75,10 @@ llvm::Value *IRGenerator::visit(LiteralNode &node) {
     }
 }
 
+llvm::Value *IRGenerator::visit(TimeLiteralNode &node) {
+    return nullptr;
+}
+
 llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
     SupportedTypes operationType = node.getType();
 

@@ -32,6 +32,10 @@ void *SemanticVisitor::visit(LiteralNode &node) {
     return nullptr;
 }
 
+void *SemanticVisitor::visit(TimeLiteralNode &node) {
+    return nullptr;
+}
+
 void *SemanticVisitor::visit(BinaryExprNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
     SupportedTypes LT;

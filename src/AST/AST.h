@@ -7,6 +7,7 @@
 
 #pragma once
 #include "SupportedTypes.h"
+#include "TimeStamp.h"
 #include <iostream>
 #include <memory>
 #include <string>
@@ -184,6 +185,54 @@ class LiteralNode : public ASTNode {
     bool equals(const ASTNode *other) const override {
         // Dynamic cast to LiteralNode and value check
         if (auto o = dynamic_cast<const LiteralNode *>(other)) {
+            return (value == o->value && type == o->type);
+        }
+
+        return false;
+    }
+
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
+    llvm::Value *accept(IRGenerator &visitor) override;
+};
+
+/**
+ * @class TimeLiteralNode
+ * @brief Represents a literal in the AST.
+ *
+ * This class represents a literal value within the AST,
+ * which can be of any of the supported types.
+ *
+ * @see ASTNode
+ */
+class TimeLiteralNode : public ASTNode {
+    float value;
+    TimeStamp type;
+
+  public:
+    /**
+     * @brief Constructor for the time literal node.
+     * @param val Value associated with the node.
+     */
+    explicit TimeLiteralNode(float val, TimeStamp t) : value(val), type(t) {}
+
+    /**
+     * @brief Getter for type.
+     */
+    float getTime() const { return value; }
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return timeToString(type); }
+
+    /// @copydoc ASTNode::print
+    void print() const override { std::cout << "LITERAL TIME NODE: " << getValue() << std::endl; }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override {
+        // Dynamic cast to TimeLiteralNode and value check
+        if (auto o = dynamic_cast<const TimeLiteralNode *>(other)) {
             return (value == o->value && type == o->type);
         }
 

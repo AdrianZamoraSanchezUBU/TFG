@@ -100,9 +100,16 @@ class ASTBuilder {
     /**
      * @brief Visits the context of a literal.
      * @param ctx Literal context.
-     * @return Node representing a literal value in the code.
+     * @return Node representing a literal value in the AST.
      */
     std::unique_ptr<ASTNode> visit(TParser::LiteralContext *ctx);
+
+    /**
+     * @brief Visits the context of a time literal.
+     * @param ctx Time literal context.
+     * @return Node representing a time literal value in the AST.
+     */
+    std::unique_ptr<ASTNode> visit(TParser::Time_literalContext *ctx);
 
     /**
      * @brief Visits the context of a variable declaration.

@@ -74,6 +74,13 @@ class IRGenerator {
     llvm::Value *visit(LiteralNode &node);
 
     /**
+     * @brief Visits a time literal node.
+     * @param node Node to be visited.
+     * @return llvm::Value* Value obtained from the visit.
+     */
+    llvm::Value *visit(TimeLiteralNode &node);
+
+    /**
      * @brief Visits a binary expression node.
      * @param node Node to be visited.
      * @return llvm::Value* Value obtained from the visit.

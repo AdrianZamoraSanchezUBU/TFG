@@ -51,11 +51,11 @@ operand
 	;
 
 literal
-	: NUMBER_LITERAL	
+	: time_literal 
+	| NUMBER_LITERAL	
 	| FLOAT_LITERAL	
 	| STRING_LITERAL
 	| boolean_literal
-	| time_literal
    	;
 
 variableDec: type IDENTIFIER ;
@@ -101,10 +101,10 @@ boolean_literal
 				;
 
 time_literal 
-			: NUMBER_LITERAL TIME_TICK
-			| NUMBER_LITERAL TIME_SEC
-			| NUMBER_LITERAL TIME_MIN
-			| NUMBER_LITERAL TIME_HR
+			: (FLOAT_LITERAL | NUMBER_LITERAL) TIME_TICK
+			| (FLOAT_LITERAL | NUMBER_LITERAL) TIME_SEC
+			| (FLOAT_LITERAL | NUMBER_LITERAL) TIME_MIN
+			| (FLOAT_LITERAL | NUMBER_LITERAL) TIME_HR
 			;
 
 
