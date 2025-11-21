@@ -49,35 +49,19 @@ class SymbolTable {
     void exitScope();
 
     /**
-     * @brief Finds the Scope that contains the key.
+     * @brief Gets the scope with the searched id.
      */
-    std::shared_ptr<Scope> findScope(const std::string &);
+    std::shared_ptr<Scope> getScopeByID(int id);
 
     /**
-     * @brief Returns `true` if the first element can reach the second one, `false`otherwise.
+     * @brief Sets the current scope.
      */
-    bool reach(const std::string &, const std::string &);
+    void setCurrentScope(std::shared_ptr<Scope> scope) { currentScope = scope; };
 
     /**
      * @brief Returns the current Scope.
      */
     std::shared_ptr<Scope> getCurrentScope() const { return currentScope; }
-
-    /**
-     * @brief Adds a llvm value to the Symbol associated with the ID.
-     *
-     * This is a direct binding from SymbolTable to Symbol, this method should only
-     * be used in a compiler phase posterior to semantic analysis.
-     */
-    void addLlvmValue(const std::string &, llvm::Value *);
-
-    /**
-     * @brief Gets a llvm value from the Symbol associated with the ID.
-     *
-     * This is a direct binding from SymbolTable to Symbol, this method should only
-     * be used in a compiler phase posterior to semantic analysis.
-     */
-    llvm::Value *getLlvmValue(const std::string &);
 
     /**
      * @brief Prints all the Scopes and its Symbols.

@@ -27,25 +27,9 @@ bool Scope::contains(const std::string &id) {
         return true;
     }
 
-    // Try to get the parent scope
-    if (auto p = parent.lock()) {
-        // Look for the id in parent
-        return p->contains(id);
-    }
-
-    // No parent (global scope)
+    // Symbol not present
     return false;
 };
-
-std::shared_ptr<Scope> Scope::findLocalScope(const std::string &id) {
-    if (symbols.find(id) != symbols.end()) {
-        return shared_from_this();
-    }
-    if (auto p = parent.lock()) {
-        return p->findLocalScope(id);
-    }
-    return nullptr;
-}
 
 Symbol *Scope::getSymbol(const std::string &id) {
     auto it = symbols.find(id);
@@ -58,10 +42,6 @@ Symbol *Scope::getSymbol(const std::string &id) {
     if (auto p = parent.lock()) {
         return p->getSymbol(id);
     }
-
-    std::cerr << "Cant find symbol named: " + id + " in Scope at level: " + std::to_string(level) +
-                     " with id: " + std::to_string(this->id)
-              << std::endl;
 
     return nullptr;
 };

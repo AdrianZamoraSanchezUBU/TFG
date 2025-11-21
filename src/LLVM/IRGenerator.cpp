@@ -3,6 +3,15 @@
 #include <string.h>
 
 llvm::Value *IRGenerator::visit(CodeBlockNode &node) {
+    // Goes to the next scope
+    scopeRef++;
+    scopeStack.push_back(scopeRef);
+    std::shared_ptr<Scope> scope = symtab.getScopeByID(scopeStack.back());
+    if (scope != nullptr) {
+        symtab.setCurrentScope(scope);
+    }
+
+    // Visit all the statement
     for (int i = 0; i < node.getStmtCount(); i++) {
         node.getStmt(i)->accept(*this);
     }
@@ -176,7 +185,7 @@ llvm::Value *IRGenerator::visit(VariableDecNode &node) {
     llvm::AllocaInst *allocaInst = tmpBuilder.CreateAlloca(varType, nullptr, node.getValue() + "_ptr");
 
     // Registers this new allocation associated with the Symbol in the SymbolTable
-    symtab.addLlvmValue(node.getValue(), allocaInst);
+    symtab.getCurrentScope()->getSymbol(node.getValue())->setLlvmValue(allocaInst);
 
     return allocaInst;
 }
@@ -212,45 +221,55 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
         llvm::AllocaInst *allocaInst = tmpBuilder.CreateAlloca(varType, nullptr, node.getValue() + "_ptr");
 
         // Registers this new allocation associated with the Symbol in the SymbolTable
-        symtab.addLlvmValue(node.getValue(), allocaInst);
+        symtab.getCurrentScope()->getSymbol(node.getValue())->setLlvmValue(allocaInst);
 
         // Getting the memory address where the value is stored
-        llvm::Value *alloc = symtab.getLlvmValue(node.getValue());
+        llvm::Value *alloc = symtab.getCurrentScope()->getSymbol(node.getValue())->getLlvmValue();
         ctx.IRBuilder.CreateStore(assignVal, alloc);
 
         return alloc;
     }
 
     // Gets the memory address and stores the value (ONLY ASSIGNMENT)
-    llvm::Value *alloc = symtab.getLlvmValue(node.getValue());
+    llvm::Value *alloc = symtab.getCurrentScope()->getSymbol(node.getValue())->getLlvmValue();
     ctx.IRBuilder.CreateStore(assignVal, alloc);
 
     return alloc;
 }
 
 llvm::Value *IRGenerator::visit(VariableRefNode &node) {
-    // Finding the ptr of the variable
-    std::shared_ptr<Scope> scope = symtab.findScope(node.getValue());
-    if (!scope) {
-        throw std::runtime_error("There is no scope in the symbol table with the symbol: " + node.getValue());
-    }
-
-    auto symbol = scope->getSymbol(node.getValue());
+    // Getting the symbol data
+    Symbol *symbol = symtab.getCurrentScope()->getSymbol(node.getValue());
     if (!symbol) {
         throw std::runtime_error("Symbol not found in scope: " + node.getValue());
     }
 
-    llvm::Value *alloc = symtab.getLlvmValue(node.getValue());
+    llvm::Value *alloc = symbol->getLlvmValue();
     if (!alloc) {
         throw std::runtime_error("There is no value associated to the symbol: " + node.getValue());
     }
 
     // Returning a direct value
-    if (llvm::isa<llvm::Argument>(alloc) || llvm::isa<llvm::Constant>(alloc)) {
+    if (llvm::isa<llvm::Constant>(alloc)) {
         return alloc;
     }
 
-    // Loading the allocated type
+    // Loading the allocated parameter
+    if (llvm::isa<llvm::Argument>(alloc)) {
+        llvm::Type *type = alloc->getType();
+        // Gets the current function
+        llvm::BasicBlock *currentFunction = ctx.blockStack.back();
+
+        // Creates a temporal builder that points to the begin of the current basic block
+        llvm::IRBuilder<> tmpBuilder(currentFunction, currentFunction->begin());
+
+        llvm::AllocaInst *allocaInst = tmpBuilder.CreateAlloca(type, nullptr, node.getValue() + "_ptr");
+        ctx.IRBuilder.CreateStore(alloc, allocaInst);
+
+        return ctx.IRBuilder.CreateLoad(type, allocaInst, node.getValue() + "_val");
+    }
+
+    // Loading the allocated variable
     llvm::Type *type;
     if (llvm::AllocaInst *alloca = llvm::dyn_cast<llvm::AllocaInst>(alloc)) {
         llvm::Type *type = alloca->getAllocatedType();
@@ -281,7 +300,7 @@ llvm::Value *IRGenerator::visit(FunctionDefNode &node) {
 
     // Basic block generation and stack push
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx.IRContext, "entry", function);
-    ctx.IRBuilder.SetInsertPoint(entry);
+
     ctx.pushFunction(entry);
 
     // Setting all the params as arguments in their symbol in the symbol table
@@ -293,13 +312,14 @@ llvm::Value *IRGenerator::visit(FunctionDefNode &node) {
         std::string name = varNode ? varNode->getValue() : "arg" + std::to_string(idx);
         arg.setName(name);
 
-        symtab.addLlvmValue(name, &arg);
+        symtab.getScopeByID(scopeRef + 1)->getSymbol(name)->setLlvmValue(&arg);
     }
-
     llvm::verifyFunction(*function);
 
     // IR generation for all the function statements
     node.getCodeBlock()->accept(*this);
+    scopeStack.pop_back();
+    ctx.popFunction();
 
     return function;
 };
@@ -333,21 +353,15 @@ llvm::Value *IRGenerator::visit(FunctionCallNode &node) {
     for (int i = 0; i < node.getParamsCount(); i++) {
         llvm::Value *argVal;
 
+        // Checks if the value is stored
         Symbol *symb = nullptr;
-        if (symtab.findScope(node.getParam(i)->getValue()) != nullptr) {
-            symb = symtab.findScope(node.getParam(i)->getValue())->getSymbol(node.getParam(i)->getValue());
+        if (symtab.getCurrentScope()->getSymbol(node.getParam(i)->getValue()) != nullptr) {
+            symb = symtab.getCurrentScope()->getSymbol(node.getParam(i)->getValue());
         }
 
-        // Checks if the value is stored or if it is a string
-        // if (symb && symb->getType() != SupportedTypes::TYPE_STRING || ) {
-        //    // Already stored value
-        //    argVal = symtab.getLlvmValue(node.getParam(i)->getValue());
-        //    args.push_back(argVal);
-        //} else {
         // Expressions, strings and literal values are generated here
         argVal = node.getParam(i)->accept(*this);
         args.push_back(argVal);
-        //}
     }
 
     // Returns the function call IR
@@ -367,8 +381,6 @@ llvm::Value *IRGenerator::visit(ReturnNode &node) {
         ctx.IRBuilder.CreateRetVoid();
     }
 
-    // Block stack pop
-    ctx.popFunction();
     return nullptr;
 }
 
@@ -397,19 +409,30 @@ llvm::Value *IRGenerator::visit(IfNode &node) {
     // Generates the if block
     ctx.pushFunction(thenBB);
     node.getCodeBlock()->accept(*this);
+    scopeStack.pop_back();
 
-    // Inserts the merge block
-    if (!ctx.IRBuilder.GetInsertBlock()->getTerminator())
+    // Inserts the merge block if no terminator was found at the end of the if block
+    if (!ctx.IRBuilder.GetInsertBlock()->getTerminator()) {
         ctx.IRBuilder.CreateBr(mergeBB);
-
-    ctx.popFunction();
+        ctx.popFunction();
+    }
 
     // Adds the else node if there is one present
-
     if (node.getElseStmt()) {
         ctx.pushFunction(elseBB);
         node.getElseStmt()->accept(*this);
-        ctx.IRBuilder.CreateBr(mergeBB);
+
+        if (!ctx.IRBuilder.GetInsertBlock()->getTerminator()) {
+            ctx.IRBuilder.CreateBr(mergeBB);
+            ctx.popFunction();
+        }
+
+        ctx.popFunction();
+    } else {
+        if (!ctx.IRBuilder.GetInsertBlock()->getTerminator()->Ret) {
+            ctx.popFunction();
+        }
+
         ctx.popFunction();
     }
 
@@ -447,9 +470,10 @@ llvm::Value *IRGenerator::visit(WhileNode &node) {
     // Generates the while block
     ctx.pushFunction(loopBB);
     node.getCodeBlock()->accept(*this);
+    scopeStack.pop_back();
 
     // Check if the block had a return
-    if (ctx.IRBuilder.GetInsertBlock() == loopBB) {
+    if (!ctx.IRBuilder.GetInsertBlock()->getTerminator()) {
         // At the end of the block jumps to the condition
         ctx.IRBuilder.CreateBr(condBB);
     }
@@ -489,9 +513,10 @@ llvm::Value *IRGenerator::visit(ForNode &node) {
     // Generates the while block
     ctx.pushFunction(loopBB);
     node.getCodeBlock()->accept(*this);
+    scopeStack.pop_back();
 
     // Check if the block had a return
-    if (ctx.IRBuilder.GetInsertBlock() == loopBB) {
+    if (!ctx.IRBuilder.GetInsertBlock()->getTerminator()) {
         // Generates the condition variable operation
         node.getAssign()->accept(*this);
 

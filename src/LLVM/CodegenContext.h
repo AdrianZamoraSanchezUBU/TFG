@@ -63,10 +63,20 @@ struct CodegenContext {
      * @brief Sets the current insert point to the next basic block in the stack.
      */
     void popFunction() {
-        blockStack.pop_back();
+        // Checks if is at the bottom of the stack
+        if (blockStack.empty()) {
+            std::runtime_error("Error: function stack empty at pop operation");
+        } else {
+            blockStack.pop_back();
+        }
 
         if (!blockStack.empty()) {
             auto &prev = blockStack.back();
+
+            if (prev == nullptr) {
+                std::runtime_error("Error: function stack previous insert point is null");
+            }
+
             IRBuilder.SetInsertPoint(prev);
         }
     }

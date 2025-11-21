@@ -5,25 +5,22 @@ class Type;
 }
 
 void *SemanticVisitor::visit(CodeBlockNode &node) {
+    // Checks for a empty block of code
     if (node.getStmtCount() < 1) {
         throw std::runtime_error("Empty block of code");
         return nullptr;
     }
 
-    bool ret = false;
-
     // Visits all the statements inside the block
     for (int i = 0; i < node.getStmtCount(); i++) {
+        node.getStmt(i)->accept(*this);
         if (auto returnBlock = dynamic_cast<CodeBlockNode *>(node.getStmt(i))) {
-            ret = true;
             break;
         }
-        node.getStmt(i)->accept(*this);
     }
 
-    if (ret = false) {
-        symtab.exitScope();
-    }
+    // Exists the scope at the end of the code block
+    symtab.exitScope();
 
     return nullptr;
 }
@@ -78,13 +75,11 @@ void *SemanticVisitor::visit(BinaryExprNode &node) {
 
     // Getting the type of the variables
     if (auto left = dynamic_cast<VariableRefNode *>(node.getLeft())) {
-        std::shared_ptr<Scope> scope = symtab.findScope(left->getValue());
-        LT = scope.get()->getSymbol(left->getValue())->getType();
+        LT = currentScope->getSymbol(left->getValue())->getType();
     }
 
     if (auto right = dynamic_cast<VariableRefNode *>(node.getRight())) {
-        std::shared_ptr<Scope> scope = symtab.findScope(right->getValue());
-        RT = scope.get()->getSymbol(right->getValue())->getType();
+        RT = currentScope->getSymbol(right->getValue())->getType();
     }
 
     // Visiting other expr nodes
@@ -109,7 +104,7 @@ void *SemanticVisitor::visit(BinaryExprNode &node) {
 void *SemanticVisitor::visit(VariableDecNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
 
-    if (currentScope.get()->contains(node.getValue())) {
+    if (currentScope->getSymbol(node.getValue())) {
         throw std::runtime_error("Variable redeclaration error");
     }
 
@@ -125,17 +120,13 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
 
     /* Checks if the variable was already declarated (only assign) */
     if (currentScope->contains(node.getValue())) {
-        if (node.getType() != SupportedTypes::TYPE_VOID) {
-            throw std::runtime_error("Variable redeclaration error");
-        }
+        Symbol *sym;
+        if (currentScope->getSymbol(node.getValue()))
+            sym = currentScope->getSymbol(node.getValue());
 
         // Check for identifier variable status
-        if (currentScope.get()->getSymbol(node.getValue())) {
-            Symbol sym = *currentScope.get()->getSymbol(node.getValue());
-
-            if (sym.getCategory() != SymbolCategory::VARIABLE) {
-                throw std::runtime_error("Missing declaration for a identifier used in a variable assignment");
-            }
+        if (sym->getCategory() != SymbolCategory::VARIABLE) {
+            throw std::runtime_error("Missing declaration for a identifier used in a variable assignment");
         }
 
         return nullptr;
@@ -144,6 +135,7 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
     /* Type check for variable dec + assign */
     if (auto val = dynamic_cast<BinaryExprNode *>(node.getAssign())) {
         if (val->getType() != node.getType()) {
+            return nullptr;
             throw std::runtime_error("Variable assign with incompatible types, expr: " + typeToString(val->getType()) +
                                      " and variable being assign has: " + typeToString(node.getType()));
         }
@@ -154,6 +146,7 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
     }
     if (auto val = dynamic_cast<LiteralNode *>(node.getAssign())) {
         if (val->getType() != node.getType()) {
+            return nullptr;
             throw std::runtime_error(
                 "Variable assign with incompatible types for value: " + typeToString(val->getType()) +
                 " ,to a varianble declarated as: " + typeToString(node.getType()));
@@ -164,9 +157,10 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
         currentScope->insertSymbol(newSymbol);
     }
     if (auto val = dynamic_cast<VariableRefNode *>(node.getAssign())) {
-        Symbol sym = *currentScope.get()->getSymbol(val->getValue());
+        Symbol sym = *currentScope->getSymbol(val->getValue());
 
         if (sym.getType() != node.getType()) {
+            return nullptr;
             throw std::runtime_error(
                 "Variable assign with incompatible types for value: " + typeToString(sym.getType()) +
                 " ,to a varianble declarated as: " + typeToString(node.getType()));
@@ -177,9 +171,10 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
         currentScope->insertSymbol(newSymbol);
     }
     if (auto val = dynamic_cast<FunctionCallNode *>(node.getAssign())) {
-        Symbol sym = *currentScope.get()->getSymbol(val->getValue());
+        Symbol sym = *currentScope->getSymbol(val->getValue());
 
         if (sym.getType() != node.getType()) {
+            return nullptr;
             throw std::runtime_error(
                 "Variable assign with incompatible types for value: " + typeToString(sym.getType()) +
                 " ,to a varianble declarated as: " + typeToString(node.getType()));
@@ -206,8 +201,6 @@ void *SemanticVisitor::visit(VariableRefNode &node) {
                 throw std::runtime_error("The symbol in use: " + node.getValue() + " is not a variable");
             }
         }
-    } else {
-        throw std::runtime_error("Missing declaration for the identifier: " + node.getValue());
     }
 
     return nullptr;
@@ -252,7 +245,7 @@ void *SemanticVisitor::visit(FunctionDefNode &node) {
 
 void *SemanticVisitor::visit(FunctionCallNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
-    int expectedParams = currentScope.get()->getSymbol(node.getValue())->getNumParams();
+    int expectedParams = currentScope->getSymbol(node.getValue())->getNumParams();
 
     if (node.getValue() == "printf" || node.getValue() == "strlen" || node.getValue() == "toString")
         return nullptr;
@@ -266,7 +259,7 @@ void *SemanticVisitor::visit(FunctionCallNode &node) {
     // Checking for uses of undefined variable as params
     for (int i = 0; i < node.getParamsCount(); i++) {
         if (auto var = dynamic_cast<VariableRefNode *>(node.getParam(i))) {
-            if (!currentScope.get()->contains(var->getValue())) {
+            if (!currentScope->contains(var->getValue())) {
                 throw std::runtime_error("Missing declaration for a identifier used in a function call: " +
                                          node.getParam(i)->getValue());
             }
@@ -282,9 +275,6 @@ void *SemanticVisitor::visit(ReturnNode &node) {
         // Visits the return value
         node.getStmt()->accept(*this);
     }
-
-    // Exists the scope
-    symtab.exitScope();
 
     return nullptr;
 }
@@ -305,21 +295,18 @@ void *SemanticVisitor::visit(IfNode &node) {
     // Visits the else statement if there is one present
     if (node.getElseStmt() != nullptr) {
         node.getElseStmt()->accept(*this);
-    } else {
-        // Ends the if statement scope
-        symtab.exitScope();
     }
 
     return nullptr;
 }
 
 void *SemanticVisitor::visit(ElseNode &node) {
-    // When an if stmt does not create a new scope (the if statement creates its own)
+    // When an if stmt is does not create a new scope (the if statement creates its own)
     if (auto stmt = dynamic_cast<IfNode *>(node.getStmt())) {
         node.getStmt()->accept(*this);
     }
 
-    // When in a block of code, it needs a new scope
+    // When in a else block of code, a new scope is generated
     if (auto stmt = dynamic_cast<CodeBlockNode *>(node.getStmt())) {
         symtab.enterScope();
         node.getStmt()->accept(*this);

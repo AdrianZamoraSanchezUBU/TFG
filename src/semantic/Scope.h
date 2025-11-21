@@ -120,11 +120,6 @@ class Scope : public std::enable_shared_from_this<Scope> {
     bool contains(const std::string &);
 
     /**
-     * @brief Returns this scope if it contains the key.
-     */
-    std::shared_ptr<Scope> findLocalScope(const std::string &id);
-
-    /**
      * @brief Returns the parent Scope.
      */
     std::shared_ptr<Scope> getParent() const { return parent.lock(); }
@@ -144,6 +139,11 @@ class Scope : public std::enable_shared_from_this<Scope> {
      * @brief Returns the level of this Scope.
      */
     int getLevel() const { return level; }
+
+    /**
+     * @brief Returns the id of this Scope.
+     */
+    int getID() const { return id; }
 
     /**
      * @brief Prints Scope data.

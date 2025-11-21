@@ -29,8 +29,10 @@ class BinaryExprNode;
  * @see CodegenContext
  */
 class IRGenerator {
-    CodegenContext ctx;  /// LLVM Context.
-    SymbolTable &symtab; /// Symbol Table reference.
+    CodegenContext ctx;          /// LLVM Context.
+    SymbolTable &symtab;         /// Symbol Table reference.
+    std::vector<int> scopeStack; /// Scope stack
+    int scopeRef = -1;
 
     struct LoopContext {
         llvm::BasicBlock *condBB;
@@ -46,6 +48,16 @@ class IRGenerator {
      * Initializes the LLVM context.
      */
     explicit IRGenerator(SymbolTable &table) : ctx(), symtab(table){};
+
+    void pushScope(int scopeID) { scopeStack.push_back(scopeID); }
+
+    void popScope() {
+        if (!scopeStack.empty()) {
+            scopeStack.pop_back();
+        } else {
+            throw std::runtime_error("Scope stack empty!");
+        }
+    }
 
     /**
      * @brief Returns the llvm::Type associated with a SupportedTypes type.
