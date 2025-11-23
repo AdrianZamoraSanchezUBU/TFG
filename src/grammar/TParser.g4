@@ -7,11 +7,9 @@ options {
 /* Main structures */
 program: programMainBlock ;
 
-programMainBlock: (stmt | return_stmt)* ; 
+programMainBlock: (stmt | loopControlStatement | return_stmt)* ; 
 
-block: LBRACE (stmt | return_stmt)* RBRACE ;
-
-loopBlock: LBRACE (stmt | CONTINUE SEMICOLON | BREAK SEMICOLON | return_stmt)* RBRACE ;
+block: LBRACE (stmt | loopControlStatement | return_stmt)* RBRACE ;
 
 return_stmt: RETURN (expr)? SEMICOLON ;
 
@@ -81,9 +79,15 @@ else
     ;
 
 loop
-	: WHILE LPAREN expr RPAREN loopBlock
-	| FOR LPAREN variableAssign SEMICOLON expr SEMICOLON variableAssign RPAREN loopBlock
+	: WHILE LPAREN expr RPAREN block
+	| FOR LPAREN variableAssign SEMICOLON expr SEMICOLON variableAssign RPAREN block
 	;
+
+loopControlStatement 
+					: BREAK SEMICOLON
+					| CONTINUE SEMICOLON
+					;
+
 
 type
 	: TYPE_INT

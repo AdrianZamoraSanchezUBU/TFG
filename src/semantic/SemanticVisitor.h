@@ -14,6 +14,7 @@
  */
 class SemanticVisitor {
     SymbolTable &symtab;
+    unsigned int loopDepth = 0;
 
   public:
     explicit SemanticVisitor(SymbolTable &table) : symtab(table) {}
@@ -109,7 +110,7 @@ class SemanticVisitor {
     void *visit(ForNode &node);
 
     /**
-     * @brief Visits a for loop control statement node.
+     * @brief Visits a for loop control statement (continue or break) node.
      * @param node Node to be visited.
      */
     void *visit(LoopControlStatementNode &node);

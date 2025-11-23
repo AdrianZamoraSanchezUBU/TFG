@@ -321,7 +321,11 @@ void *SemanticVisitor::visit(WhileNode &node) {
 
     // New scope for this code block
     symtab.enterScope();
+
+    // Controlling to the loop depth
+    loopDepth++;
     node.getCodeBlock()->accept(*this);
+    loopDepth--;
 
     return nullptr;
 }
@@ -334,11 +338,20 @@ void *SemanticVisitor::visit(ForNode &node) {
 
     // New scope for this code block
     symtab.enterScope();
+
+    // Controlling to the loop depth
+    loopDepth++;
     node.getCodeBlock()->accept(*this);
+    loopDepth--;
 
     return nullptr;
 }
 
 void *SemanticVisitor::visit(LoopControlStatementNode &node) {
+    // Check for correct use of continue and break statements
+    if (loopDepth <= 0) {
+        throw std::runtime_error("Error: " + node.getValue() + " out of a loop block");
+    }
+
     return nullptr;
 }

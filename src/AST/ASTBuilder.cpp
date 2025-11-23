@@ -202,6 +202,9 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ProgramMainBlockContext *ctx
             stmt.push_back(visit(stmtCtx));
         } else if (auto retCtx = dynamic_cast<TParser::Return_stmtContext *>(child)) {
             stmt.push_back(visit(retCtx));
+            break; // All the code after a return is dead code
+        } else if (auto controlStmt = dynamic_cast<TParser::LoopControlStatementContext *>(child)) {
+            stmt.push_back(visit(controlStmt));
         }
     }
 
@@ -219,6 +222,9 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::BlockContext *ctx) {
             stmt.push_back(visit(stmtCtx));
         } else if (auto retCtx = dynamic_cast<TParser::Return_stmtContext *>(child)) {
             stmt.push_back(visit(retCtx));
+            break; // All the code after a return is dead code
+        } else if (auto controlStmt = dynamic_cast<TParser::LoopControlStatementContext *>(child)) {
+            stmt.push_back(visit(controlStmt));
         }
     }
 
@@ -759,35 +765,6 @@ SupportedTypes ASTBuilder::visit(TParser::TypeContext *ctx) {
     throw std::runtime_error("Not a valid type");
 }
 
-std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopBlockContext *ctx) {
-    std::vector<std::unique_ptr<ASTNode>> stmt;
-
-    // Visits all the stmts
-    for (auto child : ctx->children) {
-        if (auto stmtCtx = dynamic_cast<TParser::StmtContext *>(child)) {
-            stmt.push_back(visit(stmtCtx));
-        } else if (auto retCtx = dynamic_cast<TParser::Return_stmtContext *>(child)) {
-            stmt.push_back(visit(retCtx));
-        } else if (auto terminal = dynamic_cast<antlr4::tree::TerminalNode *>(child)) {
-            int tokenType = terminal->getSymbol()->getType();
-
-            if (tokenType == TParser::CONTINUE || tokenType == TParser::BREAK) {
-                if (visualizeFlag) {
-                    // Node information
-                    std::ofstream texFile("AST.tex", std::ios::app);
-                    texFile << "[" << terminal->getText() << ", returnNode]" << std::endl;
-                    texFile.close();
-                }
-                stmt.push_back(std::make_unique<LoopControlStatementNode>(terminal->getText()));
-            }
-        }
-    }
-
-    auto codeBlock = std::make_unique<CodeBlockNode>(std::move(stmt));
-
-    return codeBlock;
-}
-
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopContext *ctx) {
     if (ctx->WHILE()) {
         if (visualizeFlag) {
@@ -799,7 +776,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopContext *ctx) {
 
         auto expr = visit(ctx->expr());
 
-        auto block = visit(ctx->loopBlock());
+        auto block = visit(ctx->block());
         auto whileBlock = std::unique_ptr<CodeBlockNode>(static_cast<CodeBlockNode *>(block.release()));
 
         if (visualizeFlag) {
@@ -822,7 +799,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopContext *ctx) {
         auto condition = visit(ctx->expr());
         auto assign = visit(ctx->variableAssign(1));
 
-        auto block = visit(ctx->loopBlock());
+        auto block = visit(ctx->block());
         auto forBlock = std::unique_ptr<CodeBlockNode>(static_cast<CodeBlockNode *>(block.release()));
 
         if (visualizeFlag) {
@@ -834,5 +811,16 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopContext *ctx) {
         return std::make_unique<ForNode>(std::move(def), std::move(condition), std::move(assign), std::move(forBlock));
     }
 
-    return nullptr;
+    throw std::runtime_error("Wrong loop type");
 };
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopControlStatementContext *ctx) {
+    if (visualizeFlag) {
+        // Node information
+        std::ofstream texFile("AST.tex", std::ios::app);
+        texFile << "[" << ctx->getText() << ", returnNode]" << std::endl;
+        texFile.close();
+    }
+
+    return std::make_unique<LoopControlStatementNode>(ctx->getText());
+}

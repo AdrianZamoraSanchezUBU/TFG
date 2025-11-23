@@ -175,13 +175,6 @@ class ASTBuilder {
     std::unique_ptr<ASTNode> visit(TParser::ElseContext *ctx);
 
     /**
-     * @brief Visits the context of a loop block.
-     * @param ctx Context of the loop block.
-     * @return AST node associated with the loop block.
-     */
-    std::unique_ptr<ASTNode> visit(TParser::LoopBlockContext *ctx);
-
-    /**
      * @brief Visits the type context of a variable declaration.
      * @param ctx Type context in a variable declaration.
      * @return SupportedTypes A supported type representing the token value.
@@ -194,4 +187,11 @@ class ASTBuilder {
      * @return AST node associated with the else statement.
      */
     std::unique_ptr<ASTNode> visit(TParser::LoopContext *ctx);
+
+    /**
+     * @brief Visits a loop control statement.
+     * @param ctx Context of the loop control statement.
+     * @return AST node associated with the loop control statement.
+     */
+    std::unique_ptr<ASTNode> visit(TParser::LoopControlStatementContext *ctx);
 };
