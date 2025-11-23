@@ -470,7 +470,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Time_literalContext *ctx) {
         std::ofstream texFile("AST.tex", std::ios::app);
 
         // Node information
-        texFile << "[{" << ctx->FLOAT_LITERAL()->getText() << timeToString(time) << "},literalNode]" << std::endl;
+        texFile << "[{" + std::to_string(value) + " " + timeToString(time) + "},literalNode]" << std::endl;
 
         texFile.close();
     }

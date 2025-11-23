@@ -24,7 +24,7 @@ llvm::Type *IRGenerator::getLlvmType(SupportedTypes type) {
     case SupportedTypes::TYPE_INT:
         return llvm::Type::getInt32Ty(ctx.IRContext);
     case SupportedTypes::TYPE_FLOAT:
-        return llvm::Type::getInt32Ty(ctx.IRContext);
+        return llvm::Type::getFP128Ty(ctx.IRContext);
     case SupportedTypes::TYPE_CHAR:
         return llvm::Type::getInt32Ty(ctx.IRContext);
     case SupportedTypes::TYPE_STRING:
@@ -33,6 +33,8 @@ llvm::Type *IRGenerator::getLlvmType(SupportedTypes type) {
         return llvm::Type::getInt1Ty(ctx.IRContext);
     case SupportedTypes::TYPE_VOID:
         return llvm::Type::getVoidTy(ctx.IRContext);
+    case SupportedTypes::TYPE_TIME:
+        return llvm::Type::getFP128Ty(ctx.IRContext);
     default:
         throw std::runtime_error("Unsupported type in IR generation");
     }
@@ -85,7 +87,7 @@ llvm::Value *IRGenerator::visit(LiteralNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(TimeLiteralNode &node) {
-    return nullptr;
+    return llvm::ConstantFP::get(ctx.IRContext, llvm::APFloat(node.getTime()));
 }
 
 llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
@@ -112,7 +114,7 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
 
     /* Numeric operations */
     // FLOAT
-    if (operationType == SupportedTypes::TYPE_FLOAT) {
+    if (operationType == SupportedTypes::TYPE_FLOAT || operationType == SupportedTypes::TYPE_TIME) {
         if (op == "+")
             return ctx.IRBuilder.CreateFAdd(L, R, "addtmp");
         if (op == "-")
@@ -197,6 +199,8 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
     if (auto expr = dynamic_cast<BinaryExprNode *>(node.getAssign())) {
         assignVal = visit(*expr);
     } else if (auto lit = dynamic_cast<LiteralNode *>(node.getAssign())) {
+        assignVal = visit(*lit);
+    } else if (auto lit = dynamic_cast<TimeLiteralNode *>(node.getAssign())) {
         assignVal = visit(*lit);
     } else if (auto var = dynamic_cast<VariableRefNode *>(node.getAssign())) {
         assignVal = visit(*var);

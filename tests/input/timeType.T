@@ -1,7 +1,4 @@
 time timeVar;
 
-timeVar = 1.5 tick;
-
-// time otherTimeVar = 1 sec;
-
+timeVar = 5.2 sec + 3 sec;
 return 0;

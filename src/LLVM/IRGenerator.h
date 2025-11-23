@@ -49,8 +49,15 @@ class IRGenerator {
      */
     explicit IRGenerator(SymbolTable &table) : ctx(), symtab(table){};
 
+    /**
+     * @brief Inserts a new scope ID in the stack
+     * @param scopeID ID of the new scope.
+     */
     void pushScope(int scopeID) { scopeStack.push_back(scopeID); }
 
+    /**
+     * @brief Pops the top scope ID out of the stack
+     */
     void popScope() {
         if (!scopeStack.empty()) {
             scopeStack.pop_back();

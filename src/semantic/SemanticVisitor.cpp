@@ -37,7 +37,10 @@ void *SemanticVisitor::visit(TimeLiteralNode &node) {
         throw std::runtime_error("Error in time literal, the time amount cant be negative");
     }
 
+    // Calculating the equivalent in ticks
     switch (node.getTimeStamp()) {
+    case TimeStamp::TYPE_TICK:
+        return nullptr;
     case TimeStamp::TYPE_SEC:
         node.setValue(time * 10);
         break;
@@ -68,16 +71,22 @@ void *SemanticVisitor::visit(BinaryExprNode &node) {
     if (auto left = dynamic_cast<LiteralNode *>(node.getLeft())) {
         LT = left->getType();
     }
-
     if (auto right = dynamic_cast<LiteralNode *>(node.getRight())) {
         RT = right->getType();
+    }
+
+    // Getting the type of the time literal nodes
+    if (auto left = dynamic_cast<TimeLiteralNode *>(node.getLeft())) {
+        LT = SupportedTypes::TYPE_TIME;
+    }
+    if (auto right = dynamic_cast<TimeLiteralNode *>(node.getRight())) {
+        RT = SupportedTypes::TYPE_TIME;
     }
 
     // Getting the type of the variables
     if (auto left = dynamic_cast<VariableRefNode *>(node.getLeft())) {
         LT = currentScope->getSymbol(left->getValue())->getType();
     }
-
     if (auto right = dynamic_cast<VariableRefNode *>(node.getRight())) {
         RT = currentScope->getSymbol(right->getValue())->getType();
     }
@@ -139,10 +148,6 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
             throw std::runtime_error("Variable assign with incompatible types, expr: " + typeToString(val->getType()) +
                                      " and variable being assign has: " + typeToString(node.getType()));
         }
-
-        // Inserting the variable in the Symbol Table
-        Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE, node.getType());
-        currentScope->insertSymbol(newSymbol);
     }
     if (auto val = dynamic_cast<LiteralNode *>(node.getAssign())) {
         if (val->getType() != node.getType()) {
@@ -151,10 +156,14 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
                 "Variable assign with incompatible types for value: " + typeToString(val->getType()) +
                 " ,to a varianble declarated as: " + typeToString(node.getType()));
         }
-
-        // Inserting the variable in the Symbol Table
-        Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE, node.getType());
-        currentScope->insertSymbol(newSymbol);
+    }
+    if (auto val = dynamic_cast<TimeLiteralNode *>(node.getAssign())) {
+        if (node.getType() != SupportedTypes::TYPE_TIME) {
+            return nullptr;
+            throw std::runtime_error(
+                "Variable assign with incompatible types for value: " + typeToString(SupportedTypes::TYPE_TIME) +
+                " ,to a varianble declarated as: " + typeToString(node.getType()));
+        }
     }
     if (auto val = dynamic_cast<VariableRefNode *>(node.getAssign())) {
         Symbol sym = *currentScope->getSymbol(val->getValue());
@@ -165,10 +174,6 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
                 "Variable assign with incompatible types for value: " + typeToString(sym.getType()) +
                 " ,to a varianble declarated as: " + typeToString(node.getType()));
         }
-
-        // Inserting the variable in the Symbol Table
-        Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE, node.getType());
-        currentScope->insertSymbol(newSymbol);
     }
     if (auto val = dynamic_cast<FunctionCallNode *>(node.getAssign())) {
         Symbol sym = *currentScope->getSymbol(val->getValue());
@@ -179,11 +184,11 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
                 "Variable assign with incompatible types for value: " + typeToString(sym.getType()) +
                 " ,to a varianble declarated as: " + typeToString(node.getType()));
         }
-
-        // Inserting the variable in the Symbol Table
-        Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE, node.getType());
-        currentScope->insertSymbol(newSymbol);
     }
+
+    // Inserting the variable in the Symbol Table
+    Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE, node.getType());
+    currentScope->insertSymbol(newSymbol);
 
     return nullptr;
 }
@@ -350,7 +355,7 @@ void *SemanticVisitor::visit(ForNode &node) {
 void *SemanticVisitor::visit(LoopControlStatementNode &node) {
     // Check for correct use of continue and break statements
     if (loopDepth <= 0) {
-        throw std::runtime_error("Error: " + node.getValue() + " out of a loop block");
+        throw std::runtime_error("Error: \"" + node.getValue() + "\" out of a loop block");
     }
 
     return nullptr;
