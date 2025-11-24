@@ -542,10 +542,20 @@ llvm::Value *IRGenerator::visit(ForNode &node) {
 
 llvm::Value *IRGenerator::visit(LoopControlStatementNode &node) {
     if (node.getValue() == "continue") {
+        // Jumps to the condition
         ctx.IRBuilder.CreateBr(loopContext.condBB);
     } else {
+        // Jumps to the end of the loop
         ctx.IRBuilder.CreateBr(loopContext.endLoopBB);
     }
 
     return nullptr;
 }
+
+llvm::Value *IRGenerator::visit(EventNode &node) {
+    return nullptr;
+};
+
+llvm::Value *IRGenerator::visit(ExitNode &node) {
+    return nullptr;
+};

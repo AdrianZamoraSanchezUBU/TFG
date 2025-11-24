@@ -1015,3 +1015,95 @@ class LoopControlStatementNode : public ASTNode {
     /// @copydoc ASTNode::accept(IRGenerator &visitor)
     llvm::Value *accept(IRGenerator &visitor) override;
 };
+
+class EventNode : public ASTNode {
+    std::string id;
+    TimeCommand command;
+    std::vector<std::unique_ptr<ASTNode>> paramList;
+    std::unique_ptr<ASTNode> timeStmt;
+    std::unique_ptr<CodeBlockNode> codeBlock;
+
+  public:
+    /**
+     * @brief Constructor for the exit statement node.
+     * @param id identifier of the event.
+     * @param activationTime TimeLiteral / VariableRef with the time of the event.
+     * @param codeBlock code executed in this event block.
+     */
+    explicit EventNode(std::string identifier,
+                       TimeCommand timeCommand,
+                       std::unique_ptr<ASTNode> time,
+                       std::unique_ptr<CodeBlockNode> block)
+        : id(identifier), command(timeCommand), timeStmt(std::move(time)), codeBlock(std::move(block)){};
+
+    /**
+     * @brief Getter for the code block.
+     */
+    ASTNode *getCodeBlock() { return codeBlock.get(); }
+
+    /**
+     * @brief Getter for the time statement.
+     */
+    ASTNode *getTimeStmt() { return timeStmt.get(); }
+
+    /**
+     * @brief Getter for the time command.
+     */
+    TimeCommand getTimeCommand() { return command; }
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return id; }
+
+    /// @copydoc ASTNode::print
+    void print() const override { std::cout << "EVENT STATEMENT: " << id << std::endl; }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override {
+        if (auto o = dynamic_cast<const EventNode *>(other)) {
+            // Returns the result of comparing all the attributes
+            return id == o->id && timeStmt->equals(o->timeStmt.get()) && codeBlock->equals(o->codeBlock.get()) &&
+                   command == o->command;
+        }
+
+        return false;
+    }
+
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
+    llvm::Value *accept(IRGenerator &visitor) override;
+};
+
+class ExitNode : public ASTNode {
+    std::string id;
+
+  public:
+    /**
+     * @brief Constructor for the exit node.
+     * @param id identifier of the event to exit.
+     */
+    explicit ExitNode(std::string identifier) : id(identifier){};
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return id; }
+
+    /// @copydoc ASTNode::print
+    void print() const override { std::cout << "EXIT STATEMENT: " << id << std::endl; }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override {
+        if (auto o = dynamic_cast<const ExitNode *>(other)) {
+            // Returns the result of comparing all the attributes
+            return id == o->id;
+        }
+
+        return false;
+    }
+
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
+    llvm::Value *accept(IRGenerator &visitor) override;
+};

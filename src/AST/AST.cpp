@@ -146,3 +146,21 @@ void *LoopControlStatementNode::accept(SemanticVisitor &visitor) {
 llvm::Value *LoopControlStatementNode::accept(IRGenerator &visitor) {
     return visitor.visit(*this);
 };
+
+/* EventNode */
+void *EventNode::accept(SemanticVisitor &visitor) {
+    return visitor.visit(*this);
+};
+
+llvm::Value *EventNode::accept(IRGenerator &visitor) {
+    return visitor.visit(*this);
+};
+
+/* ExitNode */
+void *ExitNode::accept(SemanticVisitor &visitor) {
+    return visitor.visit(*this);
+};
+
+llvm::Value *ExitNode::accept(IRGenerator &visitor) {
+    return visitor.visit(*this);
+};

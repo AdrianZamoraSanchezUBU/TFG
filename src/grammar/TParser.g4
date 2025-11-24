@@ -113,9 +113,9 @@ time_literal
 
 
 event 
-	: EVENT IDENTIFIER EVERY time_literal eventBlock
-	| EVENT IDENTIFIER AT time_literal eventBlock
-	| EVENT IDENTIFIER AFTER time_literal eventBlock
+	: EVENT IDENTIFIER EVERY (time_literal | IDENTIFIER) eventBlock
+	| EVENT IDENTIFIER AT (time_literal | IDENTIFIER) eventBlock
+	| EVENT IDENTIFIER AFTER (time_literal | IDENTIFIER) eventBlock
 	| EVENT IDENTIFIER WHEN expr eventBlock
 	;
 

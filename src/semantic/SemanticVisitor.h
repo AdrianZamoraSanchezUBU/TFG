@@ -110,10 +110,22 @@ class SemanticVisitor {
     void *visit(ForNode &node);
 
     /**
-     * @brief Visits a for loop control statement (continue or break) node.
+     * @brief Visit a loop control statement (continue or break) node.
      * @param node Node to be visited.
      */
     void *visit(LoopControlStatementNode &node);
+
+    /**
+     * @brief Visits a event statement node.
+     * @param node Node to be visited.
+     */
+    void *visit(EventNode &node);
+
+    /**
+     * @brief Visits a exit statement node.
+     * @param node Node to be visited.
+     */
+    void *visit(ExitNode &node);
 
     /**
      * @brief Prints the content of the SymbolTable.

@@ -250,6 +250,8 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::StmtContext *ctx) {
         return visit(ctx->if_());
     } else if (ctx->loop()) {
         return visit(ctx->loop());
+    } else if (ctx->event()) {
+        return visit(ctx->event());
     }
 
     throw std::runtime_error("Not a valid stmt");
@@ -823,4 +825,61 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopControlStatementContext 
     }
 
     return std::make_unique<LoopControlStatementNode>(ctx->getText());
+}
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventBlockContext *ctx) {
+    std::vector<std::unique_ptr<ASTNode>> stmt;
+
+    // Visits all the stmts
+    for (auto child : ctx->children) {
+        if (auto stmtCtx = dynamic_cast<TParser::StmtContext *>(child)) {
+            stmt.push_back(visit(stmtCtx));
+        } else if (auto controlStmt = dynamic_cast<TParser::ExitStmtContext *>(child)) {
+            stmt.push_back(std::make_unique<ExitNode>(child->getText()));
+        }
+    }
+
+    return std::make_unique<CodeBlockNode>(std::move(stmt));
+}
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventContext *ctx) {
+    // Setting the correct time command
+    TimeCommand command;
+    if (ctx->EVERY()) {
+        command = TimeCommand::TIME_EVERY;
+    } else if (ctx->AT()) {
+        command = TimeCommand::TIME_AT;
+    }
+
+    if (visualizeFlag) {
+        // Node information
+        std::ofstream texFile("AST.tex", std::ios::app);
+        texFile << "[" << ctx->IDENTIFIER(0)->getText() + " " + timeCommandToString(command) << ", functionDefNode"
+                << std::endl;
+        texFile.close();
+    }
+
+    // Visit the time block
+    auto codeBlock = visit(ctx->eventBlock());
+    auto raw = codeBlock.release();
+    auto functionScope = dynamic_cast<CodeBlockNode *>(raw);
+    std::unique_ptr<CodeBlockNode> codeBlockPtr(functionScope);
+
+    std::unique_ptr<ASTNode> timeNode;
+
+    // Getting the time from a literal or a variable reference
+    if (ctx->time_literal()) {
+        timeNode = visit(ctx->time_literal());
+    } else if (ctx->IDENTIFIER(1)) {
+        timeNode = std::make_unique<VariableRefNode>(ctx->IDENTIFIER(1)->getText());
+    }
+
+    if (visualizeFlag) {
+        std::ofstream texFile("AST.tex", std::ios::app);
+        texFile << "]" << std::endl;
+        texFile.close();
+    }
+
+    return std::make_unique<EventNode>(ctx->IDENTIFIER(0)->getText(), command, std::move(timeNode),
+                                       std::move(codeBlockPtr));
 }

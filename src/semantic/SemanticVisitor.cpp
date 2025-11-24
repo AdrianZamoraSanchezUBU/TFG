@@ -360,3 +360,24 @@ void *SemanticVisitor::visit(LoopControlStatementNode &node) {
 
     return nullptr;
 }
+
+void *SemanticVisitor::visit(EventNode &node) {
+    std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
+
+    // Inserts the event identifier in the current scope
+    Symbol newSymbol(node.getValue(), &node, SymbolCategory::FUNCTION, SupportedTypes::TYPE_VOID);
+    currentScope->insertSymbol(newSymbol);
+
+    // Check for the time stmt
+    node.getTimeStmt()->accept(*this);
+
+    // Creates a new scope for this event
+    std::shared_ptr<Scope> newScope = symtab.enterScope();
+    node.getCodeBlock()->accept(*this);
+
+    return nullptr;
+}
+
+void *SemanticVisitor::visit(ExitNode &node) {
+    return nullptr;
+};

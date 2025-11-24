@@ -194,4 +194,18 @@ class ASTBuilder {
      * @return AST node associated with the loop control statement.
      */
     std::unique_ptr<ASTNode> visit(TParser::LoopControlStatementContext *ctx);
+
+    /**
+     * @brief Visits a event statement.
+     * @param ctx Context of the event statement.
+     * @return AST node associated with the event statement.
+     */
+    std::unique_ptr<ASTNode> visit(TParser::EventContext *ctx);
+
+    /**
+     * @brief Visits a exit statement.
+     * @param ctx Context of the exit statement.
+     * @return AST node associated with the exit statement.
+     */
+    std::unique_ptr<ASTNode> visit(TParser::EventBlockContext *ctx);
 };

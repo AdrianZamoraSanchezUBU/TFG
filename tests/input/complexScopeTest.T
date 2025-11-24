@@ -12,4 +12,4 @@ int function foo(int x){
 
 int param = 1;
 
-foo(param);
+return foo(param);

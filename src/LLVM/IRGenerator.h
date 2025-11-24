@@ -181,9 +181,23 @@ class IRGenerator {
     llvm::Value *visit(ForNode &node);
 
     /**
-     * @brief Visits a for loop control statement node.
+     * @brief Visits a loop control statement node.
      * @param node Node to be visited.
      * @return llvm::Value* Value obtained from the visit.
      */
     llvm::Value *visit(LoopControlStatementNode &node);
+
+    /**
+     * @brief Visits a event statement node.
+     * @param node Node to be visited.
+     * @return llvm::Value* Value obtained from the visit.
+     */
+    llvm::Value *visit(EventNode &node);
+
+    /**
+     * @brief Visits a exit statement node.
+     * @param node Node to be visited.
+     * @return llvm::Value* Value obtained from the visit.
+     */
+    llvm::Value *visit(ExitNode &node);
 };
