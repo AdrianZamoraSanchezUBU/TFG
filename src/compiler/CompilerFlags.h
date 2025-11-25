@@ -16,6 +16,7 @@ struct CompilerFlags {
     std::string inputFile;
     std::string outputFile;
     bool visualizeAST = false;
+    std::string generateIRFile;
     bool debug = false;
 };
 

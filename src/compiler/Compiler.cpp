@@ -90,6 +90,12 @@ void Compiler::generateIR() {
         std::cout << "****** GENERATED LLVM IR ******" << std::endl;
         ctx.IRModule->print(llvm::outs(), nullptr);
     }
+
+    if (flags.generateIRFile != "") {
+        std::error_code EC;
+        llvm::raw_fd_ostream dest(flags.generateIRFile, EC, llvm::sys::fs::OF_None);
+        ctx.IRModule->print(dest, nullptr);
+    }
 }
 
 void Compiler::generateObjectCode() {

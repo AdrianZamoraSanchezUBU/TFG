@@ -36,15 +36,19 @@ CompilerFlags argvToFlags(int argc, char **argv) {
                 flags.visualizeAST = true;
             } else if (arg == "--debug") {
                 flags.debug = true;
+            } else if (arg == "-IR") {
+                if (i + 1 >= argc)
+                    throw std::invalid_argument("Missing output file after -IR");
+                flags.generateIRFile = argv[++i];
             } else {
                 throw std::invalid_argument("Unknown argument: " + arg);
             }
         }
-    }
 
-    // Default outputFile name
-    if (flags.outputFile.empty()) {
-        flags.outputFile = "out.o";
+        // Default outputFile name
+        if (flags.outputFile.empty()) {
+            flags.outputFile = "out.o";
+        }
     }
 
     return flags;
