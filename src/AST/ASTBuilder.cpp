@@ -1,10 +1,5 @@
 #include "ASTBuilder.h"
 
-#include <fstream>
-#include <vector>
-
-#include "AST.h"
-
 /**
  * @brief Adds the TickZ styles for the AST visualization.
  * @return string with the styles.
@@ -250,8 +245,8 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::StmtContext *ctx) {
         return visit(ctx->if_());
     } else if (ctx->loop()) {
         return visit(ctx->loop());
-    } else if (ctx->event()) {
-        return visit(ctx->event());
+    } else if (ctx->eventDef()) {
+        return visit(ctx->eventDef());
     }
 
     throw std::runtime_error("Not a valid stmt");
@@ -455,18 +450,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Time_literalContext *ctx) {
     }
 
     // Time stamp of the time type
-    TimeStamp time;
-    if (ctx->TIME_TICK()) {
-        time = TimeStamp::TYPE_TICK;
-    } else if (ctx->TIME_SEC()) {
-        time = TimeStamp::TYPE_SEC;
-    } else if (ctx->TIME_MIN()) {
-        time = TimeStamp::TYPE_MIN;
-    } else if (ctx->TIME_HR()) {
-        time = TimeStamp::TYPE_HR;
-    } else {
-        throw std::runtime_error("Not a valid time literal");
-    }
+    TimeStamp time = visit(ctx->timeStamp());
 
     if (visualizeFlag) {
         std::ofstream texFile("AST.tex", std::ios::app);
@@ -478,6 +462,20 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Time_literalContext *ctx) {
     }
 
     return std::make_unique<TimeLiteralNode>(value, time);
+}
+
+TimeStamp ASTBuilder::visit(TParser::TimeStampContext *ctx) {
+    // Gets the time stamp or throws a runtime error
+    if (ctx->TIME_TICK())
+        return TimeStamp::TYPE_TICK;
+    if (ctx->TIME_SEC())
+        return TimeStamp::TYPE_SEC;
+    if (ctx->TIME_MIN())
+        return TimeStamp::TYPE_MIN;
+    if (ctx->TIME_HR())
+        return TimeStamp::TYPE_HR;
+
+    throw std::runtime_error("Not a valir time stamp");
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableDecContext *ctx) {
@@ -551,7 +549,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDefinitionContext *c
 
     std::vector<std::unique_ptr<ASTNode>> params;
 
-    // Visits all the types
+    // Visits all the param types
     if (ctx->params() != nullptr && !ctx->params()->isEmpty()) {
         for (int i = 0; i < ctx->params()->IDENTIFIER().size(); i++) {
             std::string id = ctx->params()->IDENTIFIER(i)->getText();
@@ -842,14 +840,9 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventBlockContext *ctx) {
     return std::make_unique<CodeBlockNode>(std::move(stmt));
 }
 
-std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventContext *ctx) {
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventDefContext *ctx) {
     // Setting the time command
-    TimeCommand command;
-    if (ctx->EVERY()) {
-        command = TimeCommand::TIME_EVERY;
-    } else if (ctx->AT()) {
-        command = TimeCommand::TIME_AT;
-    }
+    TimeCommand command = visit(ctx->timeCommand());
 
     if (visualizeFlag) {
         // Node information
@@ -867,6 +860,17 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventContext *ctx) {
 
     std::unique_ptr<ASTNode> timeNode;
 
+    // Visits all the param types
+    std::vector<std::unique_ptr<ASTNode>> params;
+    if (ctx->params() != nullptr && !ctx->params()->isEmpty()) {
+        for (int i = 0; i < ctx->params()->IDENTIFIER().size(); i++) {
+            std::string id = ctx->params()->IDENTIFIER(i)->getText();
+            SupportedTypes type = visit(ctx->params()->type(i));
+
+            params.emplace_back(std::make_unique<VariableDecNode>(type, id));
+        }
+    }
+
     // Getting the time from a literal or a variable reference
     if (ctx->time_literal()) {
         timeNode = visit(ctx->time_literal());
@@ -880,6 +884,18 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventContext *ctx) {
         texFile.close();
     }
 
-    return std::make_unique<EventNode>(ctx->IDENTIFIER(0)->getText(), command, std::move(timeNode),
+    return std::make_unique<EventNode>(ctx->IDENTIFIER(0)->getText(), params, command, std::move(timeNode),
                                        std::move(codeBlockPtr));
 }
+
+TimeCommand ASTBuilder::visit(TParser::TimeCommandContext *ctx) {
+    // Gets the time command or throws a runtime error
+    if (ctx->EVERY())
+        return TimeCommand::TIME_EVERY;
+    if (ctx->AT())
+        return TimeCommand::TIME_AT;
+    if (ctx->AFTER())
+        return TimeCommand::TIME_AFTER;
+
+    throw std::runtime_error("Not a valid time command");
+};

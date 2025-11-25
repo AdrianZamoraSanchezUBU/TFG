@@ -22,7 +22,7 @@ stmt
 	| if
 	| loop 
 	| expr SEMICOLON
-	| event
+	| eventDef
 	;
 
 expr
@@ -104,20 +104,25 @@ boolean_literal
 				| BOOL_FALSE_LITERAL
 				;
 
-time_literal 
-			: (FLOAT_LITERAL | NUMBER_LITERAL) TIME_TICK
-			| (FLOAT_LITERAL | NUMBER_LITERAL) TIME_SEC
-			| (FLOAT_LITERAL | NUMBER_LITERAL) TIME_MIN
-			| (FLOAT_LITERAL | NUMBER_LITERAL) TIME_HR
-			;
+time_literal : (FLOAT_LITERAL | NUMBER_LITERAL) timeStamp ;
 
+timeStamp 
+		: TIME_TICK
+		| TIME_SEC
+		| TIME_MIN
+		| TIME_HR
+		;
 
-event 
-	: EVENT IDENTIFIER EVERY (time_literal | IDENTIFIER) eventBlock
-	| EVENT IDENTIFIER AT (time_literal | IDENTIFIER) eventBlock
-	| EVENT IDENTIFIER AFTER (time_literal | IDENTIFIER) eventBlock
+eventDef
+	: EVENT IDENTIFIER (LPAREN params RPAREN)? timeCommand (time_literal | IDENTIFIER) eventBlock
 	| EVENT IDENTIFIER WHEN expr eventBlock
 	;
+
+timeCommand
+			: EVERY
+			| AT
+			| AFTER
+			; 
 
 eventBlock : LBRACE (stmt | exitStmt)* RBRACE ;
 

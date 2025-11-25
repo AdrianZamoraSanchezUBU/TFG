@@ -8,6 +8,7 @@
  */
 
 #pragma once
+#include "AST.h"
 #include "SupportedTypes.h"
 #include "TParser.h"
 
@@ -200,7 +201,7 @@ class ASTBuilder {
      * @param ctx Context of the event statement.
      * @return AST node associated with the event statement.
      */
-    std::unique_ptr<ASTNode> visit(TParser::EventContext *ctx);
+    std::unique_ptr<ASTNode> visit(TParser::EventDefContext *ctx);
 
     /**
      * @brief Visits a exit statement.
@@ -208,4 +209,18 @@ class ASTBuilder {
      * @return AST node associated with the exit statement.
      */
     std::unique_ptr<ASTNode> visit(TParser::EventBlockContext *ctx);
+
+    /**
+     * @brief Visits a event time command.
+     * @param ctx Context of the time command.
+     * @return TimeCommand.
+     */
+    TimeCommand visit(TParser::TimeCommandContext *ctx);
+
+    /**
+     * @brief Visits a time stamp.
+     * @param ctx Context of the time stamp.
+     * @return TimeStamp.
+     */
+    TimeStamp visit(TParser::TimeStampContext *ctx);
 };

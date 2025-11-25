@@ -514,7 +514,7 @@ llvm::Value *IRGenerator::visit(ForNode &node) {
     ctx.IRBuilder.CreateCondBr(node.getCondition()->accept(*this), loopBB, endLoopBB);
     ctx.popFunction();
 
-    // Generates the while block
+    // Generates the for block
     ctx.pushFunction(loopBB);
     node.getCodeBlock()->accept(*this);
     scopeStack.pop_back();
@@ -553,24 +553,44 @@ llvm::Value *IRGenerator::visit(LoopControlStatementNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(EventNode &node) {
-    // Event function generation
-    llvm::Type *returnType = llvm::Type::getVoidTy(ctx.IRContext);
-    llvm::ArrayRef<llvm::Type *> params;
-    llvm::FunctionType *funcType = llvm::FunctionType::get(returnType, params, false);
+    // Getting the param definition (only types)
+    std::vector<llvm::Type *> paramTypes;
+    for (int i = 0; i < node.getParamsCount(); i++) {
+        if (auto var = dynamic_cast<VariableDecNode *>(node.getParam(i))) {
+            paramTypes.push_back(getLlvmType(var->getType()));
+        }
+    }
+
+    // Event generation
+    llvm::Type *returnType = getLlvmType(SupportedTypes::TYPE_VOID);
+    llvm::FunctionType *eventType = llvm::FunctionType::get(returnType, paramTypes, false);
     llvm::Function *event = ctx.IRModule->getFunction(node.getValue());
 
     if (!event) {
-        event = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, node.getValue(), ctx.IRModule.get());
+        event = llvm::Function::Create(eventType, llvm::Function::ExternalLinkage, node.getValue(), ctx.IRModule.get());
     }
 
     // Basic block generation and stack push
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx.IRContext, "entry", event);
+
     ctx.pushFunction(entry);
 
+    // Setting all the params as arguments in their symbol in the symbol table
+    unsigned idx = 0;
+    for (auto &arg : event->args()) {
+        auto *varNode = dynamic_cast<VariableDecNode *>(node.getParam(idx++));
+
+        // Sets the value of a arg for direct value access
+        std::string name = varNode ? varNode->getValue() : "arg" + std::to_string(idx);
+        arg.setName(name);
+
+        symtab.getScopeByID(scopeRef + 1)->getSymbol(name)->setLlvmValue(&arg);
+    }
     llvm::verifyFunction(*event);
 
     // IR generation for all the function statements
     node.getCodeBlock()->accept(*this);
+    ctx.IRBuilder.CreateRetVoid();
     scopeStack.pop_back();
     ctx.popFunction();
 

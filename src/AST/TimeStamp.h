@@ -10,7 +10,7 @@ enum TimeStamp { TYPE_TICK, TYPE_SEC, TYPE_MIN, TYPE_HR };
 /**
  * @brief Time management commands
  */
-enum TimeCommand { TIME_EVERY, TIME_AT };
+enum TimeCommand { TIME_EVERY, TIME_AT, TIME_AFTER };
 
 /**
  * @brief Generates the string for the time stamp

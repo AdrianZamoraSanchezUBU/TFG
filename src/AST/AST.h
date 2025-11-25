@@ -656,7 +656,7 @@ class FunctionDefNode : public ASTNode {
     CodeBlockNode *getCodeBlock() const { return codeBlock.get(); }
 
     /**
-     * @brief Returns the ammount of parameters in this block.
+     * @brief Returns the ammount of parameters in this function.
      */
     int getParamsCount() const { return paramList.size(); }
 
@@ -1025,16 +1025,20 @@ class EventNode : public ASTNode {
 
   public:
     /**
-     * @brief Constructor for the exit statement node.
+     * @brief Constructor for the event node.
      * @param id identifier of the event.
+     * @param params parameters of this event.
+     * @param timeCommand activation mechanism of this event node.
      * @param activationTime TimeLiteral / VariableRef with the time of the event.
      * @param codeBlock code executed in this event block.
      */
     explicit EventNode(std::string identifier,
+                       std::vector<std::unique_ptr<ASTNode>> &params,
                        TimeCommand timeCommand,
                        std::unique_ptr<ASTNode> time,
                        std::unique_ptr<CodeBlockNode> block)
-        : id(identifier), command(timeCommand), timeStmt(std::move(time)), codeBlock(std::move(block)){};
+        : id(identifier), paramList(std::move(params)), command(timeCommand), timeStmt(std::move(time)),
+          codeBlock(std::move(block)){};
 
     /**
      * @brief Getter for the code block.
@@ -1051,6 +1055,16 @@ class EventNode : public ASTNode {
      */
     TimeCommand getTimeCommand() { return command; }
 
+    /**
+     * @brief Returns the ammount of parameters in this event.
+     */
+    int getParamsCount() const { return paramList.size(); }
+
+    /**
+     * @brief Returns the parameters with index i.
+     */
+    ASTNode *getParam(int i) const { return paramList[i].get(); }
+
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return id; }
 
@@ -1062,7 +1076,7 @@ class EventNode : public ASTNode {
         if (auto o = dynamic_cast<const EventNode *>(other)) {
             // Returns the result of comparing all the attributes
             return id == o->id && timeStmt->equals(o->timeStmt.get()) && codeBlock->equals(o->codeBlock.get()) &&
-                   command == o->command;
+                   command == o->command && paramList == o->paramList;
         }
 
         return false;

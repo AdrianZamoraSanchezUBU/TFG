@@ -366,6 +366,7 @@ void *SemanticVisitor::visit(EventNode &node) {
 
     // Inserts the event identifier in the current scope
     Symbol newSymbol(node.getValue(), &node, SymbolCategory::FUNCTION, SupportedTypes::TYPE_VOID);
+    newSymbol.setNumParams(node.getParamsCount());
     currentScope->insertSymbol(newSymbol);
 
     // Check for the time stmt
@@ -373,6 +374,17 @@ void *SemanticVisitor::visit(EventNode &node) {
 
     // Creates a new scope for this event
     std::shared_ptr<Scope> newScope = symtab.enterScope();
+
+    // Inserting parameters in the function scope
+    if (node.getParamsCount() > 0) {
+        for (int i = 0; i < node.getParamsCount(); i++) {
+            if (auto var = dynamic_cast<VariableDecNode *>(node.getParam(i))) {
+                Symbol newSymbol(var->getValue(), var, SymbolCategory::PARAMETER, var->getType());
+                newScope->insertSymbol(newSymbol);
+            }
+        }
+    }
+
     node.getCodeBlock()->accept(*this);
 
     return nullptr;
