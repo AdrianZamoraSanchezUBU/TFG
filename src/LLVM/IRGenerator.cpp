@@ -553,7 +553,28 @@ llvm::Value *IRGenerator::visit(LoopControlStatementNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(EventNode &node) {
-    return nullptr;
+    // Event function generation
+    llvm::Type *returnType = llvm::Type::getVoidTy(ctx.IRContext);
+    llvm::ArrayRef<llvm::Type *> params;
+    llvm::FunctionType *funcType = llvm::FunctionType::get(returnType, params, false);
+    llvm::Function *event = ctx.IRModule->getFunction(node.getValue());
+
+    if (!event) {
+        event = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, node.getValue(), ctx.IRModule.get());
+    }
+
+    // Basic block generation and stack push
+    llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx.IRContext, "entry", event);
+    ctx.pushFunction(entry);
+
+    llvm::verifyFunction(*event);
+
+    // IR generation for all the function statements
+    node.getCodeBlock()->accept(*this);
+    scopeStack.pop_back();
+    ctx.popFunction();
+
+    return event;
 };
 
 llvm::Value *IRGenerator::visit(ExitNode &node) {

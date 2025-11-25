@@ -843,7 +843,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventBlockContext *ctx) {
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventContext *ctx) {
-    // Setting the correct time command
+    // Setting the time command
     TimeCommand command;
     if (ctx->EVERY()) {
         command = TimeCommand::TIME_EVERY;
