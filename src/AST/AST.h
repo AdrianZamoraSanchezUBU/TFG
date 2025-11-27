@@ -6,8 +6,8 @@
  */
 
 #pragma once
-#include "SupportedTypes.h"
 #include "TimeStamp.h"
+#include "Type.h"
 #include <iostream>
 #include <memory>
 #include <string>
@@ -141,14 +141,14 @@ class CodeBlockNode : public ASTNode {
  */
 class LiteralNode : public ASTNode {
     std::variant<int, float, char, std::string, bool> value;
-    SupportedTypes type;
+    Type type;
 
   public:
     /**
      * @brief Constructor for the literal node.
      * @param val Value associated with the node.
      */
-    explicit LiteralNode(std::variant<int, float, char, std::string, bool> val, SupportedTypes t)
+    explicit LiteralNode(std::variant<int, float, char, std::string, bool> val, Type t)
         : value(std::move(val)), type(t) {}
 
     /**
@@ -159,7 +159,7 @@ class LiteralNode : public ASTNode {
     /**
      * @brief Getter for type.
      */
-    SupportedTypes getType() const { return type; }
+    Type getType() const { return type; }
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override {
@@ -274,7 +274,7 @@ class BinaryExprNode : public ASTNode {
     std::string op;
     std::unique_ptr<ASTNode> left;
     std::unique_ptr<ASTNode> right;
-    SupportedTypes type;
+    Type type;
 
   public:
     /**
@@ -284,7 +284,7 @@ class BinaryExprNode : public ASTNode {
      * @param rhs Right-hand operand.
      */
     explicit BinaryExprNode(const std::string &op, std::unique_ptr<ASTNode> lhs, std::unique_ptr<ASTNode> rhs)
-        : op(op), left(std::move(lhs)), right(std::move(rhs)), type(SupportedTypes::TYPE_VOID) {}
+        : op(op), left(std::move(lhs)), right(std::move(rhs)), type(Type(SupportedTypes::TYPE_VOID)) {}
 
     /**
      * @brief Devuelve el operador asociado al nodo.
@@ -307,12 +307,12 @@ class BinaryExprNode : public ASTNode {
     /**
      * @brief Getter for the returnType;
      */
-    SupportedTypes getType() const { return type; }
+    Type getType() const { return type; }
 
     /**
      * @brief Setter for the returnType;
      */
-    void setType(SupportedTypes t) { type = t; }
+    void setType(Type t) { type = t; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -406,7 +406,7 @@ class ReturnNode : public ASTNode {
  * @see CodeBlock
  */
 class VariableDecNode : public ASTNode {
-    SupportedTypes type;
+    Type type;
     std::string identifier;
 
   public:
@@ -415,7 +415,7 @@ class VariableDecNode : public ASTNode {
      * @param t Type of the variable.
      * @param id Identifier of this variable.
      */
-    explicit VariableDecNode(SupportedTypes t, const std::string &id) : type(t), identifier(id){};
+    explicit VariableDecNode(Type t, const std::string &id) : type(t), identifier(id){};
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return identifier; }
@@ -423,7 +423,7 @@ class VariableDecNode : public ASTNode {
     /**
      * @brief Getter for type.
      */
-    SupportedTypes getType() const { return type; }
+    Type getType() const { return type; }
 
     /// @copydoc ASTNode::print
     void print() const override { std::cout << "VARIABLE DECLARATION NODE: " << getValue() << std::endl; }
@@ -456,7 +456,7 @@ class VariableDecNode : public ASTNode {
  * @see CodeBlock
  */
 class VariableAssignNode : public ASTNode {
-    SupportedTypes type;
+    Type type;
     std::string identifier;
     std::unique_ptr<ASTNode> assign;
 
@@ -466,13 +466,13 @@ class VariableAssignNode : public ASTNode {
      * @param id Identifier of this variable.
      * @param val Value assigned to the variable.
      */
-    explicit VariableAssignNode(SupportedTypes t, const std::string &id, std::unique_ptr<ASTNode> val)
+    explicit VariableAssignNode(Type t, const std::string &id, std::unique_ptr<ASTNode> val)
         : type(t), identifier(id), assign(std::move(val)){};
 
     /**
      * @brief Getter for type.
      */
-    SupportedTypes getType() const { return type; }
+    Type getType() const { return type; }
 
     /**
      * @brief Getter for assign expresion.
@@ -558,8 +558,8 @@ class VariableRefNode : public ASTNode {
  */
 class FunctionDecNode : public ASTNode {
     std::string identifier;
-    std::vector<SupportedTypes> paramList;
-    SupportedTypes type;
+    std::vector<Type> paramList;
+    Type type;
 
   public:
     /**
@@ -568,7 +568,7 @@ class FunctionDecNode : public ASTNode {
      * @param params Params of the function.
      * @param t Return type of the function.
      */
-    explicit FunctionDecNode(const std::string &id, std::vector<SupportedTypes> &params, SupportedTypes t)
+    explicit FunctionDecNode(const std::string &id, std::vector<Type> &params, Type t)
         : identifier(id), paramList(params), type(t){};
 
     /// @copydoc ASTNode::getValue
@@ -577,7 +577,7 @@ class FunctionDecNode : public ASTNode {
     /**
      * @brief Getter for type.
      */
-    SupportedTypes getType() const { return type; }
+    Type getType() const { return type; }
 
     /**
      * @brief Getter for the params size.
@@ -587,7 +587,7 @@ class FunctionDecNode : public ASTNode {
     /**
      * @brief Getter for params.
      */
-    std::vector<SupportedTypes> getParams() const { return paramList; }
+    std::vector<Type> getParams() const { return paramList; }
 
     /// @copydoc ASTNode::print
     void print() const override {
@@ -625,7 +625,7 @@ class FunctionDecNode : public ASTNode {
 class FunctionDefNode : public ASTNode {
     std::string identifier;
     std::vector<std::unique_ptr<ASTNode>> paramList;
-    SupportedTypes type;
+    Type type;
     std::unique_ptr<CodeBlockNode> codeBlock;
 
   public:
@@ -638,7 +638,7 @@ class FunctionDefNode : public ASTNode {
      */
     explicit FunctionDefNode(const std::string &id,
                              std::vector<std::unique_ptr<ASTNode>> &params,
-                             SupportedTypes t,
+                             Type t,
                              std::unique_ptr<CodeBlockNode> code)
         : identifier(id), paramList(std::move(params)), type(t), codeBlock(std::move(code)){};
 
@@ -648,7 +648,7 @@ class FunctionDefNode : public ASTNode {
     /**
      * @brief Getter for type.
      */
-    SupportedTypes getType() const { return type; }
+    Type getType() const { return type; }
 
     /**
      * @brief Getter for code block inside this function.

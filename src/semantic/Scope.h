@@ -21,7 +21,8 @@ enum SymbolCategory {
     VARIABLE,  ///< Regular variable
     FUNCTION,  ///< Function
     PARAMETER, ///< Function parameter
-    CONSTANT   ///< Constant value (might not be implemented)
+    POINTER,   ///< Pointer
+    CONSTANT   ///< Constant value
 };
 
 /**
@@ -32,7 +33,7 @@ class Symbol {
     std::string ID;
     ASTNode *node;
     llvm::Value *llvmVal;
-    SupportedTypes type;
+    Type type;
     SymbolCategory category;
     int numParams;
 
@@ -40,14 +41,13 @@ class Symbol {
     /**
      * @brief Constructor for Symbol.
      */
-    explicit Symbol(std::string id, ASTNode *astnode, llvm::Value *val, SymbolCategory cat, SupportedTypes ty)
+    explicit Symbol(std::string id, ASTNode *astnode, llvm::Value *val, SymbolCategory cat, Type ty)
         : ID(id), node(astnode), llvmVal(val), category(cat), type(ty) {}
 
-    explicit Symbol(std::string id, ASTNode *astnode, SymbolCategory cat, SupportedTypes ty)
+    explicit Symbol(std::string id, ASTNode *astnode, SymbolCategory cat, Type ty)
         : ID(id), node(astnode), category(cat), type(ty) {}
 
-    explicit Symbol(std::string id, SymbolCategory cat, SupportedTypes ty)
-        : ID(id), node(nullptr), category(cat), type(ty) {}
+    explicit Symbol(std::string id, SymbolCategory cat, Type ty) : ID(id), node(nullptr), category(cat), type(ty) {}
 
     /**
      * @brief Getter for ID.
@@ -60,14 +60,19 @@ class Symbol {
     SymbolCategory getCategory() const { return category; }
 
     /**
-     * @brief Getter for type.
+     * @brief Returns true if this symbol represents a ptr, false otherwise.
      */
-    SupportedTypes getType() const { return type; }
+    bool isPtr() const;
+
+    /**
+     * @brief Getter for the type or pointed type.
+     */
+    SupportedTypes getType() const;
 
     /**
      * @brief Setter for type.
      */
-    void setType(SupportedTypes ty) { type = ty; }
+    void setType(Type ty) { type = ty; }
 
     /**
      * @brief Getter for number of params.

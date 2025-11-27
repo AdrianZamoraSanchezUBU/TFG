@@ -1,7 +1,11 @@
-int function foo(int x){
-    return x;
+void function foo(ptr int x){
+    x = 2;
+    return;
 }
 
-int param = 1;
+ptr int param = 1;
 
-return foo(param);
+foo(param);
+
+// Now param's value is 2
+return param;

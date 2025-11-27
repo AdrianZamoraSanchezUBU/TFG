@@ -12,7 +12,6 @@
 #pragma once
 #include "AST.h"
 #include "CodegenContext.h"
-#include "SupportedTypes.h"
 #include "SymbolTable.h"
 
 class LiteralNode;
@@ -67,11 +66,11 @@ class IRGenerator {
     }
 
     /**
-     * @brief Returns the llvm::Type associated with a SupportedTypes type.
-     * @param type SupportedType format.
+     * @brief Returns the llvm::Type associated with a Type.
+     * @param type Type format.
      * @return llvm::Type* format of the type.
      */
-    llvm::Type *getLlvmType(SupportedTypes);
+    llvm::Type *getLlvmType(Type);
 
     /**
      * @return Returns the LLVM Context.

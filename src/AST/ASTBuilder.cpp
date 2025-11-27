@@ -356,7 +356,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
     // Checks for a number or float context
     if (ctx->NUMBER_LITERAL()) {
         int value = stoi(ctx->NUMBER_LITERAL()->getText());
-        auto node = std::make_unique<LiteralNode>(value, SupportedTypes::TYPE_INT);
+        auto node = std::make_unique<LiteralNode>(value, Type(SupportedTypes::TYPE_INT));
 
         if (visualizeFlag) {
             std::ofstream texFile("AST.tex", std::ios::app);
@@ -377,7 +377,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
             value = true;
         }
 
-        auto node = std::make_unique<LiteralNode>(value, SupportedTypes::TYPE_BOOL);
+        auto node = std::make_unique<LiteralNode>(value, Type(SupportedTypes::TYPE_BOOL));
 
         if (visualizeFlag) {
             std::ofstream texFile("AST.tex", std::ios::app);
@@ -393,7 +393,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
 
     if (ctx->FLOAT_LITERAL()) {
         float value = stof(ctx->FLOAT_LITERAL()->getText());
-        auto node = std::make_unique<LiteralNode>(value, SupportedTypes::TYPE_FLOAT);
+        auto node = std::make_unique<LiteralNode>(value, Type(SupportedTypes::TYPE_FLOAT));
 
         if (visualizeFlag) {
             std::ofstream texFile("AST.tex", std::ios::app);
@@ -408,7 +408,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
     }
 
     if (ctx->STRING_LITERAL()) {
-        auto node = std::make_unique<LiteralNode>(ctx->STRING_LITERAL()->getText(), SupportedTypes::TYPE_STRING);
+        auto node = std::make_unique<LiteralNode>(ctx->STRING_LITERAL()->getText(), Type(SupportedTypes::TYPE_STRING));
 
         if (visualizeFlag) {
             std::ofstream texFile("AST.tex", std::ios::app);
@@ -479,7 +479,7 @@ TimeStamp ASTBuilder::visit(TParser::TimeStampContext *ctx) {
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableDecContext *ctx) {
-    SupportedTypes type = visit(ctx->type());
+    Type type = visit(ctx->type());
 
     if (visualizeFlag) {
         std::ofstream texFile("AST.tex", std::ios::app);
@@ -496,7 +496,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableDecContext *ctx) {
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableAssignContext *ctx) {
     std::string varName;
-    SupportedTypes type;
+    Type type;
     std::string typeString;
     std::unique_ptr<ASTNode> assign;
 
@@ -507,14 +507,14 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableAssignContext *ctx) 
         typeString = ctx->variableDec()->type()->getText();
     } else {
         varName = ctx->IDENTIFIER()->getText();
-        type = SupportedTypes::TYPE_VOID;
+        type = Type(SupportedTypes::TYPE_VOID);
     }
 
     if (visualizeFlag) {
         // Node information
         std::ofstream texFile("AST.tex", std::ios::app);
 
-        if (type == SupportedTypes::TYPE_VOID) {
+        if (type.type == SupportedTypes::TYPE_VOID) {
             texFile << "[{" << varName << "},variableAssignNode" << std::endl;
         } else {
             texFile << "[{" << typeString << " " << varName << "},variableAssignNode" << std::endl;
@@ -536,7 +536,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableAssignContext *ctx) 
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDefinitionContext *ctx) {
     std::string id = ctx->IDENTIFIER()->getText();
-    SupportedTypes type = visit(ctx->type());
+    Type type = visit(ctx->type());
 
     if (visualizeFlag) {
         // Node information
@@ -553,7 +553,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDefinitionContext *c
     if (ctx->params() != nullptr && !ctx->params()->isEmpty()) {
         for (int i = 0; i < ctx->params()->IDENTIFIER().size(); i++) {
             std::string id = ctx->params()->IDENTIFIER(i)->getText();
-            SupportedTypes type = visit(ctx->params()->type(i));
+            Type type = visit(ctx->params()->type(i));
 
             params.emplace_back(std::make_unique<VariableDecNode>(type, id));
         }
@@ -574,7 +574,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDefinitionContext *c
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDeclarationContext *ctx) {
     std::string id = ctx->IDENTIFIER()->getText();
-    SupportedTypes type = visit(ctx->type());
+    Type type = visit(ctx->type());
 
     if (visualizeFlag) {
         // Node information
@@ -585,7 +585,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDeclarationContext *
         texFile.close();
     }
 
-    std::vector<SupportedTypes> params;
+    std::vector<Type> params;
     if (ctx->params() != nullptr && !ctx->params()->isEmpty()) {
         params = visit(ctx->params());
     }
@@ -670,8 +670,8 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Return_stmtContext *ctx) {
     }
 }
 
-std::vector<SupportedTypes> ASTBuilder::visit(TParser::ParamsContext *ctx) {
-    std::vector<SupportedTypes> params;
+std::vector<Type> ASTBuilder::visit(TParser::ParamsContext *ctx) {
+    std::vector<Type> params;
 
     // Visits all the types
     for (int i = 0; i < ctx->type().size(); i++) {
@@ -745,22 +745,26 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ElseContext *ctx) {
     return node;
 }
 
-SupportedTypes ASTBuilder::visit(TParser::TypeContext *ctx) {
+Type ASTBuilder::visit(TParser::TypeContext *ctx) {
     // Type dispatch from tokens to Supported types
     if (ctx->TYPE_INT())
-        return SupportedTypes::TYPE_INT;
+        return Type(SupportedTypes::TYPE_INT);
     if (ctx->TYPE_FLOAT())
-        return SupportedTypes::TYPE_FLOAT;
+        return Type(SupportedTypes::TYPE_FLOAT);
     if (ctx->TYPE_CHAR())
-        return SupportedTypes::TYPE_CHAR;
+        return Type(SupportedTypes::TYPE_CHAR);
     if (ctx->TYPE_STRING())
-        return SupportedTypes::TYPE_STRING;
+        return Type(SupportedTypes::TYPE_STRING);
     if (ctx->TYPE_BOOLEAN())
-        return SupportedTypes::TYPE_BOOL;
+        return Type(SupportedTypes::TYPE_BOOL);
     if (ctx->TYPE_VOID())
-        return SupportedTypes::TYPE_VOID;
+        return Type(SupportedTypes::TYPE_VOID);
     if (ctx->TYPE_TIME())
-        return SupportedTypes::TYPE_TIME;
+        return Type(SupportedTypes::TYPE_TIME);
+    if (ctx->TYPE_PTR()) {
+        Type t = visit(ctx->type());
+        return Type(SupportedTypes::TYPE_PTR, new Type(t));
+    }
 
     throw std::runtime_error("Not a valid type");
 }
@@ -865,7 +869,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventDefContext *ctx) {
     if (ctx->params() != nullptr && !ctx->params()->isEmpty()) {
         for (int i = 0; i < ctx->params()->IDENTIFIER().size(); i++) {
             std::string id = ctx->params()->IDENTIFIER(i)->getText();
-            SupportedTypes type = visit(ctx->params()->type(i));
+            Type type = visit(ctx->params()->type(i));
 
             params.emplace_back(std::make_unique<VariableDecNode>(type, id));
         }

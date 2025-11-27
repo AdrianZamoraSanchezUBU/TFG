@@ -97,6 +97,7 @@ type
 	| TYPE_BOOLEAN
 	| TYPE_VOID
 	| TYPE_TIME
+	| TYPE_PTR type
 	;
 
 boolean_literal 

@@ -19,8 +19,12 @@ llvm::Value *IRGenerator::visit(CodeBlockNode &node) {
     return nullptr;
 }
 
-llvm::Type *IRGenerator::getLlvmType(SupportedTypes type) {
-    switch (type) {
+llvm::Type *IRGenerator::getLlvmType(Type type) {
+    if (type.base && type.type == SupportedTypes::TYPE_PTR) {
+        return llvm::PointerType::getUnqual(getLlvmType(*type.base));
+    }
+
+    switch (type.type) {
     case SupportedTypes::TYPE_INT:
         return llvm::Type::getInt32Ty(ctx.IRContext);
     case SupportedTypes::TYPE_FLOAT:
@@ -43,7 +47,7 @@ llvm::Type *IRGenerator::getLlvmType(SupportedTypes type) {
 llvm::Value *IRGenerator::visit(LiteralNode &node) {
     std::variant<int, float, char, std::string, bool> value = node.getVariantValue();
 
-    switch (node.getType()) {
+    switch (node.getType().getSupportedType()) {
     case SupportedTypes::TYPE_FLOAT: {
         float v = std::get<float>(value);
 
@@ -91,7 +95,7 @@ llvm::Value *IRGenerator::visit(TimeLiteralNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
-    SupportedTypes operationType = node.getType();
+    Type operationType = node.getType();
 
     // Left and Right child nodes visit
     llvm::Value *L, *R;
@@ -254,7 +258,7 @@ llvm::Value *IRGenerator::visit(VariableRefNode &node) {
     }
 
     // Returning a direct value
-    if (llvm::isa<llvm::Constant>(alloc)) {
+    if (llvm::isa<llvm::Constant>(alloc) || symbol->isPtr()) {
         return alloc;
     }
 

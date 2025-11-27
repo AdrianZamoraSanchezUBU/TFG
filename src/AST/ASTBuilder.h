@@ -9,7 +9,6 @@
 
 #pragma once
 #include "AST.h"
-#include "SupportedTypes.h"
 #include "TParser.h"
 
 // Forward declaration
@@ -131,7 +130,7 @@ class ASTBuilder {
      * @param ctx Variable assignment context.
      * @return AST node associated the params.
      */
-    std::vector<SupportedTypes> visit(TParser::ParamsContext *ctx);
+    std::vector<Type> visit(TParser::ParamsContext *ctx);
 
     /**
      * @brief Visit a function definition node.
@@ -178,9 +177,9 @@ class ASTBuilder {
     /**
      * @brief Visits the type context of a variable declaration.
      * @param ctx Type context in a variable declaration.
-     * @return SupportedTypes A supported type representing the token value.
+     * @return Type A supported type representing the token value.
      */
-    static SupportedTypes visit(TParser::TypeContext *ctx);
+    static Type visit(TParser::TypeContext *ctx);
 
     /**
      * @brief Visits the type context of a loop statement.

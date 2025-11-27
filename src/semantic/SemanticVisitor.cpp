@@ -61,7 +61,7 @@ void *SemanticVisitor::visit(TimeLiteralNode &node) {
 
 void *SemanticVisitor::visit(BinaryExprNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
-    SupportedTypes LT, RT;
+    Type LT, RT;
 
     /* Propagation of the type */
     node.getLeft()->accept(*this);
@@ -77,10 +77,10 @@ void *SemanticVisitor::visit(BinaryExprNode &node) {
 
     // Getting the type of the time literal nodes
     if (auto left = dynamic_cast<TimeLiteralNode *>(node.getLeft())) {
-        LT = SupportedTypes::TYPE_TIME;
+        LT = Type(SupportedTypes::TYPE_TIME);
     }
     if (auto right = dynamic_cast<TimeLiteralNode *>(node.getRight())) {
-        RT = SupportedTypes::TYPE_TIME;
+        RT = Type(SupportedTypes::TYPE_TIME);
     }
 
     // Getting the type of the variables
@@ -134,8 +134,10 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
             sym = currentScope->getSymbol(node.getValue());
 
         // Check for identifier variable status
-        if (sym->getCategory() != SymbolCategory::VARIABLE) {
-            throw std::runtime_error("Missing declaration for a identifier used in a variable assignment");
+        if (sym->getCategory() != SymbolCategory::VARIABLE && sym->getCategory() != SymbolCategory::POINTER &&
+            sym->getCategory() != SymbolCategory::PARAMETER) {
+            throw std::runtime_error("Missing declaration for the identifier " + sym->getID() +
+                                     " used in a variable assignment");
         }
 
         return nullptr;
@@ -143,14 +145,14 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
 
     /* Type check for variable dec + assign */
     if (auto val = dynamic_cast<BinaryExprNode *>(node.getAssign())) {
-        if (val->getType() != node.getType()) {
+        if (val->getType() != node.getType().getSupportedType()) {
             return nullptr;
             throw std::runtime_error("Variable assign with incompatible types, expr: " + typeToString(val->getType()) +
                                      " and variable being assign has: " + typeToString(node.getType()));
         }
     }
     if (auto val = dynamic_cast<LiteralNode *>(node.getAssign())) {
-        if (val->getType() != node.getType()) {
+        if (val->getType() != node.getType().getSupportedType()) {
             return nullptr;
             throw std::runtime_error(
                 "Variable assign with incompatible types for value: " + typeToString(val->getType()) +
@@ -158,17 +160,17 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
         }
     }
     if (auto val = dynamic_cast<TimeLiteralNode *>(node.getAssign())) {
-        if (node.getType() != SupportedTypes::TYPE_TIME) {
+        if (node.getType().getSupportedType() != SupportedTypes::TYPE_TIME) {
             return nullptr;
             throw std::runtime_error(
-                "Variable assign with incompatible types for value: " + typeToString(SupportedTypes::TYPE_TIME) +
+                "Variable assign with incompatible types for value: " + typeToString(Type(SupportedTypes::TYPE_TIME)) +
                 " ,to a varianble declarated as: " + typeToString(node.getType()));
         }
     }
     if (auto val = dynamic_cast<VariableRefNode *>(node.getAssign())) {
         Symbol sym = *currentScope->getSymbol(val->getValue());
 
-        if (sym.getType() != node.getType()) {
+        if (sym.getType() != node.getType().getSupportedType()) {
             return nullptr;
             throw std::runtime_error(
                 "Variable assign with incompatible types for value: " + typeToString(sym.getType()) +
@@ -178,7 +180,7 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
     if (auto val = dynamic_cast<FunctionCallNode *>(node.getAssign())) {
         Symbol sym = *currentScope->getSymbol(val->getValue());
 
-        if (sym.getType() != node.getType()) {
+        if (sym.getType() != node.getType().getSupportedType()) {
             return nullptr;
             throw std::runtime_error(
                 "Variable assign with incompatible types for value: " + typeToString(sym.getType()) +
@@ -365,7 +367,7 @@ void *SemanticVisitor::visit(EventNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
 
     // Inserts the event identifier in the current scope
-    Symbol newSymbol(node.getValue(), &node, SymbolCategory::FUNCTION, SupportedTypes::TYPE_VOID);
+    Symbol newSymbol(node.getValue(), &node, SymbolCategory::FUNCTION, Type(SupportedTypes::TYPE_VOID));
     newSymbol.setNumParams(node.getParamsCount());
     currentScope->insertSymbol(newSymbol);
 

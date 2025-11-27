@@ -21,6 +21,18 @@ std::string Symbol::print() const {
     return cat;
 };
 
+bool Symbol::isPtr() const {
+    if (type.base) {
+        return true;
+    }
+
+    return false;
+};
+
+SupportedTypes Symbol::getType() const {
+    return type.getSupportedType();
+};
+
 bool Scope::contains(const std::string &id) {
     // Look for the id in this Scope
     if (symbols.find(id) != symbols.end()) {
@@ -64,7 +76,7 @@ void Scope::print() const {
 
     // Prints the pairs {key,symbol} in the map
     for (const auto &[key, symbol] : symbols) {
-        std::cout << "- {Key: " << key << ",(" << symbol.print() << "," << typeToString(symbol.getType()) << ")}"
-                  << std::endl;
+        std::cout << "- {Key: " << key << ",(" << symbol.print() << "," << supportedTypeToString(symbol.getType())
+                  << ")}" << std::endl;
     }
 };
