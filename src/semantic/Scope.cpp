@@ -18,7 +18,7 @@ std::string Symbol::print() const {
         break;
     }
 
-    return cat;
+    return ID + " " + cat + " " + typeToString(type);
 };
 
 bool Symbol::isPtr() const {
@@ -76,7 +76,6 @@ void Scope::print() const {
 
     // Prints the pairs {key,symbol} in the map
     for (const auto &[key, symbol] : symbols) {
-        std::cout << "- {Key: " << key << ",(" << symbol.print() << "," << supportedTypeToString(symbol.getType())
-                  << ")}" << std::endl;
+        std::cout << "- {Key: " << key << ",(" << symbol.print() << ")}" << std::endl;
     }
 };

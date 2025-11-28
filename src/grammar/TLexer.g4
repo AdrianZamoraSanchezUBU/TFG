@@ -30,7 +30,7 @@ TYPE_CHAR    : 'char'   ;
 TYPE_STRING  : 'string' ;
 TYPE_BOOLEAN : 'bool'   ;
 TYPE_VOID    : 'void'   ;
-TYPE_PTR     : 'ptr'    ;
+TYPE_PTR     : 'ref'    ;
 TYPE_TIME    : 'time'   ;
 
 BOOL_TRUE_LITERAL  : 'true'  ;

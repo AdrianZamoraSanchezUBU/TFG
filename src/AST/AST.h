@@ -515,16 +515,28 @@ class VariableAssignNode : public ASTNode {
  */
 class VariableRefNode : public ASTNode {
     std::string identifier;
+    bool ref = false;
 
   public:
     /**
      * @brief Constructor for VariableRef node.
      * @param id Name of this reference.
      */
-    explicit VariableRefNode(const std::string &id) : identifier(id){};
+    explicit VariableRefNode(const std::string &id) : identifier(id), ref(false){};
+
+    /**
+     * @brief Constructor for VariableRef node.
+     * @param id Name of this reference.
+     */
+    explicit VariableRefNode(const std::string &id, bool b) : identifier(id), ref(b){};
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return identifier; }
+
+    /**
+     * @brief Returns true if this variable ref is a pointer, false otherwise.
+     */
+    bool isRef() const { return ref; }
 
     /// @copydoc ASTNode::print
     void print() const override { std::cout << "VAIRABLE REFERENCE NODE: " << getValue() << std::endl; }

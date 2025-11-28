@@ -328,7 +328,20 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LogicalExprContext *ctx) {
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::OperandExprContext *ctx) {
     auto operand = ctx->operand();
 
-    // Checks if the operand is a identifier (variable) or a literal
+    // Checks if the operand is a reference to a identifier (variable)
+    if (operand->TYPE_PTR()) {
+        if (visualizeFlag) {
+            std::ofstream texFile("AST.tex", std::ios::app);
+
+            // Node information
+            texFile << "[{" << "ptr->" + operand->IDENTIFIER()->getText() << "},varRefNode]" << std::endl;
+
+            texFile.close();
+        }
+        return std::make_unique<VariableRefNode>(operand->IDENTIFIER()->getText(), true);
+    }
+
+    // Checks if the operand is a identifier (variable)
     if (operand->IDENTIFIER()) {
         if (visualizeFlag) {
             std::ofstream texFile("AST.tex", std::ios::app);
@@ -341,10 +354,12 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::OperandExprContext *ctx) {
         return std::make_unique<VariableRefNode>(operand->IDENTIFIER()->getText());
     }
 
+    // Checks if the operand is a literal value
     if (operand->literal()) {
         return visit(operand->literal());
     }
 
+    // Checks if the operand is a function call
     if (operand->functionCall()) {
         return visit(operand->functionCall());
     }
@@ -553,7 +568,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDefinitionContext *c
     if (ctx->params() != nullptr && !ctx->params()->isEmpty()) {
         for (int i = 0; i < ctx->params()->IDENTIFIER().size(); i++) {
             std::string id = ctx->params()->IDENTIFIER(i)->getText();
-            Type type = visit(ctx->params()->type(i));
+            Type type = visit(ctx->params()->paramType(i));
 
             params.emplace_back(std::make_unique<VariableDecNode>(type, id));
         }
@@ -606,7 +621,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionCallContext *ctx) {
         texFile.close();
     }
 
-    // Visits all the types
+    // Visits all the params
     for (int i = 0; i < ctx->expr().size(); i++) {
         if (visualizeFlag) {
             // Node information
@@ -674,8 +689,8 @@ std::vector<Type> ASTBuilder::visit(TParser::ParamsContext *ctx) {
     std::vector<Type> params;
 
     // Visits all the types
-    for (int i = 0; i < ctx->type().size(); i++) {
-        params.emplace_back(visit(ctx->type(i)));
+    for (int i = 0; i < ctx->paramType().size(); i++) {
+        params.emplace_back(visit(ctx->paramType(i)));
     }
 
     return params;
@@ -759,8 +774,24 @@ Type ASTBuilder::visit(TParser::TypeContext *ctx) {
         return Type(SupportedTypes::TYPE_BOOL);
     if (ctx->TYPE_VOID())
         return Type(SupportedTypes::TYPE_VOID);
-    if (ctx->TYPE_TIME())
-        return Type(SupportedTypes::TYPE_TIME);
+
+    throw std::runtime_error("Not a valid type");
+}
+
+Type ASTBuilder::visit(TParser::ParamTypeContext *ctx) {
+    // Type dispatch from tokens to Supported types
+    if (ctx->TYPE_INT())
+        return Type(SupportedTypes::TYPE_INT);
+    if (ctx->TYPE_FLOAT())
+        return Type(SupportedTypes::TYPE_FLOAT);
+    if (ctx->TYPE_CHAR())
+        return Type(SupportedTypes::TYPE_CHAR);
+    if (ctx->TYPE_STRING())
+        return Type(SupportedTypes::TYPE_STRING);
+    if (ctx->TYPE_BOOLEAN())
+        return Type(SupportedTypes::TYPE_BOOL);
+    if (ctx->TYPE_VOID())
+        return Type(SupportedTypes::TYPE_VOID);
     if (ctx->TYPE_PTR()) {
         Type t = visit(ctx->type());
         return Type(SupportedTypes::TYPE_PTR, new Type(t));
@@ -869,7 +900,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventDefContext *ctx) {
     if (ctx->params() != nullptr && !ctx->params()->isEmpty()) {
         for (int i = 0; i < ctx->params()->IDENTIFIER().size(); i++) {
             std::string id = ctx->params()->IDENTIFIER(i)->getText();
-            Type type = visit(ctx->params()->type(i));
+            Type type = visit(ctx->params()->paramType(i));
 
             params.emplace_back(std::make_unique<VariableDecNode>(type, id));
         }

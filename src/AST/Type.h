@@ -43,20 +43,6 @@ struct Type {
  * @brief Returns a string with a type representation.
  * @return String representation of the type.
  */
-inline std::string typeToString(Type type) {
-    // In case of pointer returns a "ptr->" string before the type
-    if (type.base != nullptr) {
-        return "ptr->" + typeToString(*type.base);
-    }
-
-    // Returns the supported type in string format
-    return supportedTypeToString(type.type);
-}
-
-/**
- * @brief Returns a string with a type representation.
- * @return String representation of the type.
- */
 inline std::string supportedTypeToString(SupportedTypes type) {
     switch (type) {
     case SupportedTypes::TYPE_INT:
@@ -76,4 +62,18 @@ inline std::string supportedTypeToString(SupportedTypes type) {
     default:
         return "UnknownType";
     }
+}
+
+/**
+ * @brief Returns a string with a type representation.
+ * @return String representation of the type.
+ */
+inline std::string typeToString(Type type) {
+    // In case of pointer returns a "ptr->" string before the type
+    if (type.base != nullptr) {
+        return "ptr->" + typeToString(*type.base);
+    }
+
+    // Returns the supported type in string format
+    return supportedTypeToString(type.type);
 }

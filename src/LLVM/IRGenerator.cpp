@@ -367,6 +367,14 @@ llvm::Value *IRGenerator::visit(FunctionCallNode &node) {
             symb = symtab.getCurrentScope()->getSymbol(node.getParam(i)->getValue());
         }
 
+        // Usage of a reference instead of direct value
+        if (auto varRef = dynamic_cast<VariableRefNode *>(node.getParam(i))) {
+            if (varRef->isRef()) {
+                args.push_back(symb->getLlvmValue());
+                continue;
+            }
+        }
+
         // Expressions, strings and literal values are generated here
         argVal = node.getParam(i)->accept(*this);
         args.push_back(argVal);

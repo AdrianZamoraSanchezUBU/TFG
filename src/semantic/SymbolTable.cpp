@@ -17,7 +17,11 @@ void SymbolTable::exitScope() {
 }
 
 std::shared_ptr<Scope> SymbolTable::getScopeByID(int id) {
-    return scopes[id];
+    if (scopes[id]) {
+        return scopes[id];
+    }
+
+    throw std::runtime_error("Error: can not access a scope with id: " + std::to_string(id));
 }
 
 void SymbolTable::print() const {

@@ -45,6 +45,7 @@ comparisonOperator
 operand
 	: literal
 	| IDENTIFIER
+	| TYPE_PTR IDENTIFIER
 	| functionCall
 	;
 
@@ -69,7 +70,7 @@ functionDeclaration: type FUNCTION IDENTIFIER LPAREN params? RPAREN  ;
 
 functionCall: IDENTIFIER LPAREN (expr (COMMA expr)*)? RPAREN ;
 
-params: type IDENTIFIER (COMMA type IDENTIFIER)* ;
+params: paramType IDENTIFIER (COMMA paramType IDENTIFIER)* ;
 
 if: IF LPAREN expr RPAREN block (ELSE else)?;
 
@@ -90,6 +91,16 @@ loopControlStatement
 
 
 type
+	: TYPE_INT
+	| TYPE_FLOAT
+	| TYPE_CHAR
+	| TYPE_STRING
+	| TYPE_BOOLEAN
+	| TYPE_VOID
+	| TYPE_TIME
+	;
+
+paramType
 	: TYPE_INT
 	| TYPE_FLOAT
 	| TYPE_CHAR

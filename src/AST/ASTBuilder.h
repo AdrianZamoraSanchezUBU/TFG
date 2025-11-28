@@ -182,6 +182,13 @@ class ASTBuilder {
     static Type visit(TParser::TypeContext *ctx);
 
     /**
+     * @brief Visits the type context of a parameter declaration.
+     * @param ctx Type context in a parameter declaration.
+     * @return Type A supported type representing the token value.
+     */
+    static Type visit(TParser::ParamTypeContext *ctx);
+
+    /**
      * @brief Visits the type context of a loop statement.
      * @param ctx Context of a loop statement.
      * @return AST node associated with the else statement.
