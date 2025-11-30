@@ -7,3 +7,5 @@ if(3 < 2){
 } else {
     int d;
 }
+
+return 1;

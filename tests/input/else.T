@@ -3,3 +3,5 @@ if(3 < 2){
 } else {
     int b;
 }
+
+return 0;

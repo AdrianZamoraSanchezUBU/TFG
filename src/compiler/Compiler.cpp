@@ -1,5 +1,166 @@
 #include "Compiler.h"
 
+/**
+ * @brief Adds the TickZ styles for the AST visualization.
+ * @return string with the styles.
+ */
+std::string includeTikzStyles() {
+    return R"(
+\tikzset{
+    programNode/.style={
+        draw, 
+        circle, 
+        fill=purple!20!white,
+        outer sep=2pt, 
+        minimum size=2.5em,
+        align=center
+    },
+    binaryNode/.style={
+        draw, 
+        diamond, 
+        fill=yellow!25!white, 
+        aspect=2, 
+        minimum size=3em,
+        align=center
+    },
+    literalNode/.style={
+        draw, 
+        ellipse, 
+        fill=green!20!white, 
+        minimum width=3.5em,
+        minimum height=2.5em, 
+        align=center
+    },
+    variableDecNode/.style={
+        draw, 
+        rectangle, 
+        fill=cyan!15!white, 
+        minimum size=3.5em,
+        minimum width=4.5em,
+        minimum height=2.8em, 
+        align=center
+    },
+    varRefNode/.style={
+        draw, 
+        rectangle, 
+        fill=green!10!white, 
+        minimum size=3.5em,
+        minimum width=4.5em,
+        minimum height=2.8em, 
+        align=center
+    },variableAssignNode/.style={
+        draw, 
+        rectangle, 
+        fill=violet!20!white, 
+        minimum size=3.5em,
+        minimum width=4.5em,
+        minimum height=2.8em, 
+        align=center
+    },returnNode/.style={
+        draw, 
+        rectangle, 
+        fill=violet, 
+        minimum size=3.5em,
+        minimum width=4.5em,
+        minimum height=2.8em, 
+        align=center
+    },functionDecNode/.style={
+        draw, 
+        regular polygon, 
+        regular polygon sides=5, 
+        fill=teal!25!white, 
+        minimum size=3.5em,
+        minimum width=4.5em,
+        minimum height=2.8em, 
+        align=center
+    },functionDefNode/.style={
+        draw, 
+        regular polygon, 
+        regular polygon sides=6, 
+        fill=teal!25!white, 
+        minimum size=3.5em,
+        minimum width=4.5em,
+        minimum height=2.8em, 
+        align=center
+    },functionCallNode/.style={
+        draw, 
+        regular polygon,
+        regular polygon sides=3, 
+        fill=brown!20!white, 
+        minimum size=3.5em,
+        minimum width=4.5em,
+        minimum height=2.8em, 
+        align=center
+    },paramsNode/.style={
+        draw, 
+        rectangle, 
+        fill=orange!10!white, 
+        minimum size=2.5em,
+        minimum width=2.5em,
+        minimum height=2em, 
+        align=center
+    },IfNode/.style={
+        draw, 
+        rectangle, 
+        fill=violet!10!white, 
+        minimum size=2.7em,
+        minimum width=3.2em,
+        minimum height=2.2em, 
+        align=center
+    },ElseNode/.style={
+        draw, 
+        rectangle, 
+        fill=violet!10!white, 
+        minimum size=2.7em,
+        minimum width=3.2em,
+        minimum height=2.2em, 
+        align=center
+    },LoopNode/.style={
+        draw, 
+        regular polygon,
+        regular polygon sides=3, 
+        fill=red!20!white, 
+        minimum size=3.5em,
+        minimum width=4.5em,
+        minimum height=2.8em, 
+        align=center
+    }
+})";
+}
+
+/**
+ * @brief Adds a header for the .tex output file when visualizing the AST.
+ * @return string with the header.
+ */
+std::string includeTexHeader() {
+    return R"(
+\documentclass[border=5mm]{standalone}
+
+\usepackage{bbding}
+\usepackage{tikz,tikz-qtree,tikz-qtree-compat}
+\usepackage{amssymb}
+\usepackage{forest}
+
+\usetikzlibrary{shapes}
+\usetikzlibrary{positioning}
+)" + includeTikzStyles() +
+           R"(
+\newcommand{\sep}{-.1mm}
+
+\begin{document}
+
+\begin{forest}
+    for tree={
+    align=center,
+    parent anchor=south,
+    child anchor=north,
+    s sep=30pt,
+    l sep=10pt,
+    inner sep=1pt,
+    }
+[Program,programNode)";
+}
+
 void Compiler::lex() {
     // Reads the input file and generates the lexer
     std::string fileContent = readFile(flags.inputFile);
@@ -51,8 +212,35 @@ void Compiler::parse() {
     TParser::ProgramContext *programCtx = parser.program();
 
     // AST generation process
-    ASTBuilder builder(flags.visualizeAST || flags.debug);
+    ASTBuilder builder;
     ast = builder.visit(programCtx);
+
+    if (flags.visualizeAST || flags.debug) {
+        // File clearing
+        std::ofstream texFile("AST.tex", std::ios::trunc);
+        if (!texFile.is_open()) {
+            throw std::runtime_error("Couldn't open the AST.tex");
+        }
+        texFile.close();
+
+        // File opening in append mode
+        texFile.open("AST.tex", std::ios::app);
+        if (!texFile.is_open()) {
+            throw std::runtime_error("Couldn't open the AST.tex file for appending");
+        }
+
+        // Tex file header and styles
+        texFile << includeTexHeader() << std::endl;
+
+        texFile << ast->print() << std::endl;
+
+        // Tex footer file
+        texFile << "]" << std::endl;
+        texFile << R"(\end{forest})" << std::endl;
+        texFile << R"(\end{document})" << std::endl;
+
+        texFile.close();
+    }
 
     // xelatex compilation and cleaning
     if (std::system("xelatex --version > /dev/null 2>&1") == 0 && (flags.visualizeAST || flags.debug)) {

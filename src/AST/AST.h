@@ -1,6 +1,6 @@
 /**
  * @file AST.h
- * @brief Contains the definition of the Abstract Syntax Tree (AST).
+ * @brief Contains the definition of the Abstract Syntax Tree (AST) nodes.
  *
  * @author Adrián Zamora Sánchez
  */
@@ -8,6 +8,7 @@
 #pragma once
 #include "TimeStamp.h"
 #include "Type.h"
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -65,7 +66,7 @@ class ASTNode {
     /**
      * @brief Prints data about this node
      */
-    virtual void print() const = 0;
+    virtual std::string print() const = 0;
 };
 
 /**
@@ -115,12 +116,13 @@ class CodeBlockNode : public ASTNode {
     }
 
     /// @copydoc ASTNode::print
-    void print() const override {
-        std::cout << "CODE BLOCK:" << std::endl;
-
+    std::string print() const override {
+        std::string blockString;
         for (int i = 0; i < getStmtCount(); i++) {
-            getStmt(i)->print();
+            blockString.append(getStmt(i)->print());
         }
+
+        return blockString;
     }
 
     /// @copydoc ASTNode::accept(SemanticVisitor &)
@@ -179,7 +181,18 @@ class LiteralNode : public ASTNode {
     }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "LITERAL NODE: " << getValue() << std::endl; }
+    std::string print() const override {
+        std::string text = getValue();
+
+        // replacing % for \\% in order to fit printf macros
+        size_t pos = 0;
+        while ((pos = text.find('%', pos)) != std::string::npos) {
+            text.replace(pos, 1, "\\%");
+            pos += 2;
+        }
+
+        return "\n[{" + text + "},literalNode]";
+    }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -242,7 +255,7 @@ class TimeLiteralNode : public ASTNode {
     void setTime(TimeStamp newTimeType) { type = newTimeType; }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "LITERAL TIME NODE: " << getValue() << std::endl; }
+    std::string print() const override { return getValue(); }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -326,11 +339,7 @@ class BinaryExprNode : public ASTNode {
     }
 
     /// @copydoc ASTNode::print
-    void print() const override {
-        std::cout << "BINARY EXPR NODE: " << getValue() << std::endl;
-        left->print();
-        right->print();
-    }
+    std::string print() const override { return "\n[{" + op + "},binaryNode" + left->print() + right->print() + "]"; }
 
     /// @copydoc ASTNode::accept(SemanticVisitor &)
     void *accept(SemanticVisitor &visitor) override;
@@ -359,11 +368,6 @@ class ReturnNode : public ASTNode {
      */
     explicit ReturnNode(std::unique_ptr<ASTNode> ret) : stmt(std::move(ret)){};
 
-    /**
-     * @brief Constructor for a return statement node without parameters (return;).
-     */
-    explicit ReturnNode(){};
-
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return "RETURN: "; }
 
@@ -373,10 +377,7 @@ class ReturnNode : public ASTNode {
     ASTNode *getStmt() const { return stmt.get(); }
 
     /// @copydoc ASTNode::print
-    void print() const override {
-        std::cout << getValue() << std::endl;
-        stmt.get()->print();
-    }
+    std::string print() const override { return "\n[RETURN,returnNode" + stmt.get()->print() + "]"; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -426,7 +427,7 @@ class VariableDecNode : public ASTNode {
     Type getType() const { return type; }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "VARIABLE DECLARATION NODE: " << getValue() << std::endl; }
+    std::string print() const override { return "\n[{" + typeToString(type) + " " + identifier + "},variableDecNode]"; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -483,9 +484,8 @@ class VariableAssignNode : public ASTNode {
     std::string getValue() const override { return identifier; }
 
     /// @copydoc ASTNode::print
-    void print() const override {
-        std::cout << "VARIABLE ASSIGN NODE: " << getValue() << std::endl;
-        assign->print();
+    std::string print() const override {
+        return "\n[{" + typeToString(type) + " " + identifier + "},variableAssignNode" + assign->print() + "]";
     }
 
     /// @copydoc ASTNode::equals
@@ -539,7 +539,13 @@ class VariableRefNode : public ASTNode {
     bool isRef() const { return ref; }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "VAIRABLE REFERENCE NODE: " << getValue() << std::endl; }
+    std::string print() const override {
+        if (ref) {
+            return "\n[{ptr->" + identifier + "},varRefNode]";
+        }
+
+        return "\n[{" + identifier + "},varRefNode]";
+    }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -597,13 +603,24 @@ class FunctionDecNode : public ASTNode {
     int getParamsCount() const { return paramList.size(); }
 
     /**
+     * @brief Getter for a single params.
+     * @param i Index of the parameter in the paramList.
+     */
+    Type getParam(int i) const { return paramList[i]; }
+
+    /**
      * @brief Getter for params.
      */
     std::vector<Type> getParams() const { return paramList; }
 
     /// @copydoc ASTNode::print
-    void print() const override {
-        std::cout << "FUNCTION DECLARATION NODE: " << typeToString(getType()) << " " << getValue() << std::endl;
+    std::string print() const override {
+        std::string params;
+        for (int i = 0; i < paramList.size(); i++) {
+            params.append(typeToString(getParam(i)));
+        }
+
+        return "\n[{" + identifier + params + "},functionDecNode]";
     }
 
     /// @copydoc ASTNode::equals
@@ -678,9 +695,13 @@ class FunctionDefNode : public ASTNode {
     ASTNode *getParam(int i) const { return paramList[i].get(); }
 
     /// @copydoc ASTNode::print
-    void print() const override {
-        std::cout << "FUNCTION DEFINITION NODE: " << typeToString(getType()) << " " << getValue() << std::endl;
-        codeBlock->print();
+    std::string print() const override {
+        std::string params;
+        for (int i = 0; i < paramList.size(); i++) {
+            params.append(getParam(i)->print());
+        }
+
+        return "\n[" + identifier + ",functionCallNode" + params + codeBlock->print() + "]";
     }
 
     /// @copydoc ASTNode::equals
@@ -738,7 +759,14 @@ class FunctionCallNode : public ASTNode {
     ASTNode *getParam(int i) const { return paramList[i].get(); }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "FUNCTION CALL NODE: " << getValue() << std::endl; }
+    std::string print() const override {
+        std::string params;
+        for (int i = 0; i < paramList.size(); i++) {
+            params.append(getParam(i)->print());
+        }
+
+        return "\n[" + identifier + ",functionCallNode" + params + "]";
+    }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -793,12 +821,11 @@ class IfNode : public ASTNode {
     std::string getValue() const override { return "IF"; }
 
     /// @copydoc ASTNode::print
-    void print() const override {
-        std::cout << "IF NODE: " << std::endl;
-        expr->print();
-        codeBlock->print();
+    std::string print() const override {
         if (elseStmt != nullptr)
-            elseStmt->print();
+            return "\n[IF,IfNode" + expr->print() + codeBlock->print() + elseStmt->print() + "]";
+
+        return "\n[IF,IfNode" + expr->print() + codeBlock->print() + "]";
     }
 
     /// @copydoc ASTNode::equals
@@ -844,10 +871,7 @@ class ElseNode : public ASTNode {
     std::string getValue() const override { return "ELSE"; }
 
     /// @copydoc ASTNode::print
-    void print() const override {
-        std::cout << "ELSE NODE: " << std::endl;
-        stmt->print();
-    }
+    std::string print() const override { return "\n[ELSE,ElseNode" + stmt->print() + "]"; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -898,11 +922,7 @@ class WhileNode : public ASTNode {
     std::string getValue() const override { return "WHILE"; }
 
     /// @copydoc ASTNode::print
-    void print() const override {
-        std::cout << "WHILE NODE: " << std::endl;
-        expr->print();
-        codeBlock->print();
-    }
+    std::string print() const override { return "\n[WHILE ,LoopNode" + expr->print() + codeBlock->print() + "]"; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -969,12 +989,8 @@ class ForNode : public ASTNode {
     std::string getValue() const override { return "FOR"; }
 
     /// @copydoc ASTNode::print
-    void print() const override {
-        std::cout << "FOR LOOP NODE: " << std::endl;
-        def->print();
-        condition->print();
-        assign->print();
-        codeBlock->print();
+    std::string print() const override {
+        return "\n[FOR ,LoopNode" + def->print() + condition->print() + assign->print() + codeBlock->print() + "]";
     }
 
     /// @copydoc ASTNode::equals
@@ -1009,7 +1025,7 @@ class LoopControlStatementNode : public ASTNode {
     std::string getValue() const override { return id; }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "LOOP CONTROL STATEMENT: " << id << std::endl; }
+    std::string print() const override { return "\n[" + getValue() + ", returnNode]"; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -1081,7 +1097,15 @@ class EventNode : public ASTNode {
     std::string getValue() const override { return id; }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "EVENT STATEMENT: " << id << std::endl; }
+    std::string print() const override {
+        std::string params;
+        for (int i = 0; i < paramList.size(); i++) {
+            params.append(getParam(i)->print());
+        }
+
+        return "\n[" + id + " " + timeCommandToString(command) + ", functionDefNode" + params + timeStmt->print() +
+               codeBlock->print() + "]";
+    }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -1115,7 +1139,7 @@ class ExitNode : public ASTNode {
     std::string getValue() const override { return id; }
 
     /// @copydoc ASTNode::print
-    void print() const override { std::cout << "EXIT STATEMENT: " << id << std::endl; }
+    std::string print() const override { return "\n[EXIT" + id + ",returnNode]"; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {

@@ -74,6 +74,8 @@ class Compiler {
     std::shared_ptr<ParserErrorListener> parserErrorListener;
     std::shared_ptr<LexerErrorListener> lexerErrorListener;
 
+    std::ofstream texFile; /// File for AST visualization
+
   public:
     /**
      * @brief Compiler default constructor.

@@ -1,19 +1,29 @@
+/**
+ * @file TimeStamp.h
+ * @brief Time stamp and commands used for modeling time
+ * management in the compiler.
+ *
+ * @author Adrián Zamora Sánchez
+ * @see Type.h
+ * @see AST.h
+ */
+
 #pragma once
 #include <iostream>
 #include <string>
 
-/**
- * @brief Time stamps
- */
+/// Time stamps for time type
 enum TimeStamp { TYPE_TICK, TYPE_SEC, TYPE_MIN, TYPE_HR };
 
-/**
- * @brief Time management commands
- */
+/// Time management commands
 enum TimeCommand { TIME_EVERY, TIME_AT, TIME_AFTER };
 
 /**
- * @brief Generates the string for the time stamp
+ * @brief Generates the string for the time stamp.
+ * @param type Type object.
+ * @return string representation of the type.
+ *
+ * @see Type.h
  */
 inline std::string timeToString(TimeStamp type) {
     switch (type) {
@@ -31,7 +41,9 @@ inline std::string timeToString(TimeStamp type) {
 }
 
 /**
- * @brief Generates the string for the time command
+ * @brief Generates the string for the time command.
+ * @param command TimeCommand object.
+ * @return string representation of the command.
  */
 inline std::string timeCommandToString(TimeCommand command) {
     switch (command) {

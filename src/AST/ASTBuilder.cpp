@@ -1,190 +1,7 @@
 #include "ASTBuilder.h"
 
-/**
- * @brief Adds the TickZ styles for the AST visualization.
- * @return string with the styles.
- * @todo
- */
-std::string includeTikzStyles() {
-    return R"(
-\tikzset{
-    programNode/.style={
-        draw, 
-        circle, 
-        fill=purple!20!white,
-        outer sep=2pt, 
-        minimum size=2.5em,
-        align=center
-    },
-    binaryNode/.style={
-        draw, 
-        diamond, 
-        fill=yellow!25!white, 
-        aspect=2, 
-        minimum size=3em,
-        align=center
-    },
-    literalNode/.style={
-        draw, 
-        ellipse, 
-        fill=green!20!white, 
-        minimum width=3.5em,
-        minimum height=2.5em, 
-        align=center
-    },
-    variableDecNode/.style={
-        draw, 
-        rectangle, 
-        fill=cyan!15!white, 
-        minimum size=3.5em,
-        minimum width=4.5em,
-        minimum height=2.8em, 
-        align=center
-    },
-    varRefNode/.style={
-        draw, 
-        rectangle, 
-        fill=green!10!white, 
-        minimum size=3.5em,
-        minimum width=4.5em,
-        minimum height=2.8em, 
-        align=center
-    },variableAssignNode/.style={
-        draw, 
-        rectangle, 
-        fill=violet!20!white, 
-        minimum size=3.5em,
-        minimum width=4.5em,
-        minimum height=2.8em, 
-        align=center
-    },returnNode/.style={
-        draw, 
-        rectangle, 
-        fill=violet, 
-        minimum size=3.5em,
-        minimum width=4.5em,
-        minimum height=2.8em, 
-        align=center
-    },functionDecNode/.style={
-        draw, 
-        regular polygon, 
-        regular polygon sides=5, 
-        fill=teal!25!white, 
-        minimum size=3.5em,
-        minimum width=4.5em,
-        minimum height=2.8em, 
-        align=center
-    },functionDefNode/.style={
-        draw, 
-        regular polygon, 
-        regular polygon sides=6, 
-        fill=teal!25!white, 
-        minimum size=3.5em,
-        minimum width=4.5em,
-        minimum height=2.8em, 
-        align=center
-    },functionCallNode/.style={
-        draw, 
-        regular polygon,
-        regular polygon sides=3, 
-        fill=brown!20!white, 
-        minimum size=3.5em,
-        minimum width=4.5em,
-        minimum height=2.8em, 
-        align=center
-    },paramsNode/.style={
-        draw, 
-        rectangle, 
-        fill=orange!10!white, 
-        minimum size=2.5em,
-        minimum width=2.5em,
-        minimum height=2em, 
-        align=center
-    },IfNode/.style={
-        draw, 
-        rectangle, 
-        fill=violet!10!white, 
-        minimum size=2.7em,
-        minimum width=3.2em,
-        minimum height=2.2em, 
-        align=center
-    },ElseNode/.style={
-        draw, 
-        rectangle, 
-        fill=violet!10!white, 
-        minimum size=2.7em,
-        minimum width=3.2em,
-        minimum height=2.2em, 
-        align=center
-    },LoopNode/.style={
-        draw, 
-        regular polygon,
-        regular polygon sides=3, 
-        fill=red!20!white, 
-        minimum size=3.5em,
-        minimum width=4.5em,
-        minimum height=2.8em, 
-        align=center
-    }
-})";
-}
-
-/**
- * @brief Adds a header for the .tex output file when visualizing the AST.
- * @return string with the header.
- */
-std::string includeTexHeader() {
-    return R"(
-\documentclass[border=5mm]{standalone}
-
-\usepackage{bbding}
-\usepackage{tikz,tikz-qtree,tikz-qtree-compat}
-\usepackage{amssymb}
-\usepackage{forest}
-
-\usetikzlibrary{shapes}
-\usetikzlibrary{positioning}
-)" + includeTikzStyles() +
-           R"(
-\newcommand{\sep}{-.1mm}
-
-\begin{document}
-
-\begin{forest}
-    for tree={
-    align=center,
-    parent anchor=south,
-    child anchor=north,
-    s sep=30pt,
-    l sep=10pt,
-    inner sep=1pt,
-    }
-[Program,programNode)";
-}
-
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ProgramContext *ctx) {
-
-    // AST visualization argument check
-    if (visualizeFlag) {
-        std::ofstream texFile("AST.tex");
-
-        // Tex file header and styles
-        texFile << includeTexHeader() << std::endl;
-    }
-
     auto entryBlock = visit(ctx->programMainBlock());
-
-    if (visualizeFlag) {
-        std::ofstream texFile("AST.tex", std::ios::app);
-
-        // Tex footer file
-        texFile << "]" << std::endl;
-        texFile << R"(\end{forest})" << std::endl;
-        texFile << R"(\end{document})" << std::endl;
-
-        texFile.close();
-    }
-
     return entryBlock;
 }
 
@@ -269,28 +86,10 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ExprContext *ctx) {
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ArithmeticExprContext *ctx) {
     std::string op = ctx->op->getText();
 
-    if (visualizeFlag) {
-        std::ofstream texFile("AST.tex", std::ios::app);
-
-        // Node information
-        texFile << "[{" << op << "},binaryNode" << std::endl;
-
-        texFile.close();
-    }
-
     auto lhs = visit(ctx->expr(0));
     auto rhs = visit(ctx->expr(1));
 
     auto exprNode = std::make_unique<BinaryExprNode>(op, std::move(lhs), std::move(rhs));
-
-    if (visualizeFlag) {
-        std::ofstream texFile("AST.tex", std::ios::app);
-
-        // Node information
-        texFile << "]" << std::endl;
-
-        texFile.close();
-    }
 
     return exprNode;
 }
@@ -298,60 +97,26 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ArithmeticExprContext *ctx) 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LogicalExprContext *ctx) {
     std::string op = ctx->comparisonOperator()->getText();
 
-    if (visualizeFlag) {
-        std::ofstream texFile("AST.tex", std::ios::app);
-
-        // Node information
-        texFile << "[{" << op << "},binaryNode" << std::endl;
-
-        texFile.close();
-    }
-
     // Child visits
     auto lhs = visit(ctx->expr(0));
     auto rhs = visit(ctx->expr(1));
 
     auto exprNode = std::make_unique<BinaryExprNode>(op, std::move(lhs), std::move(rhs));
 
-    if (visualizeFlag) {
-        std::ofstream texFile("AST.tex", std::ios::app);
-
-        // Node information
-        texFile << "]" << std::endl;
-
-        texFile.close();
-    }
-
     return exprNode;
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::OperandExprContext *ctx) {
     auto operand = ctx->operand();
-
-    // Checks if the operand is a reference to a identifier (variable)
-    if (operand->TYPE_PTR()) {
-        if (visualizeFlag) {
-            std::ofstream texFile("AST.tex", std::ios::app);
-
-            // Node information
-            texFile << "[{" << "ptr->" + operand->IDENTIFIER()->getText() << "},varRefNode]" << std::endl;
-
-            texFile.close();
-        }
-        return std::make_unique<VariableRefNode>(operand->IDENTIFIER()->getText(), true);
-    }
+    bool ref = false;
 
     // Checks if the operand is a identifier (variable)
     if (operand->IDENTIFIER()) {
-        if (visualizeFlag) {
-            std::ofstream texFile("AST.tex", std::ios::app);
+        // Checks if the operand is a reference to a identifier (variable)
+        if (operand->TYPE_PTR())
+            ref = true;
 
-            // Node information
-            texFile << "[{" << operand->IDENTIFIER()->getText() << "},varRefNode]" << std::endl;
-
-            texFile.close();
-        }
-        return std::make_unique<VariableRefNode>(operand->IDENTIFIER()->getText());
+        return std::make_unique<VariableRefNode>(operand->IDENTIFIER()->getText(), ref);
     }
 
     // Checks if the operand is a literal value
@@ -373,15 +138,6 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
         int value = stoi(ctx->NUMBER_LITERAL()->getText());
         auto node = std::make_unique<LiteralNode>(value, Type(SupportedTypes::TYPE_INT));
 
-        if (visualizeFlag) {
-            std::ofstream texFile("AST.tex", std::ios::app);
-
-            // Node information
-            texFile << "[{" << ctx->NUMBER_LITERAL()->getText() << "},literalNode]" << std::endl;
-
-            texFile.close();
-        }
-
         return node;
     }
 
@@ -394,15 +150,6 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
 
         auto node = std::make_unique<LiteralNode>(value, Type(SupportedTypes::TYPE_BOOL));
 
-        if (visualizeFlag) {
-            std::ofstream texFile("AST.tex", std::ios::app);
-
-            // Node information
-            texFile << "[{" << ctx->boolean_literal()->getText() << "},literalNode]" << std::endl;
-
-            texFile.close();
-        }
-
         return node;
     }
 
@@ -410,39 +157,11 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
         float value = stof(ctx->FLOAT_LITERAL()->getText());
         auto node = std::make_unique<LiteralNode>(value, Type(SupportedTypes::TYPE_FLOAT));
 
-        if (visualizeFlag) {
-            std::ofstream texFile("AST.tex", std::ios::app);
-
-            // Node information
-            texFile << "[{" << ctx->FLOAT_LITERAL()->getText() << "},literalNode]" << std::endl;
-
-            texFile.close();
-        }
-
         return node;
     }
 
     if (ctx->STRING_LITERAL()) {
         auto node = std::make_unique<LiteralNode>(ctx->STRING_LITERAL()->getText(), Type(SupportedTypes::TYPE_STRING));
-
-        if (visualizeFlag) {
-            std::ofstream texFile("AST.tex", std::ios::app);
-
-            // Node information
-            std::string text = ctx->STRING_LITERAL()->getText();
-
-            // replacing % for \\% in order to fit printf macros
-            size_t pos = 0;
-            while ((pos = text.find('%', pos)) != std::string::npos) {
-                text.replace(pos, 1, "\\%");
-                pos += 2;
-            }
-
-            texFile << "[{" << text << "},literalNode]" << std::endl;
-
-            texFile.close();
-        }
-
         return node;
     }
 
@@ -467,15 +186,6 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Time_literalContext *ctx) {
     // Time stamp of the time type
     TimeStamp time = visit(ctx->timeStamp());
 
-    if (visualizeFlag) {
-        std::ofstream texFile("AST.tex", std::ios::app);
-
-        // Node information
-        texFile << "[{" + std::to_string(value) + " " + timeToString(time) + "},literalNode]" << std::endl;
-
-        texFile.close();
-    }
-
     return std::make_unique<TimeLiteralNode>(value, time);
 }
 
@@ -496,16 +206,6 @@ TimeStamp ASTBuilder::visit(TParser::TimeStampContext *ctx) {
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableDecContext *ctx) {
     Type type = visit(ctx->type());
 
-    if (visualizeFlag) {
-        std::ofstream texFile("AST.tex", std::ios::app);
-
-        // Node information
-        texFile << "[{" << typeToString(type) << " " << ctx->IDENTIFIER()->getText() << "},variableDecNode]"
-                << std::endl;
-
-        texFile.close();
-    }
-
     return std::make_unique<VariableDecNode>(type, ctx->IDENTIFIER()->getText());
 }
 
@@ -525,26 +225,8 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableAssignContext *ctx) 
         type = Type(SupportedTypes::TYPE_VOID);
     }
 
-    if (visualizeFlag) {
-        // Node information
-        std::ofstream texFile("AST.tex", std::ios::app);
-
-        if (type.type == SupportedTypes::TYPE_VOID) {
-            texFile << "[{" << varName << "},variableAssignNode" << std::endl;
-        } else {
-            texFile << "[{" << typeString << " " << varName << "},variableAssignNode" << std::endl;
-        }
-
-        texFile.close();
-    }
-
     // Visits the expr that gives this variable its value
     assign = visit(ctx->expr());
-
-    if (visualizeFlag) {
-        std::ofstream texFile("AST.tex", std::ios::app);
-        texFile << "]" << std::endl;
-    }
 
     return std::make_unique<VariableAssignNode>(type, varName, std::move(assign));
 }
@@ -553,18 +235,8 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDefinitionContext *c
     std::string id = ctx->IDENTIFIER()->getText();
     Type type = visit(ctx->type());
 
-    if (visualizeFlag) {
-        // Node information
-        std::ofstream texFile("AST.tex", std::ios::app);
-
-        texFile << "[{" << id << "},functionDefNode" << std::endl;
-
-        texFile.close();
-    }
-
-    std::vector<std::unique_ptr<ASTNode>> params;
-
     // Visits all the param types
+    std::vector<std::unique_ptr<ASTNode>> params;
     if (ctx->params() != nullptr && !ctx->params()->isEmpty()) {
         for (int i = 0; i < ctx->params()->IDENTIFIER().size(); i++) {
             std::string id = ctx->params()->IDENTIFIER(i)->getText();
@@ -574,15 +246,11 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDefinitionContext *c
         }
     }
 
+    // Visits the function components
     auto codeBlock = visit(ctx->block());
     auto raw = codeBlock.release();
     auto functionScope = dynamic_cast<CodeBlockNode *>(raw);
     std::unique_ptr<CodeBlockNode> codeBlockPtr(functionScope);
-
-    if (visualizeFlag) {
-        std::ofstream texFile("AST.tex", std::ios::app);
-        texFile << "]" << std::endl;
-    }
 
     return std::make_unique<FunctionDefNode>(id, params, type, std::move(codeBlockPtr));
 }
@@ -590,15 +258,6 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDefinitionContext *c
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDeclarationContext *ctx) {
     std::string id = ctx->IDENTIFIER()->getText();
     Type type = visit(ctx->type());
-
-    if (visualizeFlag) {
-        // Node information
-        std::ofstream texFile("AST.tex", std::ios::app);
-
-        texFile << "[{" << id << "},functionDecNode]" << std::endl;
-
-        texFile.close();
-    }
 
     std::vector<Type> params;
     if (ctx->params() != nullptr && !ctx->params()->isEmpty()) {
@@ -612,77 +271,25 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionCallContext *ctx) {
     std::string id = ctx->IDENTIFIER()->getText();
     std::vector<std::unique_ptr<ASTNode>> params;
 
-    if (visualizeFlag) {
-        // Node information
-        std::ofstream texFile("AST.tex", std::ios::app);
-
-        texFile << "[" << id << ",functionCallNode" << std::endl;
-
-        texFile.close();
-    }
-
     // Visits all the params
     for (int i = 0; i < ctx->expr().size(); i++) {
-        if (visualizeFlag) {
-            // Node information
-            std::ofstream texFile("AST.tex", std::ios::app);
-
-            texFile << "[" << id << " params ,paramsNode" << std::endl;
-
-            texFile.close();
-        }
 
         params.emplace_back(visit(ctx->expr(i)));
-
-        if (visualizeFlag) {
-            // Node information
-            std::ofstream texFile("AST.tex", std::ios::app);
-
-            texFile << "]" << std::endl;
-
-            texFile.close();
-        }
-    }
-
-    if (visualizeFlag) {
-        // Node information
-        std::ofstream texFile("AST.tex", std::ios::app);
-
-        texFile << "]" << std::endl;
-
-        texFile.close();
     }
 
     return std::make_unique<FunctionCallNode>(id, std::move(params));
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Return_stmtContext *ctx) {
-    if (visualizeFlag) {
-        // Node information
-        std::ofstream texFile("AST.tex", std::ios::app);
-
-        texFile << "[return,returnNode" << std::endl;
-
-        texFile.close();
-    }
 
     // Visits the expr that gives this variable its value
-    std::unique_ptr<ASTNode> retVal;
+    std::unique_ptr<ASTNode> retVal = nullptr;
     if (ctx->expr()) {
         retVal = visit(ctx->expr());
     }
 
-    if (visualizeFlag) {
-        std::ofstream texFile("AST.tex", std::ios::app);
-        texFile << "]" << std::endl;
-    }
-
     // Returns a value or void
-    if (ctx->expr()) {
-        return std::make_unique<ReturnNode>(std::move(retVal));
-    } else {
-        return std::make_unique<ReturnNode>();
-    }
+    return std::make_unique<ReturnNode>(std::move(retVal));
 }
 
 std::vector<Type> ASTBuilder::visit(TParser::ParamsContext *ctx) {
@@ -697,13 +304,6 @@ std::vector<Type> ASTBuilder::visit(TParser::ParamsContext *ctx) {
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::IfContext *ctx) {
-    if (visualizeFlag) {
-        // Node information
-        std::ofstream texFile("AST.tex", std::ios::app);
-        texFile << "[IF,IfNode" << std::endl;
-        texFile.close();
-    }
-
     // Expr for entering the if code block
     auto expr = visit(ctx->expr());
 
@@ -711,9 +311,8 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::IfContext *ctx) {
     auto block = visit(ctx->block());
     auto ifBlock = std::unique_ptr<CodeBlockNode>(static_cast<CodeBlockNode *>(block.release()));
 
-    std::unique_ptr<ASTNode> ifNode;
-
     // Vistis a else statement if there is one present
+    std::unique_ptr<ASTNode> ifNode;
     if (ctx->else_()) {
         auto elseStmt = visit(ctx->else_());
         ifNode = std::make_unique<IfNode>(std::move(expr), std::move(ifBlock), std::move(elseStmt));
@@ -721,43 +320,101 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::IfContext *ctx) {
         ifNode = std::make_unique<IfNode>(std::move(expr), std::move(ifBlock));
     }
 
-    if (visualizeFlag) {
-        std::ofstream texFile("AST.tex", std::ios::app);
-        texFile << "]" << std::endl;
-    }
-
     return std::move(ifNode);
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ElseContext *ctx) {
-    if (visualizeFlag) {
-        // Node information
-        std::ofstream texFile("AST.tex", std::ios::app);
-        texFile << "[ELSE,ElseNode" << std::endl;
-        texFile.close();
-    }
-
+    // Vistis a nested else if statement or the else block
     std::unique_ptr<ASTNode> node;
-
-    // Vistis a nested else if statement
     if (ctx->if_()) {
         auto ifStmt = visit(ctx->if_());
         node = std::make_unique<ElseNode>(std::move(ifStmt));
-    }
-
-    // Vistis the else block
-    if (ctx->block()) {
+    } else if (ctx->block()) {
         auto block = visit(ctx->block());
         node = std::make_unique<ElseNode>(std::move(block));
     }
 
-    if (visualizeFlag) {
-        std::ofstream texFile("AST.tex", std::ios::app);
-        texFile << "]" << std::endl;
-        texFile.close();
+    return node;
+}
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopContext *ctx) {
+    std::unique_ptr<ASTNode> loop;
+
+    // Visit the loop
+    if (ctx->WHILE()) {
+        // Visits the loop components
+        auto expr = visit(ctx->expr());
+        auto block = visit(ctx->block());
+        auto whileBlock = std::unique_ptr<CodeBlockNode>(static_cast<CodeBlockNode *>(block.release()));
+
+        loop = std::make_unique<WhileNode>(std::move(expr), std::move(whileBlock));
+    } else if (ctx->FOR()) {
+        // Visits the loop components
+        auto def = visit(ctx->variableAssign(0));
+        auto condition = visit(ctx->expr());
+        auto assign = visit(ctx->variableAssign(1));
+
+        // Visits the loop block
+        auto block = visit(ctx->block());
+        auto forBlock = std::unique_ptr<CodeBlockNode>(static_cast<CodeBlockNode *>(block.release()));
+
+        loop = std::make_unique<ForNode>(std::move(def), std::move(condition), std::move(assign), std::move(forBlock));
     }
 
-    return node;
+    return loop;
+};
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopControlStatementContext *ctx) {
+    return std::make_unique<LoopControlStatementNode>(ctx->getText());
+}
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventBlockContext *ctx) {
+    std::vector<std::unique_ptr<ASTNode>> stmt;
+
+    // Visits all the stmts
+    for (auto child : ctx->children) {
+        if (auto stmtCtx = dynamic_cast<TParser::StmtContext *>(child)) {
+            stmt.push_back(visit(stmtCtx));
+        } else if (auto controlStmt = dynamic_cast<TParser::ExitStmtContext *>(child)) {
+            stmt.push_back(std::make_unique<ExitNode>(child->getText()));
+        }
+    }
+
+    return std::make_unique<CodeBlockNode>(std::move(stmt));
+}
+
+std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventDefContext *ctx) {
+    // Setting the time command
+    TimeCommand command = visit(ctx->timeCommand());
+
+    // Visit the time block
+    auto codeBlock = visit(ctx->eventBlock());
+    auto raw = codeBlock.release();
+    auto functionScope = dynamic_cast<CodeBlockNode *>(raw);
+    std::unique_ptr<CodeBlockNode> codeBlockPtr(functionScope);
+
+    std::unique_ptr<ASTNode> timeNode;
+
+    // Visits all the param types
+    std::vector<std::unique_ptr<ASTNode>> params;
+    if (ctx->params() != nullptr && !ctx->params()->isEmpty()) {
+        for (int i = 0; i < ctx->params()->IDENTIFIER().size(); i++) {
+            std::string id = ctx->params()->IDENTIFIER(i)->getText();
+            Type type = visit(ctx->params()->paramType(i));
+
+            params.emplace_back(std::make_unique<VariableDecNode>(type, id));
+        }
+    }
+
+    // Getting the time from a literal or a variable reference
+    if (ctx->time_literal()) {
+        timeNode = visit(ctx->time_literal());
+    } else if (ctx->IDENTIFIER(1)) {
+        timeNode = std::make_unique<VariableRefNode>(ctx->IDENTIFIER(1)->getText());
+    }
+
+    return std::make_unique<EventNode>(ctx->IDENTIFIER(0)->getText(), params, command, std::move(timeNode),
+                                       std::move(codeBlockPtr));
 }
 
 Type ASTBuilder::visit(TParser::TypeContext *ctx) {
@@ -794,133 +451,10 @@ Type ASTBuilder::visit(TParser::ParamTypeContext *ctx) {
         return Type(SupportedTypes::TYPE_VOID);
     if (ctx->TYPE_PTR()) {
         Type t = visit(ctx->type());
-        return Type(SupportedTypes::TYPE_PTR, new Type(t));
+        return Type(new Type(t));
     }
 
     throw std::runtime_error("Not a valid type");
-}
-
-std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopContext *ctx) {
-    if (ctx->WHILE()) {
-        if (visualizeFlag) {
-            // Node information
-            std::ofstream texFile("AST.tex", std::ios::app);
-            texFile << "[WHILE,LoopNode" << std::endl;
-            texFile.close();
-        }
-
-        auto expr = visit(ctx->expr());
-
-        auto block = visit(ctx->block());
-        auto whileBlock = std::unique_ptr<CodeBlockNode>(static_cast<CodeBlockNode *>(block.release()));
-
-        if (visualizeFlag) {
-            std::ofstream texFile("AST.tex", std::ios::app);
-            texFile << "]" << std::endl;
-            texFile.close();
-        }
-
-        return std::make_unique<WhileNode>(std::move(expr), std::move(whileBlock));
-    }
-
-    if (ctx->FOR()) {
-        if (visualizeFlag) {
-            // Node information
-            std::ofstream texFile("AST.tex", std::ios::app);
-            texFile << "[FOR,LoopNode" << std::endl;
-            texFile.close();
-        }
-        auto def = visit(ctx->variableAssign(0));
-        auto condition = visit(ctx->expr());
-        auto assign = visit(ctx->variableAssign(1));
-
-        auto block = visit(ctx->block());
-        auto forBlock = std::unique_ptr<CodeBlockNode>(static_cast<CodeBlockNode *>(block.release()));
-
-        if (visualizeFlag) {
-            std::ofstream texFile("AST.tex", std::ios::app);
-            texFile << "]" << std::endl;
-            texFile.close();
-        }
-
-        return std::make_unique<ForNode>(std::move(def), std::move(condition), std::move(assign), std::move(forBlock));
-    }
-
-    throw std::runtime_error("Wrong loop type");
-};
-
-std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopControlStatementContext *ctx) {
-    if (visualizeFlag) {
-        // Node information
-        std::ofstream texFile("AST.tex", std::ios::app);
-        texFile << "[" << ctx->getText() << ", returnNode]" << std::endl;
-        texFile.close();
-    }
-
-    return std::make_unique<LoopControlStatementNode>(ctx->getText());
-}
-
-std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventBlockContext *ctx) {
-    std::vector<std::unique_ptr<ASTNode>> stmt;
-
-    // Visits all the stmts
-    for (auto child : ctx->children) {
-        if (auto stmtCtx = dynamic_cast<TParser::StmtContext *>(child)) {
-            stmt.push_back(visit(stmtCtx));
-        } else if (auto controlStmt = dynamic_cast<TParser::ExitStmtContext *>(child)) {
-            stmt.push_back(std::make_unique<ExitNode>(child->getText()));
-        }
-    }
-
-    return std::make_unique<CodeBlockNode>(std::move(stmt));
-}
-
-std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventDefContext *ctx) {
-    // Setting the time command
-    TimeCommand command = visit(ctx->timeCommand());
-
-    if (visualizeFlag) {
-        // Node information
-        std::ofstream texFile("AST.tex", std::ios::app);
-        texFile << "[" << ctx->IDENTIFIER(0)->getText() + " " + timeCommandToString(command) << ", functionDefNode"
-                << std::endl;
-        texFile.close();
-    }
-
-    // Visit the time block
-    auto codeBlock = visit(ctx->eventBlock());
-    auto raw = codeBlock.release();
-    auto functionScope = dynamic_cast<CodeBlockNode *>(raw);
-    std::unique_ptr<CodeBlockNode> codeBlockPtr(functionScope);
-
-    std::unique_ptr<ASTNode> timeNode;
-
-    // Visits all the param types
-    std::vector<std::unique_ptr<ASTNode>> params;
-    if (ctx->params() != nullptr && !ctx->params()->isEmpty()) {
-        for (int i = 0; i < ctx->params()->IDENTIFIER().size(); i++) {
-            std::string id = ctx->params()->IDENTIFIER(i)->getText();
-            Type type = visit(ctx->params()->paramType(i));
-
-            params.emplace_back(std::make_unique<VariableDecNode>(type, id));
-        }
-    }
-
-    // Getting the time from a literal or a variable reference
-    if (ctx->time_literal()) {
-        timeNode = visit(ctx->time_literal());
-    } else if (ctx->IDENTIFIER(1)) {
-        timeNode = std::make_unique<VariableRefNode>(ctx->IDENTIFIER(1)->getText());
-    }
-
-    if (visualizeFlag) {
-        std::ofstream texFile("AST.tex", std::ios::app);
-        texFile << "]" << std::endl;
-        texFile.close();
-    }
-
-    return std::make_unique<EventNode>(ctx->IDENTIFIER(0)->getText(), params, command, std::move(timeNode),
-                                       std::move(codeBlockPtr));
 }
 
 TimeCommand ASTBuilder::visit(TParser::TimeCommandContext *ctx) {

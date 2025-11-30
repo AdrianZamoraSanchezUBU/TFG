@@ -1,25 +1,31 @@
+/**
+ * @file Type.h
+ * @brief Types definition for this language and compiler.
+ *
+ * @author Adrián Zamora Sánchez
+ */
+
 #pragma once
 #include <iostream>
 #include <string>
 
-/**
- * @brief Supported types in the AST
- */
+/// Supported types in this language.
 enum SupportedTypes { TYPE_INT, TYPE_FLOAT, TYPE_CHAR, TYPE_STRING, TYPE_BOOL, TYPE_VOID, TYPE_TIME, TYPE_PTR };
 
-/**
- * @brief Type structure for pointed types support.
- */
+/// Type structure for the basic types or pointed types.
 struct Type {
-    SupportedTypes type;
-    Type *base;
+    SupportedTypes type; /// Type
+    Type *base;          /// Pointing to a type
 
   public:
-    /**
-     * @brief Default constructors
-     */
+    /// Empty type constructor
     Type() : type(SupportedTypes::TYPE_VOID), base(nullptr) {}
-    Type(SupportedTypes k, Type *b = nullptr) : type(k), base(b) {}
+
+    /// Basic type constructor
+    Type(SupportedTypes ty) : type(ty), base(nullptr) {}
+
+    /// Pointer type constructor
+    Type(Type *b) : type(SupportedTypes::TYPE_PTR), base(b) {}
 
     /**
      * @brief Getter for the type or pointed type.
@@ -41,6 +47,7 @@ struct Type {
 
 /**
  * @brief Returns a string with a type representation.
+ * @param type Type object.
  * @return String representation of the type.
  */
 inline std::string supportedTypeToString(SupportedTypes type) {
@@ -66,6 +73,7 @@ inline std::string supportedTypeToString(SupportedTypes type) {
 
 /**
  * @brief Returns a string with a type representation.
+ * @param type Type object.
  * @return String representation of the type.
  */
 inline std::string typeToString(Type type) {

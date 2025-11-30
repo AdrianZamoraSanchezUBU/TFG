@@ -24,19 +24,7 @@ class ASTNode;
  * @see ASTNode
  */
 class ASTBuilder {
-    bool visualizeFlag;
-
   public:
-    /**
-     * @brief ASTBuilder basic constructor
-     */
-    explicit ASTBuilder() : visualizeFlag(false) {}
-
-    /**
-     * @brief ASTBuilder constructor for a visualizeFlag value assignation
-     */
-    explicit ASTBuilder(bool flagValue) : visualizeFlag(flagValue) {}
-
     /**
      * @brief Visits the program and returns the nodes it contains.
      * @param ctx Base program context.
