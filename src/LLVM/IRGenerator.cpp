@@ -108,15 +108,9 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
         R = node.getRight()->accept(*this);
     }
 
-    // Check for correctness in child nodes visits
-    if (!L || !R) {
-        std::runtime_error("Null operand in binary expression.");
-        return nullptr;
-    }
-
+    /* Numeric operations */
     std::string op = node.getValue();
 
-    /* Numeric operations */
     // FLOAT
     if (operationType == SupportedTypes::TYPE_FLOAT || operationType == SupportedTypes::TYPE_TIME) {
         if (op == "+")
@@ -221,6 +215,7 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
         throw std::runtime_error("Not a valid assigment for: " + node.getValue());
     }
 
+    // Getting the symbol info
     Symbol *symb;
     if (symtab.getCurrentScope()->getSymbol(node.getValue())) {
         symb = symtab.getCurrentScope()->getSymbol(node.getValue());
@@ -319,7 +314,6 @@ llvm::Value *IRGenerator::visit(FunctionDefNode &node) {
 
     // Basic block generation and stack push
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx.IRContext, "entry", function);
-
     ctx.pushFunction(entry);
 
     // Setting all the params as arguments in their symbol in the symbol table
@@ -451,17 +445,10 @@ llvm::Value *IRGenerator::visit(IfNode &node) {
 
         if (!ctx.IRBuilder.GetInsertBlock()->getTerminator()) {
             ctx.IRBuilder.CreateBr(mergeBB);
-            ctx.popFunction();
         }
-
-        ctx.popFunction();
-    } else {
-        if (!ctx.IRBuilder.GetInsertBlock()->getTerminator()->Ret) {
-            ctx.popFunction();
-        }
-
-        ctx.popFunction();
     }
+
+    ctx.popFunction();
 
     // Adds the exit block
     ctx.pushFunction(mergeBB);

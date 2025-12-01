@@ -63,6 +63,11 @@ void *SemanticVisitor::visit(BinaryExprNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
     Type LT, RT;
 
+    // Check for correctness in child nodes visits
+    if (!node.getLeft() || !node.getRight()) {
+        throw std::runtime_error("Null operand in binary expression.");
+    }
+
     /* Propagation of the type */
     node.getLeft()->accept(*this);
     node.getRight()->accept(*this);
