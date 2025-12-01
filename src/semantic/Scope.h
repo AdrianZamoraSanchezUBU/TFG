@@ -21,7 +21,6 @@ enum SymbolCategory {
     VARIABLE,  ///< Regular variable
     FUNCTION,  ///< Function
     PARAMETER, ///< Function parameter
-    POINTER,   ///< Pointer
     CONSTANT   ///< Constant value
 };
 

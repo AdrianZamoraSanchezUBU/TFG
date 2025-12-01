@@ -377,7 +377,12 @@ class ReturnNode : public ASTNode {
     ASTNode *getStmt() const { return stmt.get(); }
 
     /// @copydoc ASTNode::print
-    std::string print() const override { return "\n[RETURN,returnNode" + stmt.get()->print() + "]"; }
+    std::string print() const override {
+        if (stmt != nullptr) {
+            return "\n[RETURN,returnNode" + stmt.get()->print() + "]";
+        }
+        return "\n[RETURN void,returnNode]";
+    }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {

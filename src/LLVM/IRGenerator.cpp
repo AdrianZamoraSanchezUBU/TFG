@@ -208,10 +208,22 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
         assignVal = visit(*lit);
     } else if (auto var = dynamic_cast<VariableRefNode *>(node.getAssign())) {
         assignVal = visit(*var);
+
+        // Automatic dereferencing the value
+        Symbol *assign = symtab.getCurrentScope()->getSymbol(node.getAssign()->getValue());
+        if (assign->isPtr()) {
+            assignVal = ctx.IRBuilder.CreateLoad(getLlvmType(assign->getType()), assignVal,
+                                                 node.getAssign()->getValue() + "_val");
+        }
     } else if (auto fn = dynamic_cast<FunctionCallNode *>(node.getAssign())) {
         assignVal = visit(*fn);
     } else {
         throw std::runtime_error("Not a valid assigment for: " + node.getValue());
+    }
+
+    Symbol *symb;
+    if (symtab.getCurrentScope()->getSymbol(node.getValue())) {
+        symb = symtab.getCurrentScope()->getSymbol(node.getValue());
     }
 
     // (DECLARATION + ASSIGNMENT)
@@ -229,17 +241,16 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
         llvm::AllocaInst *allocaInst = tmpBuilder.CreateAlloca(varType, nullptr, node.getValue() + "_ptr");
 
         // Registers this new allocation associated with the Symbol in the SymbolTable
-        symtab.getCurrentScope()->getSymbol(node.getValue())->setLlvmValue(allocaInst);
+        symb->setLlvmValue(allocaInst);
 
         // Getting the memory address where the value is stored
-        llvm::Value *alloc = symtab.getCurrentScope()->getSymbol(node.getValue())->getLlvmValue();
-        ctx.IRBuilder.CreateStore(assignVal, alloc);
+        ctx.IRBuilder.CreateStore(assignVal, allocaInst);
 
-        return alloc;
+        return allocaInst;
     }
 
     // Gets the memory address and stores the value (ONLY ASSIGNMENT)
-    llvm::Value *alloc = symtab.getCurrentScope()->getSymbol(node.getValue())->getLlvmValue();
+    llvm::Value *alloc = symb->getLlvmValue();
     ctx.IRBuilder.CreateStore(assignVal, alloc);
 
     return alloc;

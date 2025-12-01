@@ -134,10 +134,14 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
             sym = currentScope->getSymbol(node.getValue());
 
         // Check for identifier variable status
-        if (sym->getCategory() != SymbolCategory::VARIABLE && sym->getCategory() != SymbolCategory::POINTER &&
-            sym->getCategory() != SymbolCategory::PARAMETER) {
+        if (sym->getCategory() != SymbolCategory::VARIABLE && sym->getCategory() != SymbolCategory::PARAMETER) {
             throw std::runtime_error("Missing declaration for the identifier " + sym->getID() +
                                      " used in a variable assignment");
+        }
+
+        // Error throw when assigning a parameter value
+        if (!sym->isPtr() && sym->getCategory() == SymbolCategory::PARAMETER) {
+            throw std::runtime_error("Can not use the value of a parameter as a left side assign");
         }
 
         return nullptr;
