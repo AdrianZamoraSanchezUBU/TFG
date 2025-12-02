@@ -54,8 +54,10 @@ add_custom_target(runtime_obj ALL
     COMMAND clang -c ${CMAKE_SOURCE_DIR}/src/runtime/entry.s -o ${CMAKE_BINARY_DIR}/entry.o 
 
     # Compiled without stdlib as they are only called from the entry.o (the _start: )
-    COMMAND clang -c -nostdlib ${CMAKE_SOURCE_DIR}/src/runtime/runtime.c ${CMAKE_BINARY_DIR}/entry.o -o ${CMAKE_BINARY_DIR}/runtime.o
-    COMMAND clang -c -nostdlib ${CMAKE_SOURCE_DIR}/src/runtime/TLib.c -o ${CMAKE_BINARY_DIR}/TLib.o
+    COMMAND clang++ -c ${CMAKE_SOURCE_DIR}/src/runtime/Event.cpp -o ${CMAKE_BINARY_DIR}/Event.o
+    COMMAND clang++ -c ${CMAKE_SOURCE_DIR}/src/runtime/Runtime.cpp -o ${CMAKE_BINARY_DIR}/Runtime.o
+    COMMAND clang++ -c ${CMAKE_SOURCE_DIR}/src/runtime/TLib.cpp -o ${CMAKE_BINARY_DIR}/TLib.o
+    COMMAND clang++ -c ${CMAKE_SOURCE_DIR}/src/runtime/main.cpp ${CMAKE_BINARY_DIR}/entry.o -o ${CMAKE_BINARY_DIR}/main.o
 )
 
 # Linking with antlr4-runtime

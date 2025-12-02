@@ -324,12 +324,15 @@ void Compiler::generateObjectCode() {
 }
 
 void Compiler::linkObjectFile() {
-    std::string runtime = std::string(BUILD_DIR) + "/runtime.o ";
-    std::string basicLib = std::string(BUILD_DIR) + "/TLib.o";
+    std::string entryPoint = std::string(BUILD_DIR) + "/main.o ";
+    std::string runtimeCpp = std::string(BUILD_DIR) + "/Runtime.o ";
+    std::string eventCpp = std::string(BUILD_DIR) + "/Event.o ";
+    std::string basicLib = std::string(BUILD_DIR) + "/TLib.o ";
     std::string programObjecFile = std::string(BUILD_DIR) + "/" + flags.outputFile;
 
     // Links the object file with the runtime to have a executable entry point and with a standard lib
-    std::string command = "clang -no-pie " + runtime + programObjecFile + " " + basicLib + " -o program";
+    std::string command =
+        "clang++ -no-pie " + entryPoint + basicLib + runtimeCpp + eventCpp + programObjecFile + " -o program -pthread";
     std::system(command.c_str());
     std::system(("rm " + programObjecFile).c_str());
 
