@@ -17,6 +17,7 @@ extern "C" char *toString(int x) {
 /**
  * Functions responsable of loading data from extern functions to the runtime
  */
-extern "C" void registerEventData(int id, int period, void (*fn)()) {
-    Runtime::get().registerEvent(id, period, fn);
+extern "C" void registerEventData(const char *id, float period, void (*fn)()) {
+    std::string sid(id);
+    Runtime::get().registerEvent(sid, period, fn);
 }

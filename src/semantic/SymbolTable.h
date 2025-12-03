@@ -35,6 +35,9 @@ class SymbolTable {
         Symbol toString("toString", SymbolCategory::FUNCTION, SupportedTypes::TYPE_STRING);
         currentScope->insertSymbol(toString);
 
+        Symbol registerEvent("registerEventData", SymbolCategory::FUNCTION, SupportedTypes::TYPE_VOID);
+        currentScope->insertSymbol(registerEvent);
+
         scopes.emplace_back(currentScope);
     }
 

@@ -12,6 +12,8 @@ int main(int argc, char **argv) {
 
     int ret = mainLLVM();
 
+    runtime.printEventList();
+
     runtime.start();
 
     return ret;

@@ -30,7 +30,12 @@ class Runtime {
     /**
      * Saves the event data
      */
-    void registerEvent(int id, float time, void (*fn)());
+    void registerEvent(std::string id, float time, void (*fn)());
+
+    /**
+     * Prints the event list data
+     */
+    void printEventList();
 
     /**
      * Starts the time and event tracking

@@ -597,9 +597,26 @@ llvm::Value *IRGenerator::visit(EventNode &node) {
         symtab.getScopeByID(scopeRef + 1)->getSymbol(name)->setLlvmValue(&arg);
     }
     llvm::verifyFunction(*event);
+    llvm::Value *eventID = ctx.IRBuilder.CreateGlobalStringPtr(node.getValue(), "str");
+    llvm::Value *time = node.getTimeStmt()->accept(*this);
+
+    std::vector<llvm::Value *> args;
+    args.push_back(eventID);
+    args.push_back(time);
+    args.push_back(event);
 
     // IR generation for all the function statements
     node.getCodeBlock()->accept(*this);
+
+    llvm::LLVMContext &C = ctx.IRContext;
+    llvm::Type *i8PtrTy = llvm::PointerType::get(llvm::Type::getInt8Ty(C), 0);
+    llvm::Type *voidTy = llvm::Type::getVoidTy(C);
+    llvm::Type *float64Ty = llvm::Type::getFloatTy(C);
+    llvm::Type *fnPtrTy = llvm::PointerType::getUnqual(llvm::FunctionType::get(voidTy, false));
+    llvm::FunctionCallee fn = ctx.IRModule->getOrInsertFunction(
+        "registerEventData", llvm::FunctionType::get(voidTy, {i8PtrTy, float64Ty, fnPtrTy}, false));
+    ctx.IRBuilder.CreateCall(fn, args, "");
+
     ctx.IRBuilder.CreateRetVoid();
     scopeStack.pop_back();
     ctx.popFunction();

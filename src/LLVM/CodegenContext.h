@@ -33,12 +33,18 @@ struct CodegenContext {
         llvm::LLVMContext &C = IRContext;
         llvm::Type *i8PtrTy = llvm::PointerType::get(llvm::Type::getInt8Ty(C), 0);
         llvm::Type *i32Ty = llvm::Type::getInt32Ty(C);
+        llvm::Type *voidTy = llvm::Type::getVoidTy(C);
+        llvm::Type *float64Ty = llvm::Type::getFloatTy(C);
+
+        llvm::FunctionType *callbackTy = llvm::FunctionType::get(voidTy, false);
+        llvm::PointerType *callbackPtrTy = llvm::PointerType::getUnqual(callbackTy);
 
         // Inserta la función C si no existe
-        llvm::FunctionCallee toStringFn =
-            IRModule->getOrInsertFunction("toString", llvm::FunctionType::get(i8PtrTy, {i32Ty}, false));
+        IRModule->getOrInsertFunction("toString", llvm::FunctionType::get(i8PtrTy, {i32Ty}, false));
         IRModule->getOrInsertFunction("printf", llvm::FunctionType::get(i32Ty, {i8PtrTy}, true));
         IRModule->getOrInsertFunction("strlen", llvm::FunctionType::get(i32Ty, {i8PtrTy}, false));
+        IRModule->getOrInsertFunction("registerEventData",
+                                      llvm::FunctionType::get(voidTy, {i8PtrTy, float64Ty, callbackPtrTy}, false));
 
         // Program main function and basic block set up
         llvm::FunctionType *FT = llvm::FunctionType::get(llvm::Type::getInt32Ty(IRContext), false);
