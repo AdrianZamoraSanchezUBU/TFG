@@ -20,6 +20,8 @@ class SymbolTable {
   public:
     /**
      * @brief Constructor for SymbolTable.
+     *
+     * This constructor sets the root scope and the default supported functions of the language.
      */
     explicit SymbolTable() {
         // Global Scope with level 0
@@ -35,34 +37,34 @@ class SymbolTable {
         Symbol toString("toString", SymbolCategory::FUNCTION, SupportedTypes::TYPE_STRING);
         currentScope->insertSymbol(toString);
 
-        Symbol registerEvent("registerEventData", SymbolCategory::FUNCTION, SupportedTypes::TYPE_VOID);
-        currentScope->insertSymbol(registerEvent);
-
         scopes.emplace_back(currentScope);
     }
 
     /**
      * @brief Creates a new Scope and uses it as current Scope.
+     * @return New Scope.
      */
     std::shared_ptr<Scope> enterScope();
 
-    /**
-     * @brief Exits the current Scope, changing the current Scope to its father Scope.
-     */
+    /// Exits the current Scope, changing the current Scope to its father Scope.
     void exitScope();
 
     /**
      * @brief Gets the scope with the searched id.
+     * @param id Identifier of the searched Scope.
+     * @see IRGenerator.cpp
      */
     std::shared_ptr<Scope> getScopeByID(int id);
 
     /**
      * @brief Sets the current scope.
+     * @param scope The new current Scope.
      */
     void setCurrentScope(std::shared_ptr<Scope> scope) { currentScope = scope; };
 
     /**
      * @brief Returns the current Scope.
+     * @return The current Scope.
      */
     std::shared_ptr<Scope> getCurrentScope() const { return currentScope; }
 

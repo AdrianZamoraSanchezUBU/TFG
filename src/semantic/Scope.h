@@ -14,9 +14,7 @@ class Value;
 class Type;
 } // namespace llvm
 
-/**
- * @brief Possible categories for identifiers.
- */
+/// Valid categories for the identifiers.
 enum SymbolCategory {
     VARIABLE,  ///< Regular variable
     FUNCTION,  ///< Function
@@ -27,6 +25,7 @@ enum SymbolCategory {
 /**
  * @brief Represents a declared identifier in the program.
  * @see AST.h
+ * @see Type.h
  */
 class Symbol {
     std::string ID;
@@ -50,51 +49,70 @@ class Symbol {
 
     /**
      * @brief Getter for ID.
+     * @return String with this symbol's name identifier.
      */
     std::string getID() const { return ID; }
 
     /**
      * @brief Getter for category.
+     * @return Category of this symbol.
      */
     SymbolCategory getCategory() const { return category; }
 
     /**
-     * @brief Returns true if this symbol represents a ptr, false otherwise.
+     * @brief Returns a true if the symbol is a pointer.
+     * @return `true` if this symbol represents a ptr, `false` otherwise.
      */
-    bool isPtr() const;
+    bool isPtr() const {
+        if (type.base) {
+            return true;
+        }
 
-    /**
-     * @brief Getter for the type or pointed type.
-     */
-    SupportedTypes getType() const;
+        return false;
+    };
+
+    /// Getter for the type or pointed type.
+    SupportedTypes getType() const { return type.getSupportedType(); };
 
     /**
      * @brief Setter for type.
+     * @param ty New Type for the Symbol.
      */
     void setType(Type ty) { type = ty; }
 
     /**
      * @brief Getter for number of params.
+     * @return Amount of parameters.
      */
     int getNumParams() const { return numParams; }
 
     /**
      * @brief Setter for number of params.
+     * @param params New number of parameters of this symbol.
      */
-    void setNumParams(int params) { numParams = params; }
+    void setNumParams(int params) {
+        if (this->category != SymbolCategory::FUNCTION) {
+            throw std::runtime_error("Unexpected parameters in a non function symbol");
+        }
+
+        numParams = params;
+    }
 
     /**
      * @brief Setter for llvmVal.
+     * @param val New LLVM Value for this symbol.
      */
     void setLlvmValue(llvm::Value *val) { llvmVal = val; }
 
     /**
-     * @brief Setter for llvmVal.
+     * @brief Getter for llvmVal.
+     * @return LLVM Value of this symbol.
      */
     llvm::Value *getLlvmValue() const { return llvmVal; }
 
     /**
-     * @brief Prints the Symbol data.
+     * @brief Generates a string with the Symbol data.
+     * @return Symbol data string.
      */
     std::string print() const;
 };
@@ -119,33 +137,43 @@ class Scope : public std::enable_shared_from_this<Scope> {
     explicit Scope(int id, int level, std::shared_ptr<Scope> parent) : id(id), level(level), parent(parent) {}
 
     /**
-     * @brief Returns `true` if this scope or his parents contains this id, `false`otherwise.
+     * @brief Return true if the Symbol associated with the id is contained in the table.
+     * @param id identifier of the searched Symbol.
+     * @return Returns `true` if this scope or his parents contains this id, `false`otherwise
      */
-    bool contains(const std::string &);
+    bool contains(const std::string &id);
 
     /**
      * @brief Returns the parent Scope.
+     * @return parent Scope of this Scope.
      */
     std::shared_ptr<Scope> getParent() const { return parent.lock(); }
 
     /**
      * @brief Inserts a new Symbol in this Scope.
+     * @param sym Symbol that will be inserted.
+     * @return true if the symbol could be inserted, false if the symbol was already in the scope.
+     *
      * @see Symbol
      */
-    bool insertSymbol(Symbol);
+    bool insertSymbol(Symbol sym);
 
     /**
      * @brief Getter for Symbol
+     * @param id identifier of the searched Symbol.
+     * @return Symbol if found.
      */
-    Symbol *getSymbol(const std::string &);
+    Symbol *getSymbol(const std::string &id);
 
     /**
      * @brief Returns the level of this Scope.
+     * @return Level of this Scope
      */
     int getLevel() const { return level; }
 
     /**
      * @brief Returns the id of this Scope.
+     * @return identifier of this Scope.
      */
     int getID() const { return id; }
 

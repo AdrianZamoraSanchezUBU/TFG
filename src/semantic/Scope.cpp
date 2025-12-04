@@ -21,18 +21,6 @@ std::string Symbol::print() const {
     return ID + " " + cat + " " + typeToString(type);
 };
 
-bool Symbol::isPtr() const {
-    if (type.base) {
-        return true;
-    }
-
-    return false;
-};
-
-SupportedTypes Symbol::getType() const {
-    return type.getSupportedType();
-};
-
 bool Scope::contains(const std::string &id) {
     // Look for the id in this Scope
     if (symbols.find(id) != symbols.end()) {

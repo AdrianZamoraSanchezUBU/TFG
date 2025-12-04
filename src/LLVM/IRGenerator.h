@@ -54,9 +54,7 @@ class IRGenerator {
      */
     void pushScope(int scopeID) { scopeStack.push_back(scopeID); }
 
-    /**
-     * @brief Pops the top scope ID out of the stack
-     */
+    /// Removes the top scope ID from the stack
     void popScope() {
         if (!scopeStack.empty()) {
             scopeStack.pop_back();
@@ -74,6 +72,7 @@ class IRGenerator {
 
     /**
      * @return Returns the LLVM Context.
+     * @return structure with the LLVM IR generation data.
      */
     CodegenContext &getContext() { return ctx; }
 

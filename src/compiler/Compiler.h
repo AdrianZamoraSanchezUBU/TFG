@@ -86,43 +86,33 @@ class Compiler {
         IRgen = std::make_unique<IRGenerator>(symTable);
     };
 
-    /**
-     * @brief Lexical analysis phase of the compiler.
-     */
+    /// Lexical analysis phase of the compiler.
     void lex();
 
-    /**
-     * @brief Syntactic analysis phase of the compiler.
-     */
+    /// Syntactic analysis phase of the compiler.
     void parse();
 
-    /**
-     * @brief Semantic analysis phase of the compiler.
-     */
+    /// Semantic analysis phase of the compiler.
     void analyze();
 
-    /**
-     * @brief IR generation phase of the compiler.
-     */
+    /// IR generation phase of the compiler.
     void generateIR();
 
-    /**
-     * @brief Object code generation phase of the compiler.
-     */
+    /// Object code generation phase of the compiler.
     void generateObjectCode();
 
-    /**
-     * @brief Object code linkage and executable generation.
-     */
+    /// Object code linkage and executable generation.
     void linkObjectFile();
 
     /**
      * @brief IRGenerator CodegenContext getter;
+     * @return Structure with all the LLVM IR generation data.
      */
     CodegenContext &getIRContext() const { return IRgen.get()->getContext(); }
 
     /**
      * @brief AST getter.
+     * @return Root node of the AST.
      */
     ASTNode *getAST() const { return ast.get(); }
 };

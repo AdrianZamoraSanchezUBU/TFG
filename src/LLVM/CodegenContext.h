@@ -10,9 +10,7 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 
-/**
- * @brief Structure that contains the LLVM context of a compiled program.
- */
+/// Structure that contains the LLVM context of a compiled program.
 struct CodegenContext {
     /// LLVM context.
     llvm::LLVMContext IRContext;
@@ -26,9 +24,7 @@ struct CodegenContext {
     /// Stack of IR code blocks.
     std::vector<llvm::BasicBlock *> blockStack;
 
-    /**
-     * @brief Module and IRBuilder set up.
-     */
+    /// Module and IRBuilder set up.
     explicit CodegenContext() : IRBuilder(IRContext), IRModule(std::make_unique<llvm::Module>("program", IRContext)) {
         llvm::LLVMContext &C = IRContext;
         llvm::Type *i8PtrTy = llvm::PointerType::get(llvm::Type::getInt8Ty(C), 0);
@@ -65,9 +61,7 @@ struct CodegenContext {
         IRBuilder.SetInsertPoint(BB);
     }
 
-    /**
-     * @brief Sets the current insert point to the next basic block in the stack.
-     */
+    /// Sets the current insert point to the next basic block in the stack.
     void popFunction() {
         // Checks if is at the bottom of the stack
         if (blockStack.empty()) {

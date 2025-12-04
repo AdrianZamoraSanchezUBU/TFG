@@ -9,7 +9,7 @@
 #include <iostream>
 #include <string>
 
-/// Supported types in this language.
+/// Supported types in the language.
 enum SupportedTypes { TYPE_INT, TYPE_FLOAT, TYPE_CHAR, TYPE_STRING, TYPE_BOOL, TYPE_VOID, TYPE_TIME, TYPE_PTR };
 
 /// Type structure for the basic types or pointed types.

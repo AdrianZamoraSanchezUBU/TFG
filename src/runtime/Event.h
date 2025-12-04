@@ -6,9 +6,7 @@
 #include <thread>
 #pragma once
 
-/**
- * @brief This class represents a Event.
- */
+/// This class represents a Event.
 class Event {
     using Fn = void (*)();
 
@@ -23,30 +21,25 @@ class Event {
 
   public:
     /**
-     * @brief Default Event constructor
-     * @param id Identifier
-     * @param f Its executable code (a extern function)
-     * @param t ticks associated with the execution
+     * @brief Default Event constructor.
+     * @param id Identifier for this Event.
+     * @param f Its executable code (a extern function).
+     * @param t Ticks associated with the periodic execution.
      */
     Event(std::string id, float t, Fn f) : id(id), ticks(static_cast<int>(std::ceil(t))), fn(f){};
 
-    /**
-     * @brief Executes the event code.
-     */
+    /// Executes the event code.
     void execute();
 
     /**
      * @brief Getter for the worker thread.
+     * @return Worker thread of this Event.
      */
     std::thread &getWorker() { return worker; }
 
-    /**
-     * @brief Sets the running flag for safe thread termination.
-     */
+    /// Sets the running flag for safe thread termination.
     void stopEvent() { running.store(false); };
 
-    /**
-     * @brief Sets the running flag for safe thread termination.
-     */
+    /// Prints the event data.
     void print() const { std::cout << "event: " + id << std::endl; };
 };

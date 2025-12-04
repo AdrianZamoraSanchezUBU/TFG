@@ -17,6 +17,10 @@ class SemanticVisitor {
     unsigned int loopDepth = 0;
 
   public:
+    /**
+     * @brief Default SemanticVisitor constructor.
+     * @param table The SymbolTable object.
+     */
     explicit SemanticVisitor(SymbolTable &table) : symtab(table) {}
 
     /**
@@ -127,8 +131,6 @@ class SemanticVisitor {
      */
     void *visit(ExitNode &node);
 
-    /**
-     * @brief Prints the content of the SymbolTable.
-     */
+    /// Prints the content of the SymbolTable.
     void printSymbolTable() const { symtab.print(); }
 };

@@ -65,6 +65,7 @@ class ASTNode {
 
     /**
      * @brief Prints data about this node
+     * @return string with this node in LaTex forest notation.
      */
     virtual std::string print() const = 0;
 };
@@ -91,11 +92,13 @@ class CodeBlockNode : public ASTNode {
 
     /**
      * @brief Returns the ammount of statements in this block.
+     * @return amount of statements in this block.
      */
     int getStmtCount() const { return statements.size(); }
 
     /**
      * @brief Returns the statement with index i.
+     * @return Statement with index i.
      */
     ASTNode *getStmt(int i) const { return statements[i].get(); }
 
@@ -149,17 +152,20 @@ class LiteralNode : public ASTNode {
     /**
      * @brief Constructor for the literal node.
      * @param val Value associated with the node.
+     * @param t type of this literal.
      */
     explicit LiteralNode(std::variant<int, float, char, std::string, bool> val, Type t)
         : value(std::move(val)), type(t) {}
 
     /**
      * @brief Returns the value as std::variant.
+     * @return reference to the std::variant value contained in the node.
      */
     const std::variant<int, float, char, std::string, bool> &getVariantValue() const { return value; }
 
     /**
      * @brief Getter for type.
+     * @return Type of the node.
      */
     Type getType() const { return type; }
 
@@ -228,16 +234,19 @@ class TimeLiteralNode : public ASTNode {
     /**
      * @brief Constructor for the time literal node.
      * @param val Value associated with the node.
+     * @param t Time unit defined for this variable.
      */
     explicit TimeLiteralNode(float val, TimeStamp t) : value(val), type(t) {}
 
     /**
      * @brief Getter for value.
+     * @return Float type amount of ticks.
      */
     float getTime() const { return value; }
 
     /**
      * @brief Getter for type.
+     * @return Time unit representation for this time value.
      */
     TimeStamp getTimeStamp() const { return type; }
 
@@ -246,11 +255,13 @@ class TimeLiteralNode : public ASTNode {
 
     /**
      * @brief Setter for value.
+     * @param val Amount of time ticks.
      */
-    void setValue(int val) { value = val; }
+    void setValue(float val) { value = val; }
 
     /**
-     * @brief Setter for type.
+     * @brief Setter for time stamp.
+     * @param newTimeType Time unit of this node.
      */
     void setTime(TimeStamp newTimeType) { type = newTimeType; }
 
@@ -318,12 +329,14 @@ class BinaryExprNode : public ASTNode {
     ASTNode *getRight() const { return right.get(); }
 
     /**
-     * @brief Getter for the returnType;
+     * @brief Getter for the returnType.
+     * @return Type of the result of this expression.
      */
     Type getType() const { return type; }
 
     /**
-     * @brief Setter for the returnType;
+     * @brief Setter for the returnType.
+     * @param t Type of this node.
      */
     void setType(Type t) { type = t; }
 
@@ -368,13 +381,14 @@ class ReturnNode : public ASTNode {
      */
     explicit ReturnNode(std::unique_ptr<ASTNode> ret) : stmt(std::move(ret)){};
 
-    /// @copydoc ASTNode::getValue
-    std::string getValue() const override { return "RETURN: "; }
-
     /**
      * @brief Getter for stmt.
+     * @return Statement returned by this node.
      */
     ASTNode *getStmt() const { return stmt.get(); }
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return "RETURN: "; }
 
     /// @copydoc ASTNode::print
     std::string print() const override {
@@ -423,13 +437,14 @@ class VariableDecNode : public ASTNode {
      */
     explicit VariableDecNode(Type t, const std::string &id) : type(t), identifier(id){};
 
-    /// @copydoc ASTNode::getValue
-    std::string getValue() const override { return identifier; }
-
     /**
      * @brief Getter for type.
+     * @return Type of this variable.
      */
     Type getType() const { return type; }
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return identifier; }
 
     /// @copydoc ASTNode::print
     std::string print() const override { return "\n[{" + typeToString(type) + " " + identifier + "},variableDecNode]"; }
@@ -469,6 +484,7 @@ class VariableAssignNode : public ASTNode {
   public:
     /**
      * @brief Constructor for VariableAssign node.
+     * @param t Type of the variable being assigned.
      * @param id Identifier of this variable.
      * @param val Value assigned to the variable.
      */
@@ -477,11 +493,13 @@ class VariableAssignNode : public ASTNode {
 
     /**
      * @brief Getter for type.
+     * @return Type of the variable being assigned.
      */
     Type getType() const { return type; }
 
     /**
      * @brief Getter for assign expresion.
+     * @return Statement with the value assigned to the variable.
      */
     ASTNode *getAssign() const { return assign.get(); }
 
@@ -520,28 +538,23 @@ class VariableAssignNode : public ASTNode {
  */
 class VariableRefNode : public ASTNode {
     std::string identifier;
-    bool ref = false;
+    bool ref = false; /// Marks this variable as a reference (a pointer to the variable)
 
   public:
     /**
      * @brief Constructor for VariableRef node.
      * @param id Name of this reference.
      */
-    explicit VariableRefNode(const std::string &id) : identifier(id), ref(false){};
-
-    /**
-     * @brief Constructor for VariableRef node.
-     * @param id Name of this reference.
-     */
-    explicit VariableRefNode(const std::string &id, bool b) : identifier(id), ref(b){};
-
-    /// @copydoc ASTNode::getValue
-    std::string getValue() const override { return identifier; }
+    explicit VariableRefNode(const std::string &id, bool b = false) : identifier(id), ref(b){};
 
     /**
      * @brief Returns true if this variable ref is a pointer, false otherwise.
+     * @return `true` if this variable is a reference, `false` otherwise.
      */
     bool isRef() const { return ref; }
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return identifier; }
 
     /// @copydoc ASTNode::print
     std::string print() const override {
@@ -594,29 +607,33 @@ class FunctionDecNode : public ASTNode {
     explicit FunctionDecNode(const std::string &id, std::vector<Type> &params, Type t)
         : identifier(id), paramList(params), type(t){};
 
-    /// @copydoc ASTNode::getValue
-    std::string getValue() const override { return identifier; }
-
     /**
      * @brief Getter for type.
+     * @return Function return type.
      */
     Type getType() const { return type; }
 
     /**
      * @brief Getter for the params size.
+     * @return Amount of params of this function.
      */
     int getParamsCount() const { return paramList.size(); }
 
     /**
      * @brief Getter for a single params.
      * @param i Index of the parameter in the paramList.
+     * @return Type of the parameter with index i.
      */
     Type getParam(int i) const { return paramList[i]; }
 
     /**
      * @brief Getter for params.
+     * @return Vector with the parameters.
      */
     std::vector<Type> getParams() const { return paramList; }
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return identifier; }
 
     /// @copydoc ASTNode::print
     std::string print() const override {
@@ -676,28 +693,32 @@ class FunctionDefNode : public ASTNode {
                              std::unique_ptr<CodeBlockNode> code)
         : identifier(id), paramList(std::move(params)), type(t), codeBlock(std::move(code)){};
 
-    /// @copydoc ASTNode::getValue
-    std::string getValue() const override { return identifier; }
-
     /**
      * @brief Getter for type.
+     * @return Tyoe assiciated with this node.
      */
     Type getType() const { return type; }
 
     /**
      * @brief Getter for code block inside this function.
+     * @return Statements defined in this function block of code.
      */
     CodeBlockNode *getCodeBlock() const { return codeBlock.get(); }
 
     /**
      * @brief Returns the ammount of parameters in this function.
+     * @return Amount of parameters in this function.
      */
     int getParamsCount() const { return paramList.size(); }
 
     /**
      * @brief Returns the parameters with index i.
+     * @return Single parameter.
      */
     ASTNode *getParam(int i) const { return paramList[i].get(); }
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return identifier; }
 
     /// @copydoc ASTNode::print
     std::string print() const override {
@@ -755,11 +776,13 @@ class FunctionCallNode : public ASTNode {
 
     /**
      * @brief Returns the ammount of parameters in this block.
+     * @return Amount of parameters in this function call.
      */
     int getParamsCount() const { return paramList.size(); }
 
     /**
      * @brief Returns the parameters with index i.
+     * @return Single parameter.
      */
     ASTNode *getParam(int i) const { return paramList[i].get(); }
 
@@ -793,6 +816,7 @@ class FunctionCallNode : public ASTNode {
 /**
  * @class IfNode
  * @brief Represents a if statement in the AST.
+ *
  * @see ASTNode
  * @see CodeBlock
  * @see BinaryExprNode
@@ -807,19 +831,29 @@ class IfNode : public ASTNode {
      * @brief Constructor for the IfNode.
      * @param expression Expression to be evaluated.
      * @param block Block of code executed if the expression is true.
+     * @param els Else statement (optional).
      */
     explicit IfNode(std::unique_ptr<ASTNode> expression,
                     std::unique_ptr<CodeBlockNode> block,
                     std::unique_ptr<ASTNode> els = nullptr)
         : expr(std::move(expression)), codeBlock(std::move(block)), elseStmt(std::move(els)){};
 
-    /// @brief Getter for the expr.
+    /**
+     * @brief Getter for the expr.
+     * @return Condition statement.
+     */
     ASTNode *getExpr() { return expr.get(); }
 
-    /// @brief Getter for the codeBlock.
+    /**
+     * @brief Getter for the codeBlock.
+     * @return Statements executed if the condition is block.
+     */
     ASTNode *getCodeBlock() { return codeBlock.get(); }
 
-    /// @brief Getter for the elseStmt.
+    /**
+     * @brief Getter for the elseStmt.
+     * @return Else statement node.
+     */
     ASTNode *getElseStmt() { return elseStmt.get(); }
 
     /// @copydoc ASTNode::getValue
@@ -853,6 +887,7 @@ class IfNode : public ASTNode {
 /**
  * @class ElseNode
  * @brief Represents a else statement in the AST.
+ *
  * @see ASTNode
  * @see CodeBlock
  * @see IfNode
@@ -869,6 +904,7 @@ class ElseNode : public ASTNode {
 
     /**
      * @brief Getter for the stmt.
+     * @return If node or statement block node.
      */
     ASTNode *getStmt() { return stmt.get(); }
 
@@ -897,9 +933,11 @@ class ElseNode : public ASTNode {
 
 /**
  * @class ElseNode
- * @brief Represents a else statement in the AST.
+ * @brief Represents a while loop statement in the AST.
+ *
  * @see ASTNode
  * @see CodeBlock
+ * @see BinaryExprNode
  */
 class WhileNode : public ASTNode {
     std::unique_ptr<ASTNode> expr;
@@ -908,18 +946,21 @@ class WhileNode : public ASTNode {
   public:
     /**
      * @brief Constructor for the while statement node.
-     * @param stmt Block of code or other if statement.
+     * @param expression Condition for the loop execution.
+     * @param block Block of code executed in loop.
      */
     explicit WhileNode(std::unique_ptr<ASTNode> expression, std::unique_ptr<CodeBlockNode> block)
         : expr(std::move(expression)), codeBlock(std::move(block)){};
 
     /**
      * @brief Getter for the expr.
+     * @return Node with the conditional statement.
      */
     ASTNode *getExpr() { return expr.get(); }
 
     /**
      * @brief Getter for the code block.
+     * @return Block of code executed in each iteration.
      */
     ASTNode *getCodeBlock() { return codeBlock.get(); }
 
@@ -948,9 +989,11 @@ class WhileNode : public ASTNode {
 
 /**
  * @class ForNode
- * @brief Represents a else statement in the AST.
+ * @brief Represents a for loop statement in the AST.
+ *
  * @see ASTNode
  * @see CodeBlock
+ * @see BinaryExprNode
  */
 class ForNode : public ASTNode {
     std::unique_ptr<ASTNode> def;
@@ -961,7 +1004,10 @@ class ForNode : public ASTNode {
   public:
     /**
      * @brief Constructor for the for statement node.
-     * @param stmt Block of code or other if statement.
+     * @param definition Definition of the conditional variable.
+     * @param loopCondition Condition for the loop execution.
+     * @param assignation Transformation for the conditional variable in each iteration.
+     * @param block Block of code executed in loop.
      */
     explicit ForNode(std::unique_ptr<ASTNode> definition,
                      std::unique_ptr<ASTNode> loopCondition,
@@ -972,21 +1018,25 @@ class ForNode : public ASTNode {
 
     /**
      * @brief Getter for the condition definition.
+     * @return Node with the conditional variable definition.
      */
     ASTNode *getDef() { return def.get(); }
 
     /**
      * @brief Getter for the condition expr.
+     * @return Node with the condition.
      */
     ASTNode *getCondition() { return condition.get(); }
 
     /**
      * @brief Getter for the condition assign.
+     * @return Node with the assign data.
      */
     ASTNode *getAssign() { return assign.get(); }
 
     /**
      * @brief Getter for the code block.
+     * @return Block of code executed in each iteration.
      */
     ASTNode *getCodeBlock() { return codeBlock.get(); }
 
@@ -1016,6 +1066,16 @@ class ForNode : public ASTNode {
     llvm::Value *accept(IRGenerator &visitor) override;
 };
 
+/**
+ * @class LoopControlStatementNode
+ * @brief Represents a loop control statement like break or continue.
+ *
+ * This class will represent a change in the execution order of a loop.
+ *
+ * @see ASTNode
+ * @see WhileNode
+ * @see ForNode
+ */
 class LoopControlStatementNode : public ASTNode {
     std::string id;
 
@@ -1049,6 +1109,13 @@ class LoopControlStatementNode : public ASTNode {
     llvm::Value *accept(IRGenerator &visitor) override;
 };
 
+/**
+ * @class LoopControlStatementNode
+ * @brief Represents a event statement definition.
+ *
+ * @see ASTNode
+ * @see TimeLiteralNode
+ */
 class EventNode : public ASTNode {
     std::string id;
     TimeCommand command;
@@ -1075,26 +1142,31 @@ class EventNode : public ASTNode {
 
     /**
      * @brief Getter for the code block.
+     * @return Code block stored in this node.
      */
     ASTNode *getCodeBlock() { return codeBlock.get(); }
 
     /**
      * @brief Getter for the time statement.
+     * @return Node with the time statement data.
      */
     ASTNode *getTimeStmt() { return timeStmt.get(); }
 
     /**
      * @brief Getter for the time command.
+     * @return TimeCommand keyword.
      */
     TimeCommand getTimeCommand() { return command; }
 
     /**
      * @brief Returns the ammount of parameters in this event.
+     * @return Amount of parameters in this event definition.
      */
     int getParamsCount() const { return paramList.size(); }
 
     /**
      * @brief Returns the parameters with index i.
+     * @return Statement with parameter index i.
      */
     ASTNode *getParam(int i) const { return paramList[i].get(); }
 
@@ -1130,6 +1202,13 @@ class EventNode : public ASTNode {
     llvm::Value *accept(IRGenerator &visitor) override;
 };
 
+/**
+ * @class ExitNode
+ * @brief Represents a control statement capable of stoping the execution of an event.
+ *
+ * @see ASTNode
+ * @see EventNode
+ */
 class ExitNode : public ASTNode {
     std::string id;
 
