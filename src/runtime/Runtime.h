@@ -1,12 +1,14 @@
 #pragma once
 #include "Event.h"
+#include <memory>
 #include <mutex>
 #include <vector>
 
 /// Class for the language runtime structure.
 class Runtime {
-    std::vector<Event *> events;
+    std::vector<std::shared_ptr<Event>> events;
     std::mutex eventsMutex;
+    bool running = true;
     float t;
 
   public:
@@ -23,7 +25,13 @@ class Runtime {
      * @brief Executes an event.
      * @param ev Event to execute.
      */
-    void launchEventThread(Event *ev);
+    void launchEventThread(std::shared_ptr<Event> ev);
+
+    /**
+     * @brief Schredule a registered event.
+     * @param id of the Event to schedule.
+     */
+    void schedule(std::string id);
 
     /**
      * @brief Saves the event data.
@@ -38,4 +46,7 @@ class Runtime {
 
     /// Starts the time and event scheduler.
     void start();
+
+    /// Stops the infinite loop and shutdowns all the Events.
+    void stop();
 };

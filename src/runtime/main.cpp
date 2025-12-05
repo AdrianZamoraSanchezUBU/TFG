@@ -3,18 +3,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+Runtime GLOBAL_RUNTIME;
+
+/// Runtime getter from LLVM module
+extern "C" Runtime *getRuntime() {
+    return &GLOBAL_RUNTIME;
+}
+
+/**
+ * Function responsable of loading data from extern functions to the runtime
+ */
+extern "C" void registerEventData(const char *id, float period, void (*fn)()) {
+    std::string sid(id);
+    getRuntime()->registerEvent(sid, period, fn);
+}
+
+/**
+ * Function responsable of loading data from extern functions to the runtime
+ */
+extern "C" void scheduleEvent(const char *id) {
+    std::cout << "Scheduler call" << std::endl;
+    std::string sid(id);
+    getRuntime()->schedule(sid);
+}
+
 /**
  * Main LLVM caller
  */
 extern "C" int mainLLVM(void);
 int main(int argc, char **argv) {
-    Runtime runtime;
 
     int ret = mainLLVM();
 
-    runtime.printEventList();
+    GLOBAL_RUNTIME.printEventList();
 
-    runtime.start();
+    GLOBAL_RUNTIME.start();
 
     return ret;
 }

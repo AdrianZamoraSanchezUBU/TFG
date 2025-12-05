@@ -41,6 +41,7 @@ struct CodegenContext {
         IRModule->getOrInsertFunction("strlen", llvm::FunctionType::get(i32Ty, {i8PtrTy}, false));
         IRModule->getOrInsertFunction("registerEventData",
                                       llvm::FunctionType::get(voidTy, {i8PtrTy, float64Ty, callbackPtrTy}, false));
+        IRModule->getOrInsertFunction("scheduleEvent", llvm::FunctionType::get(voidTy, {i8PtrTy}, false));
 
         // Program main function and basic block set up
         llvm::FunctionType *FT = llvm::FunctionType::get(llvm::Type::getInt32Ty(IRContext), false);

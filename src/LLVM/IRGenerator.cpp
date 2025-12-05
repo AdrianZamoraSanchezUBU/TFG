@@ -385,6 +385,23 @@ llvm::Value *IRGenerator::visit(FunctionCallNode &node) {
         args.push_back(argVal);
     }
 
+    Symbol *symb = nullptr;
+    if (symtab.getCurrentScope()->getSymbol(node.getValue()) != nullptr) {
+        symb = symtab.getCurrentScope()->getSymbol(node.getValue());
+
+        if (symb->getCategory() == SymbolCategory::EVENT) {
+            llvm::LLVMContext &C = ctx.IRContext;
+            llvm::Type *voidTy = llvm::Type::getVoidTy(C);
+            llvm::Type *i8PtrTy = llvm::PointerType::get(llvm::Type::getInt8Ty(C), 0);
+
+            llvm::Value *eventID = ctx.IRBuilder.CreateGlobalStringPtr(node.getValue(), "str");
+
+            llvm::FunctionCallee fn =
+                ctx.IRModule->getOrInsertFunction("scheduleEvent", llvm::FunctionType::get(voidTy, {i8PtrTy}, false));
+            ctx.IRBuilder.CreateCall(fn, eventID, "");
+        }
+    }
+
     // Returns the function call IR
     return ctx.IRBuilder.CreateCall(callee, args, callee->getReturnType()->isVoidTy() ? "" : "calltmp");
 };
@@ -608,6 +625,7 @@ llvm::Value *IRGenerator::visit(EventNode &node) {
     // IR generation for all the function statements
     node.getCodeBlock()->accept(*this);
 
+    // Inserting the event register function right after the event
     llvm::LLVMContext &C = ctx.IRContext;
     llvm::Type *i8PtrTy = llvm::PointerType::get(llvm::Type::getInt8Ty(C), 0);
     llvm::Type *voidTy = llvm::Type::getVoidTy(C);
@@ -619,6 +637,7 @@ llvm::Value *IRGenerator::visit(EventNode &node) {
 
     ctx.IRBuilder.CreateRetVoid();
     scopeStack.pop_back();
+
     ctx.popFunction();
 
     return event;

@@ -376,7 +376,7 @@ void *SemanticVisitor::visit(EventNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
 
     // Inserts the event identifier in the current scope
-    Symbol newSymbol(node.getValue(), &node, SymbolCategory::FUNCTION, Type(SupportedTypes::TYPE_VOID));
+    Symbol newSymbol(node.getValue(), &node, SymbolCategory::EVENT, Type(SupportedTypes::TYPE_VOID));
     newSymbol.setNumParams(node.getParamsCount());
     currentScope->insertSymbol(newSymbol);
 

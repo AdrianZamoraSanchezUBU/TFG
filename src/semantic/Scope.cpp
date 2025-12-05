@@ -16,6 +16,9 @@ std::string Symbol::print() const {
     case SymbolCategory::VARIABLE:
         cat = "VARIABLE";
         break;
+    case SymbolCategory::EVENT:
+        cat = "EVENT";
+        break;
     }
 
     return ID + " " + cat + " " + typeToString(type);

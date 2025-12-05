@@ -18,6 +18,7 @@ class Type;
 enum SymbolCategory {
     VARIABLE,  ///< Regular variable
     FUNCTION,  ///< Function
+    EVENT,     ///< Event
     PARAMETER, ///< Function parameter
     CONSTANT   ///< Constant value
 };
@@ -91,7 +92,7 @@ class Symbol {
      * @param params New number of parameters of this symbol.
      */
     void setNumParams(int params) {
-        if (this->category != SymbolCategory::FUNCTION) {
+        if (category != SymbolCategory::FUNCTION && category != SymbolCategory::EVENT) {
             throw std::runtime_error("Unexpected parameters in a non function symbol");
         }
 

@@ -13,11 +13,3 @@ extern "C" char *toString(int x) {
     sprintf(buf, "%d", x);
     return buf;
 }
-
-/**
- * Functions responsable of loading data from extern functions to the runtime
- */
-extern "C" void registerEventData(const char *id, float period, void (*fn)()) {
-    std::string sid(id);
-    Runtime::get().registerEvent(sid, period, fn);
-}

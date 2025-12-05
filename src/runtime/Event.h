@@ -16,7 +16,7 @@ class Event {
     int execLimit;
     int execCounter;
 
-    std::atomic<bool> running{true};
+    std::atomic<bool> running{false};
     std::thread worker;
 
   public:
@@ -37,8 +37,23 @@ class Event {
      */
     std::thread &getWorker() { return worker; }
 
-    /// Sets the running flag for safe thread termination.
+    /**
+     * @brief Getter for id.
+     * @return Returns the identifier of the Event.
+     */
+    std::string &getID() { return id; }
+
+    /// Sets the running flag to false for safe thread termination.
     void stopEvent() { running.store(false); };
+
+    /// Sets the running flag to true for event execution.
+    void startEvent() { running.store(true); };
+
+    /**
+     * @brief Getter for running flag.
+     * @return `true` if the Event is running, `false` otherwise.
+     */
+    bool getEventRunningFlag() { return running.load(); };
 
     /// Prints the event data.
     void print() const { std::cout << "event: " + id << std::endl; };
