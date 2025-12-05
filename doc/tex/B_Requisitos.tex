@@ -81,12 +81,41 @@ Los actores principales son los usuarios, que parten de un lenguaje fuente el cu
 	\caption{CU-1 Traducción a código ejecutable}
 \end{table}
 
-% Caso de Uso 2 -> Traducción a código IR
+% Caso de Uso 2 -> Visualización de estado
 \begin{table}[p]
 	\centering
 	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
 		\toprule
-		\textbf{CU-2}    & \textbf{Traducción a código ejecutable}\\
+		\textbf{CU-2}    & \textbf{Visualización de estado}\\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Autor}                & Adrián Zamora Sánchez \\
+		\textbf{Requisitos asociados} & RF-5\\
+		\textbf{Descripción}          & El programa parte de un código fuente y devuelve un programa ejecutable, adicionalmente se muestra la salida de cada fase del compilador para permitir el estudio de su comportamiento. Para un análisis menos detallado se permite únicamente observar la estructura del programa generado y algunos de sus datos mediante la generación de una imagen del AST \\
+		\textbf{Precondición}         & Existe un fichero con código fuente el cual es correcto léxica y sintácticamente \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Escribir un código fuente
+			\item Ejecutar el compilador con la flag --debug o --visualizeAST (segun el nivel de detalle que se requiera)
+			\item Recibir errores (en este caso hay que volver al paso nº1) o un fichero de salida 
+			\item Se puede ejecutar el fichero de salida
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Un fichero ejecutable y datos sobre la compilación o un error de compilación y sus detalles \\
+		\textbf{Excepciones}          & El fichero con el código de entrada no existe, el código fuente es incorrecto \\
+		\textbf{Importancia}          & Alta \\ 
+		\bottomrule
+	\end{tabularx}
+	\caption{CU-2 Visualización de estado}
+\end{table}
+
+% Caso de Uso 3 -> Traducción a código IR
+\begin{table}[p]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU-3}    & \textbf{Traducción a código ejecutable}\\
 		\toprule
 		\textbf{Versión}              & 1.0    \\
 		\textbf{Autor}                & Adrián Zamora Sánchez \\
@@ -108,15 +137,15 @@ Los actores principales son los usuarios, que parten de un lenguaje fuente el cu
 		\textbf{Importancia}          & Alta \\ 
 		\bottomrule
 	\end{tabularx}
-	\caption{CU-2 Traducción a código IR}
+	\caption{CU-3 Traducción a código IR}
 \end{table}
 
-% Caso de Uso 3 -> Comprobación de la validez léxica de un código
+% Caso de Uso 4 -> Comprobación de la validez léxica de un código
 \begin{table}[p]
 	\centering
 	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
 		\toprule
-		\textbf{CU-3}    & \textbf{Comprobación de la validez léxica de un código}\\
+		\textbf{CU-4}    & \textbf{Comprobación de la validez léxica de un código}\\
 		\toprule
 		\textbf{Versión}              & 1.0    \\
 		\textbf{Autor}                & Adrián Zamora Sánchez \\
@@ -134,18 +163,18 @@ Los actores principales son los usuarios, que parten de un lenguaje fuente el cu
 		\end{enumerate}\\
 		\textbf{Postcondición}        & Una lista de lexemas o un error durante el análisis léxico y sus detalles \\
 		\textbf{Excepciones}          & El fichero con el código de entrada no existe \\
-		\textbf{Importancia}          & Media \\ 
+		\textbf{Importancia}          & Baja \\ 
 		\bottomrule
 	\end{tabularx}
-	\caption{CU-3 Comprobación de la validez léxica de un código}
+	\caption{CU-4 Comprobación de la validez léxica de un código}
 \end{table}
 
-% Caso de Uso 4 -> Comprobación de la validez sintáctica de un código
+% Caso de Uso 5 -> Comprobación de la validez sintáctica de un código
 \begin{table}[p]
 	\centering
 	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
 		\toprule
-		\textbf{CU-4}    & \textbf{Comprobación de la validez sintáctica de un código}\\
+		\textbf{CU-5}    & \textbf{Comprobación de la validez sintáctica de un código}\\
 		\toprule
 		\textbf{Versión}              & 1.0    \\
 		\textbf{Autor}                & Adrián Zamora Sánchez \\
@@ -163,23 +192,23 @@ Los actores principales son los usuarios, que parten de un lenguaje fuente el cu
 		\end{enumerate}\\
 		\textbf{Postcondición}        & Un AST o un error durante el análisis léxico o léxico y sus detalles \\
 		\textbf{Excepciones}          & El fichero con el código de entrada no existe \\
-		\textbf{Importancia}          & Media \\ 
+		\textbf{Importancia}          & Baja \\ 
 		\bottomrule
 	\end{tabularx}
-	\caption{CU-4 Comprobación de la validez sintáctica de un código}
+	\caption{CU-5 Comprobación de la validez sintáctica de un código}
 \end{table}
 
-% Caso de Uso 5 -> Compilar sin optimizar
+% Caso de Uso 6 -> Compilar sin optimizaciones
 \begin{table}[p]
 	\centering
 	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
 		\toprule
-		\textbf{CU-5}    & \textbf{Compilar sin optimizar}\\
+		\textbf{CU-6}    & \textbf{Compilar sin optimizar}\\
 		\toprule
 		\textbf{Versión}              & 1.0    \\
 		\textbf{Autor}                & Adrián Zamora Sánchez \\
 		\textbf{Requisitos asociados} & RF-5\\
-		\textbf{Descripción}          & El programa parte de un código fuente y devuelve un fichero IR no optimizadom, el cual sirve para poder comparar con uno optimizado y analizar este proceso \\
+		\textbf{Descripción}          & El programa parte de un código fuente y realiza el proceso completo a excepción de las optimiazciones finales, el cual sirve para poder comparar con uno optimizado y analizar este proceso \\
 		\textbf{Precondición}         & Existe un fichero con código fuente y este es correcto léxica y sintácticamente \\
 		\textbf{Acciones}             &
 		\begin{enumerate}
@@ -188,12 +217,12 @@ Los actores principales son los usuarios, que parten de un lenguaje fuente el cu
 			\item Escribir un código fuente
 			\item Ejecutar el compilador
 			\item Utilizar el argumento -basic
-			\item Recibir errores (en este caso hay que volver al paso nº1) o un fichro IR sin optimizar
+			\item Recibir errores (en este caso hay que volver al paso nº1) o una salida no optimizada
 		\end{enumerate}\\
-		\textbf{Postcondición}        & Un fichero con código IR \\
+		\textbf{Postcondición}        & Un programa ejecutable o un fichero con código IR según se especifique \\
 		\textbf{Excepciones}          & El fichero con el código de entrada no existe o contiene errores \\
-		\textbf{Importancia}          & Baja \\ 
+		\textbf{Importancia}          & Media \\ 
 		\bottomrule
 	\end{tabularx}
-	\caption{CU-5 Compilar sin optimizar}
+	\caption{CU-6 Compilar sin optimizar}
 \end{table}

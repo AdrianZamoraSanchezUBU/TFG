@@ -26,14 +26,14 @@ class Runtime {
     void launchEventThread(Event *ev);
 
     /**
-     * @brief Saves the event data
+     * @brief Saves the event data.
      * @param id Identifier of the new Event.
      * @param time Time period of the new Event.
      * @param fn Function to run when the Event is executed.
      */
     void registerEvent(std::string id, float time, void (*fn)());
 
-    /// Prints the event list data
+    /// Prints the event list data.
     void printEventList();
 
     /// Starts the time and event scheduler.

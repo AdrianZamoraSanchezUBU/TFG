@@ -14,7 +14,7 @@ Tabla de simbolos
 \subsection{Tipos de datos del lenguaje}
 
 
-\section{Diseño arquitectónico} 
+\section{Diseño arquitectónico} % TODO
 A continuación se lista los módulos principales:
 
 Analizador léxico o lexer
@@ -28,13 +28,15 @@ Generador de código IR
 El siguiente diagrama muestra linealmente una ejecución sin errores, donde se puede visualizar el estado de los datos en cada capa:
 \imagen{diagramaFasesCompilador}{Diagrama fases del compilador}
 
-\section{Diseño procedimental} 
+\section{Diseño procedimental} % TODO
 A continuación se explican de qué formas realizan sus tareas los elementos del diseño arquitectónico visto anteriormente:
 
 Algoritmo del lexer (NFA → DFA)
 
 Algoritmo parser (Adaptive LL()* / ALL(*)) que primero intenta decisiones con bajo lookahead (SLL), y si falla, usa contexto completo (modo LL)
 
-Algoritmo generador de la AST y análisis semántico (visitor pattern)
+Algoritmo para generar la AST (visitor pattern sobre contextos ANTLR) 
 
-Algoritmo que genera IR (LLVM...) 
+Tambien visitor pattern para recorrer AST en análisis semántico y generación de IR.
+
+Algoritmo de scheduling de eventos
