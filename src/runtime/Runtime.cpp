@@ -6,12 +6,7 @@ Runtime &Runtime::get() {
     return instance;
 }
 
-void Runtime::launchEventThread(std::shared_ptr<Event> ev) {
-    ev->getWorker() = std::thread([ev]() { ev->execute(); });
-}
-
 void Runtime::registerEvent(std::string id, float time, void (*fn)()) {
-    std::cout << "\nRegistering the event: " + id << std::endl;
     events.emplace_back(std::make_shared<Event>(id, time, fn));
 }
 
@@ -22,21 +17,9 @@ void Runtime::printEventList() {
     }
 }
 
-void Runtime::start() {
-    while (events.size() > 0 && running) {
-        for (const auto &ev : events) {
-            if (ev->getEventRunningFlag() == true) {
-                std::cout << "Running a event" << std::endl;
-                launchEventThread(ev);
-            }
-        }
-    }
-}
-
 void Runtime::schedule(std::string id) {
     for (const auto &ev : events) {
         if (ev->getID() == id && ev->getEventRunningFlag() == false) {
-            std::cout << "Scheduling the event " + id << std::endl;
             ev->startEvent();
         }
     }

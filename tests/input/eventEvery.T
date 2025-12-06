@@ -1,10 +1,10 @@
 int a;
 
-event test(int x) every 2 sec {
-    int b = x + 5;
-    printf("%s %d", "test", b);
+event test every 2 sec {
+    int b = 4+1;
+    print("test");
 }
 
-test(2);
+test();
 
 return 0;

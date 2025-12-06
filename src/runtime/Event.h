@@ -47,7 +47,10 @@ class Event {
     void stopEvent() { running.store(false); };
 
     /// Sets the running flag to true for event execution.
-    void startEvent() { running.store(true); };
+    void startEvent() {
+        running.store(true);
+        getWorker() = std::thread([this]() { execute(); });
+    };
 
     /**
      * @brief Getter for running flag.

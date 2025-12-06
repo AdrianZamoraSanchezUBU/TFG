@@ -22,7 +22,6 @@ extern "C" void registerEventData(const char *id, float period, void (*fn)()) {
  * Function responsable of loading data from extern functions to the runtime
  */
 extern "C" void scheduleEvent(const char *id) {
-    std::cout << "Scheduler call" << std::endl;
     std::string sid(id);
     getRuntime()->schedule(sid);
 }
@@ -35,9 +34,12 @@ int main(int argc, char **argv) {
 
     int ret = mainLLVM();
 
-    GLOBAL_RUNTIME.printEventList();
-
-    GLOBAL_RUNTIME.start();
+    // If there are events running the main loop keeps active
+    while (true) {
+        if (GLOBAL_RUNTIME.getEventCount() <= 0) {
+            break;
+        }
+    }
 
     return ret;
 }

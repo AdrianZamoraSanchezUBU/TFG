@@ -138,6 +138,12 @@ class IRGenerator {
     llvm::Value *visit(FunctionDecNode &node);
 
     /**
+     * @brief Built-in function call node visit.
+     * @param node Node with a "print" function call.
+     */
+    llvm::Value *generatePrintCall(FunctionCallNode &node);
+
+    /**
      * @brief Visit a function call node.
      * @param node Node to be visited.
      */

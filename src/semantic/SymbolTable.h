@@ -28,7 +28,7 @@ class SymbolTable {
         currentScope = std::make_shared<Scope>(nextScopeId++, 0, nullptr);
 
         // Adding language integrated functions
-        Symbol printf("printf", SymbolCategory::FUNCTION, SupportedTypes::TYPE_INT);
+        Symbol printf("print", SymbolCategory::FUNCTION, SupportedTypes::TYPE_VOID);
         currentScope->insertSymbol(printf);
 
         Symbol strlen("strlen", SymbolCategory::FUNCTION, SupportedTypes::TYPE_INT);

@@ -354,11 +354,49 @@ llvm::Value *IRGenerator::visit(FunctionDecNode &node) {
     return function;
 };
 
+llvm::Value *IRGenerator::generatePrintCall(FunctionCallNode &node) {
+    // Getting the arguments values
+    std::vector<llvm::Value *> args;
+    for (int i = 0; i < node.getParamsCount(); i++) {
+        llvm::Value *argVal;
+
+        // Checks if the value is stored
+        Symbol *symb = nullptr;
+        if (symtab.getCurrentScope()->getSymbol(node.getParam(i)->getValue()) != nullptr) {
+            symb = symtab.getCurrentScope()->getSymbol(node.getParam(i)->getValue());
+        }
+
+        // Usage of a reference instead of direct value
+        if (auto varRef = dynamic_cast<VariableRefNode *>(node.getParam(i))) {
+            if (varRef->isRef()) {
+                args.push_back(symb->getLlvmValue());
+                continue;
+            }
+        }
+
+        // Expressions, strings and literal values are generated here
+        argVal = node.getParam(i)->accept(*this);
+        args.push_back(argVal);
+    }
+
+    // Pushing the NULL var_arg terminator
+    args.push_back(llvm::ConstantPointerNull::get(llvm::PointerType::get(llvm::Type::getInt8Ty(ctx.IRContext), 0)));
+
+    // Returns the function call IR
+    llvm::Function *callee = ctx.IRModule->getFunction(node.getValue());
+    return ctx.IRBuilder.CreateCall(callee, args, callee->getReturnType()->isVoidTy() ? "" : "calltmp");
+}
+
 llvm::Value *IRGenerator::visit(FunctionCallNode &node) {
     // Function caller
     llvm::Function *callee = ctx.IRModule->getFunction(node.getValue());
     if (!callee) {
         throw std::runtime_error("Undefined function: " + node.getValue());
+    }
+
+    // Built-in function with different generation
+    if (node.getValue() == "print") {
+        return generatePrintCall(node);
     }
 
     // Getting the arguments values
@@ -398,7 +436,7 @@ llvm::Value *IRGenerator::visit(FunctionCallNode &node) {
 
             llvm::FunctionCallee fn =
                 ctx.IRModule->getOrInsertFunction("scheduleEvent", llvm::FunctionType::get(voidTy, {i8PtrTy}, false));
-            ctx.IRBuilder.CreateCall(fn, eventID, "");
+            return ctx.IRBuilder.CreateCall(fn, eventID, "");
         }
     }
 
@@ -597,6 +635,24 @@ llvm::Value *IRGenerator::visit(EventNode &node) {
         event = llvm::Function::Create(eventType, llvm::Function::ExternalLinkage, node.getValue(), ctx.IRModule.get());
     }
 
+    llvm::Value *eventID = ctx.IRBuilder.CreateGlobalStringPtr(node.getValue(), "str");
+    llvm::Value *time = node.getTimeStmt()->accept(*this);
+
+    std::vector<llvm::Value *> args;
+    args.push_back(eventID);
+    args.push_back(time);
+    args.push_back(event);
+
+    // Inserting the event register function right after the event
+    llvm::LLVMContext &C = ctx.IRContext;
+    llvm::Type *i8PtrTy = llvm::PointerType::get(llvm::Type::getInt8Ty(C), 0);
+    llvm::Type *voidTy = llvm::Type::getVoidTy(C);
+    llvm::Type *float64Ty = llvm::Type::getFloatTy(C);
+    llvm::Type *fnPtrTy = llvm::PointerType::getUnqual(llvm::FunctionType::get(voidTy, false));
+    llvm::FunctionCallee fn = ctx.IRModule->getOrInsertFunction(
+        "registerEventData", llvm::FunctionType::get(voidTy, {i8PtrTy, float64Ty, fnPtrTy}, false));
+    ctx.IRBuilder.CreateCall(fn, args, "");
+
     // Basic block generation and stack push
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx.IRContext, "entry", event);
 
@@ -614,26 +670,9 @@ llvm::Value *IRGenerator::visit(EventNode &node) {
         symtab.getScopeByID(scopeRef + 1)->getSymbol(name)->setLlvmValue(&arg);
     }
     llvm::verifyFunction(*event);
-    llvm::Value *eventID = ctx.IRBuilder.CreateGlobalStringPtr(node.getValue(), "str");
-    llvm::Value *time = node.getTimeStmt()->accept(*this);
-
-    std::vector<llvm::Value *> args;
-    args.push_back(eventID);
-    args.push_back(time);
-    args.push_back(event);
 
     // IR generation for all the function statements
     node.getCodeBlock()->accept(*this);
-
-    // Inserting the event register function right after the event
-    llvm::LLVMContext &C = ctx.IRContext;
-    llvm::Type *i8PtrTy = llvm::PointerType::get(llvm::Type::getInt8Ty(C), 0);
-    llvm::Type *voidTy = llvm::Type::getVoidTy(C);
-    llvm::Type *float64Ty = llvm::Type::getFloatTy(C);
-    llvm::Type *fnPtrTy = llvm::PointerType::getUnqual(llvm::FunctionType::get(voidTy, false));
-    llvm::FunctionCallee fn = ctx.IRModule->getOrInsertFunction(
-        "registerEventData", llvm::FunctionType::get(voidTy, {i8PtrTy, float64Ty, fnPtrTy}, false));
-    ctx.IRBuilder.CreateCall(fn, args, "");
 
     ctx.IRBuilder.CreateRetVoid();
     scopeStack.pop_back();

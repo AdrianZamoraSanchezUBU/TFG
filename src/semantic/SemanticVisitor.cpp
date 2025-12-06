@@ -267,9 +267,12 @@ void *SemanticVisitor::visit(FunctionCallNode &node) {
         return nullptr;
 
     if (node.getParamsCount() != expectedParams) {
-        throw std::runtime_error("The function " + node.getValue() + " was declared with " +
-                                 std::to_string(expectedParams) + " but is being called with " +
-                                 std::to_string(node.getParamsCount()));
+        // Variable arguments exception for the built-in function print
+        if (node.getValue() != "print") {
+            throw std::runtime_error("The function " + node.getValue() + " was declared with " +
+                                     std::to_string(expectedParams) + " but is being called with " +
+                                     std::to_string(node.getParamsCount()));
+        }
     }
 
     // Checking for uses of undefined variable as params

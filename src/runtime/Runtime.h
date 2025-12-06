@@ -34,6 +34,12 @@ class Runtime {
     void schedule(std::string id);
 
     /**
+     * @brief Return the size of the Event list.
+     * @return Amount of registered events.
+     */
+    int getEventCount() { return events.size(); };
+
+    /**
      * @brief Saves the event data.
      * @param id Identifier of the new Event.
      * @param time Time period of the new Event.
@@ -43,9 +49,6 @@ class Runtime {
 
     /// Prints the event list data.
     void printEventList();
-
-    /// Starts the time and event scheduler.
-    void start();
 
     /// Stops the infinite loop and shutdowns all the Events.
     void stop();
