@@ -30,7 +30,7 @@ void *SemanticVisitor::visit(LiteralNode &node) {
 }
 
 void *SemanticVisitor::visit(TimeLiteralNode &node) {
-    int time = node.getTime();
+    float time = node.getTime();
 
     // Unvalid time value
     if (time < 0) {
@@ -42,13 +42,13 @@ void *SemanticVisitor::visit(TimeLiteralNode &node) {
     case TimeStamp::TYPE_TICK:
         return nullptr;
     case TimeStamp::TYPE_SEC:
-        node.setValue(time * 10);
+        node.setValue(time * 1000);
         break;
     case TimeStamp::TYPE_MIN:
-        node.setValue(time * 10 * 60);
+        node.setValue(time * 1000 * 60);
         break;
     case TimeStamp::TYPE_HR:
-        node.setValue(time * 10 * 60 * 60);
+        node.setValue(time * 1000 * 60 * 60);
         break;
     default:
         throw std::runtime_error("Error in time literal, unknown time stamp");
@@ -118,7 +118,7 @@ void *SemanticVisitor::visit(BinaryExprNode &node) {
 void *SemanticVisitor::visit(VariableDecNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
 
-    if (currentScope->getSymbol(node.getValue())) {
+    if (currentScope->contains(node.getValue())) {
         throw std::runtime_error("Variable redeclaration error");
     }
 

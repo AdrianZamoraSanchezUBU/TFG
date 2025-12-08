@@ -431,6 +431,8 @@ Type ASTBuilder::visit(TParser::TypeContext *ctx) {
         return Type(SupportedTypes::TYPE_BOOL);
     if (ctx->TYPE_VOID())
         return Type(SupportedTypes::TYPE_VOID);
+    if (ctx->TYPE_TIME())
+        return Type(SupportedTypes::TYPE_TIME);
 
     throw std::runtime_error("Not a valid type");
 }

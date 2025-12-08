@@ -25,7 +25,21 @@ TEST(functionTest, functionCall) {
 
     /* Expected IR */
     std::vector<std::string> regexpr;
+    regexpr.push_back(R"(define i32 @foo)");
+    regexpr.push_back(R"(i32 %x)");
     regexpr.push_back(R"(call i32 @foo)");
+
+    test(fileName, regexpr);
+}
+
+TEST(functionTest, functionCallRef) {
+    const std::string fileName = std::string(TEST_FILES_DIR) + "functionCallRef.T";
+
+    /* Expected IR */
+    std::vector<std::string> regexpr;
+    regexpr.push_back(R"(define i32 @foo)");
+    regexpr.push_back(R"(ptr %x)");
+    regexpr.push_back(R"(ptr %param_ptr)");
 
     test(fileName, regexpr);
 }

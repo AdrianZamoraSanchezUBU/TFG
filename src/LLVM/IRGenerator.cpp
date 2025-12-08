@@ -4,12 +4,7 @@
 
 llvm::Value *IRGenerator::visit(CodeBlockNode &node) {
     // Goes to the next scope
-    scopeRef++;
-    scopeStack.push_back(scopeRef);
-    std::shared_ptr<Scope> scope = symtab.getScopeByID(scopeStack.back());
-    if (scope != nullptr) {
-        symtab.setCurrentScope(scope);
-    }
+    pushScope();
 
     // Visit all the statement
     for (int i = 0; i < node.getStmtCount(); i++) {
@@ -331,7 +326,7 @@ llvm::Value *IRGenerator::visit(FunctionDefNode &node) {
 
     // IR generation for all the function statements
     node.getCodeBlock()->accept(*this);
-    scopeStack.pop_back();
+    popScope();
     ctx.popFunction();
 
     return function;
@@ -485,7 +480,7 @@ llvm::Value *IRGenerator::visit(IfNode &node) {
     // Generates the if block
     ctx.pushFunction(thenBB);
     node.getCodeBlock()->accept(*this);
-    scopeStack.pop_back();
+    popScope();
 
     // Inserts the merge block if no terminator was found at the end of the if block
     if (!ctx.IRBuilder.GetInsertBlock()->getTerminator()) {
@@ -539,7 +534,7 @@ llvm::Value *IRGenerator::visit(WhileNode &node) {
     // Generates the while block
     ctx.pushFunction(loopBB);
     node.getCodeBlock()->accept(*this);
-    scopeStack.pop_back();
+    popScope();
 
     // Check if the block had a return
     if (!ctx.IRBuilder.GetInsertBlock()->getTerminator()) {
@@ -582,7 +577,7 @@ llvm::Value *IRGenerator::visit(ForNode &node) {
     // Generates the for block
     ctx.pushFunction(loopBB);
     node.getCodeBlock()->accept(*this);
-    scopeStack.pop_back();
+    popScope();
 
     // Check if the block had a return
     if (!ctx.IRBuilder.GetInsertBlock()->getTerminator()) {
@@ -675,7 +670,7 @@ llvm::Value *IRGenerator::visit(EventNode &node) {
     node.getCodeBlock()->accept(*this);
 
     ctx.IRBuilder.CreateRetVoid();
-    scopeStack.pop_back();
+    popScope();
 
     ctx.popFunction();
 

@@ -84,6 +84,43 @@ TEST(variableTest, variableCall) {
     test(fileName, root.get(), expectedIR);
 }
 
+TEST(variableTest, variableTimeType) {
+    const std::string fileName = std::string(TEST_FILES_DIR) + "variableTime.T";
+
+    std::vector<std::unique_ptr<ASTNode>> statements;
+    auto varDec = std::make_unique<VariableDecNode>(Type(SupportedTypes::TYPE_TIME), "timeVar");
+    statements.push_back(std::move(varDec));
+
+    auto timeLit = std::make_unique<TimeLiteralNode>(5.2, TimeStamp::TYPE_SEC);
+    auto varAssign =
+        std::make_unique<VariableAssignNode>(Type(SupportedTypes::TYPE_TIME), "timeVar", std::move(timeLit));
+    statements.push_back(std::move(varAssign));
+
+    auto retNode = std::make_unique<ReturnNode>(std::make_unique<LiteralNode>(0, Type(SupportedTypes::TYPE_INT)));
+    statements.push_back(std::move(retNode));
+
+    auto root = std::make_unique<CodeBlockNode>(std::move(statements));
+
+    /* Expected IR */
+    std::vector<std::string> regexpr;
+    regexpr.push_back(R"(%timeVar_ptr = alloca fp128, align 16)");
+    regexpr.push_back(R"(store float 5.)");
+
+    test(fileName, regexpr);
+}
+
+TEST(variableTest, variableShadowing) {
+    const std::string fileName = std::string(TEST_FILES_DIR) + "varShadowing.T";
+
+    /* Expected IR */
+    std::vector<std::string> regexpr;
+    regexpr.push_back(R"(ptr %a_val, ptr null)");
+    regexpr.push_back(R"(ptr %a_val2, ptr null)");
+    regexpr.push_back(R"(ptr %a_val, ptr null)");
+
+    test(fileName, regexpr);
+}
+
 /**
  * @brief Runs the tests associated with variables.
  */

@@ -1,11 +1,5 @@
-int a = 1;
-
 if(2 < 3){
-    string b = toString(a);
-
-    printf("%s", b);
-
-    return a;
+    return 1;
 }
 
-return a;
+return 2;

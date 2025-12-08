@@ -10,10 +10,8 @@
  * @return Program exit code (0 if everything was successful).
  */
 int main(int argc, char *argv[]) {
-    // File reading
-    CompilerFlags flags;
-
     // Extract the flags from the argv
+    CompilerFlags flags;
     try {
         flags = argvToFlags(argc, argv);
     } catch (const std::exception &e) {

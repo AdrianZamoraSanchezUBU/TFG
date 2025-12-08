@@ -77,6 +77,7 @@ set(TEST_SOURCES
     tests/functionTest.cpp
     tests/ifElseTest.cpp
     tests/loopTest.cpp
+    tests/eventTest.cpp
 )
 
 # Build each test

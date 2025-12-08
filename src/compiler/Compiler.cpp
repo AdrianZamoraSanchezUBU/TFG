@@ -230,12 +230,11 @@ void Compiler::parse() {
         }
 
         // Tex file header and styles
-        texFile << includeTexHeader() << std::endl;
+        texFile << includeTexHeader();
 
-        texFile << ast->print() << std::endl;
+        texFile << ast->print() + "]" << std::endl;
 
         // Tex footer file
-        texFile << "]" << std::endl;
         texFile << R"(\end{forest})" << std::endl;
         texFile << R"(\end{document})" << std::endl;
 

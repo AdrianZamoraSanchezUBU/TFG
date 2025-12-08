@@ -31,13 +31,17 @@ class IRGenerator {
     CodegenContext ctx;          /// LLVM Context.
     SymbolTable &symtab;         /// Symbol Table reference.
     std::vector<int> scopeStack; /// Scope stack
-    int scopeRef = -1;
+    int scopeRef = -1;           /// The scope is -1 before the main program initialization
 
+    /**
+     * @brief Matches the condition and end of a loop.
+     *
+     * This structure allow safe nested loop management.
+     */
     struct LoopContext {
         llvm::BasicBlock *condBB;
         llvm::BasicBlock *endLoopBB;
     };
-
     LoopContext loopContext;
 
   public:
@@ -48,18 +52,26 @@ class IRGenerator {
      */
     explicit IRGenerator(SymbolTable &table) : ctx(), symtab(table){};
 
-    /**
-     * @brief Inserts a new scope ID in the stack
-     * @param scopeID ID of the new scope.
-     */
-    void pushScope(int scopeID) { scopeStack.push_back(scopeID); }
+    /// Inserts a new scope ID in the stack.
+    void pushScope() {
+        scopeRef++;
+        scopeStack.push_back(scopeRef);
 
-    /// Removes the top scope ID from the stack
+        // Sets the new scope as current scope
+        std::shared_ptr<Scope> scope = symtab.getScopeByID(scopeStack.back());
+        symtab.setCurrentScope(scope);
+    }
+
+    /// Removes the top scope ID from the stack and sets the previous scope.
     void popScope() {
         if (!scopeStack.empty()) {
             scopeStack.pop_back();
+
+            // Sets the previous scope as current scope
+            std::shared_ptr<Scope> scope = symtab.getScopeByID(scopeStack.back());
+            symtab.setCurrentScope(scope);
         } else {
-            throw std::runtime_error("Scope stack empty!");
+            throw std::runtime_error("Scope stack empty");
         }
     }
 

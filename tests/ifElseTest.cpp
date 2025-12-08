@@ -4,20 +4,18 @@ TEST(ifElseTest, ifStatement) {
     const std::string fileName = std::string(TEST_FILES_DIR) + "if.T";
 
     /* Expected AST */
-    // Pre if
-    auto dec = std::make_unique<LiteralNode>(1, SupportedTypes::TYPE_INT);
-    auto varA = std::make_unique<VariableAssignNode>(SupportedTypes::TYPE_INT, "a", std::move(dec));
-
     // Condition
     auto lhs = std::make_unique<LiteralNode>(2, SupportedTypes::TYPE_INT);
     auto rhs = std::make_unique<LiteralNode>(3, SupportedTypes::TYPE_INT);
     auto expr = std::make_unique<BinaryExprNode>("<", std::move(lhs), std::move(rhs));
 
     // Block of code
-    auto varRef = std::make_unique<VariableRefNode>("a");
-    auto ret = std::make_unique<ReturnNode>(std::move(varRef));
+    auto ifRetVal = std::make_unique<LiteralNode>(1, SupportedTypes::TYPE_INT);
+    auto programRetVal = std::make_unique<LiteralNode>(2, SupportedTypes::TYPE_INT);
+    auto retIf = std::make_unique<ReturnNode>(std::move(ifRetVal));
+    auto retProgram = std::make_unique<ReturnNode>(std::move(programRetVal));
     std::vector<std::unique_ptr<ASTNode>> ifBlockStatements;
-    ifBlockStatements.push_back(std::move(ret));
+    ifBlockStatements.push_back(std::move(retIf));
     auto ifBlock = std::make_unique<CodeBlockNode>(std::move(ifBlockStatements));
 
     // If statement node
@@ -25,15 +23,13 @@ TEST(ifElseTest, ifStatement) {
 
     // Program block
     std::vector<std::unique_ptr<ASTNode>> statements;
-    statements.push_back(std::move(varA));
     statements.push_back(std::move(ifNode));
+    statements.push_back(std::move(retProgram));
     auto root = std::make_unique<CodeBlockNode>(std::move(statements));
 
     /* Expected IR */
     std::vector<std::string> regexpr;
     regexpr.push_back("br i1 true, label %then, label %endif");
-    regexpr.push_back("then:");
-    regexpr.push_back("endif:                                            ; preds = %entry");
 
     test(fileName, root.get(), regexpr);
 }
@@ -61,9 +57,13 @@ TEST(ifElseTest, ifElseStatement) {
     auto ifBlock = std::make_unique<CodeBlockNode>(std::move(ifBlockStatements));
     auto ifNode = std::make_unique<IfNode>(std::move(expr), std::move(ifBlock), std::move(elseNode));
 
+    auto retVal = std::make_unique<LiteralNode>(0, SupportedTypes::TYPE_INT);
+    auto ret = std::make_unique<ReturnNode>(std::move(retVal));
+
     // Program block
     std::vector<std::unique_ptr<ASTNode>> statements;
     statements.push_back(std::move(ifNode));
+    statements.push_back(std::move(ret));
     auto root = std::make_unique<CodeBlockNode>(std::move(statements));
 
     /* Expected IR */
@@ -124,6 +124,25 @@ TEST(ifElseTest, nestedIf) {
     regexpr.push_back("endif2:                                           ; preds = %then");
 
     test(fileName, root.get(), regexpr);
+}
+
+TEST(loopTest, elseIfStatement) {
+    const std::string fileName = std::string(TEST_FILES_DIR) + "elseif.T";
+
+    /* Expected IR */
+    std::vector<std::string> regexpr;
+    regexpr.push_back("br i1 false, label %then, label %else");
+    regexpr.push_back("then:                                             ; preds = %entry");
+    regexpr.push_back("else:                                             ; preds = %entry");
+    regexpr.push_back("endif:                                            ; preds = %endif3, %then");
+    regexpr.push_back("then1:                                            ; preds = %else");
+    regexpr.push_back("else2:                                            ; preds = %else");
+    regexpr.push_back("endif3:                                           ; preds = %endif6, %then1");
+    regexpr.push_back("then4:                                            ; preds = %else2");
+    regexpr.push_back("else5:                                            ; preds = %else2");
+    regexpr.push_back("endif6:                                           ; preds = %else5, %then4");
+
+    test(fileName, regexpr);
 }
 
 /**

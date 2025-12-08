@@ -10,7 +10,7 @@
 #include <llvm/Support/raw_ostream.h>
 
 /**
- * @brief Run a test case for a file with a statement.
+ * @brief Run a test case for a program.
  *
  * @param fileName    Name of the filename with the test case
  * @param expectedAST Expected root for the generated AST.
@@ -21,7 +21,7 @@
 bool test(const std::string &fileName, ASTNode *expectedAST, const std::string &expectedIR);
 
 /**
- * @brief Run a test case for a file with a statement.
+ * @brief Run a test case for a program.
  *
  * @param fileName       Name of the filename with the test case
  * @param multipleRegex  Expected IR generated for this test case.
@@ -31,7 +31,7 @@ bool test(const std::string &fileName, ASTNode *expectedAST, const std::string &
 bool test(const std::string &fileName, std::vector<std::string> multipleRegex);
 
 /**
- * @brief Run a test case for a file with a statement.
+ * @brief Run a test case for a program.
  *
  * @param fileName       Name of the filename with the test case
  * @param expectedAST    Expected root for the generated AST.

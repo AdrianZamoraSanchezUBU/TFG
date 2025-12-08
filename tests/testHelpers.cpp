@@ -17,10 +17,10 @@ bool test(const std::string &fileName, ASTNode *expectedAST, const std::string &
     try {
         compiler.parse();
 
-        if (!compiler.getAST()->equals(expectedAST)) {
-            compiler.getAST()->print();
+        if (compiler.getAST()->equals(expectedAST) == false) {
+            std::cout << "AST:\n" + compiler.getAST()->print() << std::endl;
             std::cout << std::endl;
-            expectedAST->print();
+            std::cout << "Expected AST:\n" + expectedAST->print() << std::endl;
         }
 
         EXPECT_TRUE(compiler.getAST()->equals(expectedAST));
@@ -122,6 +122,12 @@ bool test(const std::string &fileName, ASTNode *expectedAST, std::vector<std::st
     /* Parser test */
     try {
         compiler.parse();
+
+        if (compiler.getAST()->equals(expectedAST) == false) {
+            std::cout << "AST:\n" + compiler.getAST()->print() << std::endl;
+            std::cout << std::endl;
+            std::cout << "Expected AST:\n" + expectedAST->print() << std::endl;
+        }
 
         EXPECT_TRUE(compiler.getAST()->equals(expectedAST));
     } catch (const std::exception &e) {

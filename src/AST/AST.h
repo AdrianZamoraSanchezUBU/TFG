@@ -266,7 +266,9 @@ class TimeLiteralNode : public ASTNode {
     void setTime(TimeStamp newTimeType) { type = newTimeType; }
 
     /// @copydoc ASTNode::print
-    std::string print() const override { return getValue(); }
+    std::string print() const override {
+        return "[" + std::to_string(value) + " " + getValue() + ", variableAssignNode]";
+    }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {
@@ -508,7 +510,7 @@ class VariableAssignNode : public ASTNode {
 
     /// @copydoc ASTNode::print
     std::string print() const override {
-        return "\n[{" + typeToString(type) + " " + identifier + "},variableAssignNode" + assign->print() + "]";
+        return "\n[{" + typeToString(type) + " " + identifier + "},variableAssignNode " + assign->print() + "]";
     }
 
     /// @copydoc ASTNode::equals
@@ -1180,7 +1182,7 @@ class EventNode : public ASTNode {
             params.append(getParam(i)->print());
         }
 
-        return "\n[" + id + " " + timeCommandToString(command) + ", functionDefNode" + params + timeStmt->print() +
+        return "\n[" + id + " " + timeCommandToString(command) + ", params: " + params + "," + timeStmt->print() +
                codeBlock->print() + "]";
     }
 
