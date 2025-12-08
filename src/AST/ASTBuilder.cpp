@@ -386,6 +386,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventBlockContext *ctx) {
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventDefContext *ctx) {
     // Setting the time command
     TimeCommand command = visit(ctx->timeCommand());
+    int execLimit = 0;
 
     // Visit the time block
     auto codeBlock = visit(ctx->eventBlock());
@@ -406,6 +407,11 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventDefContext *ctx) {
         }
     }
 
+    // Visits the execution limit of the event
+    if (ctx->eventLimitCondition()) {
+        execLimit = visit(ctx->eventLimitCondition());
+    }
+
     // Getting the time from a literal or a variable reference
     if (ctx->time_literal()) {
         timeNode = visit(ctx->time_literal());
@@ -414,7 +420,11 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventDefContext *ctx) {
     }
 
     return std::make_unique<EventNode>(ctx->IDENTIFIER(0)->getText(), params, command, std::move(timeNode),
-                                       std::move(codeBlockPtr));
+                                       std::move(codeBlockPtr), execLimit);
+}
+
+int ASTBuilder::visit(TParser::EventLimitConditionContext *ctx) {
+    return stoi(ctx->NUMBER_LITERAL()->getText());
 }
 
 Type ASTBuilder::visit(TParser::TypeContext *ctx) {

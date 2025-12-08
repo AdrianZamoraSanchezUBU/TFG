@@ -19,6 +19,7 @@ BREAK    : 'break'    ;
 EVERY : 'every' ;
 AT    : 'at'    ;
 AFTER : 'after' ;
+LIMIT : 'limit' ;
 WHEN  : 'when'  ;
 EXIT  : 'exit'  ;
 EVENT : 'event' ;

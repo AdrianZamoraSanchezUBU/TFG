@@ -217,4 +217,11 @@ class ASTBuilder {
      * @return TimeStamp.
      */
     TimeStamp visit(TParser::TimeStampContext *ctx);
+
+    /**
+     * @brief Visits a event limit condition.
+     * @param ctx Context of the event limit context.
+     * @return Number of limit executions before event stop.
+     */
+    int visit(TParser::EventLimitConditionContext *ctx);
 };

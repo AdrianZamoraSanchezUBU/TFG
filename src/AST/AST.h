@@ -1121,6 +1121,7 @@ class LoopControlStatementNode : public ASTNode {
 class EventNode : public ASTNode {
     std::string id;
     TimeCommand command;
+    int limit;
     std::vector<std::unique_ptr<ASTNode>> paramList;
     std::unique_ptr<ASTNode> timeStmt;
     std::unique_ptr<CodeBlockNode> codeBlock;
@@ -1138,9 +1139,10 @@ class EventNode : public ASTNode {
                        std::vector<std::unique_ptr<ASTNode>> &params,
                        TimeCommand timeCommand,
                        std::unique_ptr<ASTNode> time,
-                       std::unique_ptr<CodeBlockNode> block)
+                       std::unique_ptr<CodeBlockNode> block,
+                       int execLimit = 0)
         : id(identifier), paramList(std::move(params)), command(timeCommand), timeStmt(std::move(time)),
-          codeBlock(std::move(block)){};
+          codeBlock(std::move(block)), limit(execLimit){};
 
     /**
      * @brief Getter for the code block.

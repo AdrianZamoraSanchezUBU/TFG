@@ -126,7 +126,7 @@ timeStamp
 		;
 
 eventDef
-	: EVENT IDENTIFIER (LPAREN params RPAREN)? timeCommand (time_literal | IDENTIFIER) eventBlock
+	: EVENT IDENTIFIER (LPAREN params RPAREN)? timeCommand (time_literal | IDENTIFIER) (eventLimitCondition)? eventBlock
 	| EVENT IDENTIFIER WHEN expr eventBlock
 	;
 
@@ -135,6 +135,8 @@ timeCommand
 			| AT
 			| AFTER
 			; 
+
+eventLimitCondition : LIMIT NUMBER_LITERAL ;
 
 eventBlock : LBRACE (stmt | exitStmt)* RBRACE ;
 
