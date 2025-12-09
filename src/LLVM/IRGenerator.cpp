@@ -167,6 +167,50 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
     throw std::runtime_error("Unsupported binary operation: " + op + " on " + typeToString(operationType));
 }
 
+llvm::Value *IRGenerator::visit(UnaryOperationNode &node) {
+    llvm::Value *oneLiteral = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ctx.IRContext), 1);
+    Symbol *symbol = symtab.getCurrentScope()->getSymbol(node.getValue());
+
+    // Loading the allocated variable
+    llvm::Value *alloc = symbol->getLlvmValue();
+    llvm::Value *loaded;
+    llvm::Type *type;
+    if (llvm::AllocaInst *alloca = llvm::dyn_cast<llvm::AllocaInst>(alloc)) {
+        llvm::Type *type = alloca->getAllocatedType();
+        loaded = ctx.IRBuilder.CreateLoad(type, alloca, node.getValue() + "_val");
+    }
+
+    llvm::Value *result;
+
+    // Operation
+    // FLOAT
+    if (symbol->getType() == SupportedTypes::TYPE_FLOAT || symbol->getType() == SupportedTypes::TYPE_TIME) {
+        if (node.getOp() == "++")
+            result = ctx.IRBuilder.CreateFAdd(loaded, oneLiteral, "addtmp");
+        if (node.getOp() == "--")
+            result = ctx.IRBuilder.CreateFSub(loaded, oneLiteral, "subtmp");
+    }
+    // INT
+    if (symbol->getType() == SupportedTypes::TYPE_INT || symbol->getType() == SupportedTypes::TYPE_CHAR ||
+        symbol->getType() == SupportedTypes::TYPE_BOOL) {
+        if (node.getOp() == "++")
+            result = ctx.IRBuilder.CreateAdd(loaded, oneLiteral, "addtmp");
+        if (node.getOp() == "--")
+            result = ctx.IRBuilder.CreateSub(loaded, oneLiteral, "subtmp");
+    }
+
+    // Loading the result
+    ctx.IRBuilder.CreateStore(result, alloc);
+
+    // If this node is a prefix unary operator the return value is the operation over the variable value
+    if (node.isPrefix()) {
+        return result;
+    }
+
+    // If this node is a postfix unary oeprator the return value is the value of the variable before the operation
+    return loaded;
+}
+
 llvm::Value *IRGenerator::visit(VariableDecNode &node) {
     llvm::Type *varType = getLlvmType(node.getType());
 
@@ -195,14 +239,15 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
         assignVal = visit(*lit);
     } else if (auto lit = dynamic_cast<TimeLiteralNode *>(node.getAssign())) {
         assignVal = visit(*lit);
+    } else if (auto unaryOp = dynamic_cast<UnaryOperationNode *>(node.getAssign())) {
+        assignVal = visit(*unaryOp);
     } else if (auto var = dynamic_cast<VariableRefNode *>(node.getAssign())) {
         assignVal = visit(*var);
 
         // Automatic dereferencing the value
-        Symbol *assign = symtab.getCurrentScope()->getSymbol(node.getAssign()->getValue());
+        Symbol *assign = symtab.getCurrentScope()->getSymbol(var->getValue());
         if (assign->isPtr()) {
-            assignVal = ctx.IRBuilder.CreateLoad(getLlvmType(assign->getType()), assignVal,
-                                                 node.getAssign()->getValue() + "_val");
+            assignVal = ctx.IRBuilder.CreateLoad(getLlvmType(assign->getType()), assignVal, var->getValue() + "_val");
         }
     } else if (auto fn = dynamic_cast<FunctionCallNode *>(node.getAssign())) {
         assignVal = visit(*fn);

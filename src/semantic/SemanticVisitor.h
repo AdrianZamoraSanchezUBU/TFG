@@ -42,6 +42,12 @@ class SemanticVisitor {
     void *visit(BinaryExprNode &node);
 
     /**
+     * @brief Checks the correctness of a unary operation
+     * @param node Node to be visited.
+     */
+    void *visit(UnaryOperationNode &node);
+
+    /**
      * @brief Visits a code block node.
      * @param node Node to be visited.
      */

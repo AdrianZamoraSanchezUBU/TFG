@@ -108,25 +108,53 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LogicalExprContext *ctx) {
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::OperandExprContext *ctx) {
     auto operand = ctx->operand();
-    bool ref = false;
 
-    // Checks if the operand is a identifier (variable)
-    if (operand->IDENTIFIER()) {
-        // Checks if the operand is a reference to a identifier (variable)
-        if (operand->TYPE_PTR())
-            ref = true;
-
-        return std::make_unique<VariableRefNode>(operand->IDENTIFIER()->getText(), ref);
-    }
-
-    // Checks if the operand is a literal value
+    // The operand is a literal
     if (operand->literal()) {
         return visit(operand->literal());
     }
 
-    // Checks if the operand is a function call
+    // The operand is a function call
     if (operand->functionCall()) {
         return visit(operand->functionCall());
+    }
+
+    // The operand is a pointer to a identifier
+    if (operand->TYPE_PTR()) {
+        return std::make_unique<VariableRefNode>(operand->IDENTIFIER()->getText(), true);
+    }
+
+    // The operand is a unary prefix operation
+    if (operand->INC() && operand->INC()->getSymbol()->getTokenIndex() == operand->start->getTokenIndex()) {
+        return std::make_unique<UnaryOperationNode>(operand->IDENTIFIER()->getText(),
+                                                    true, // prefix is true
+                                                    "++"  // isInc is true
+        );
+    }
+    if (operand->DEC() && operand->DEC()->getSymbol()->getTokenIndex() == operand->start->getTokenIndex()) {
+        return std::make_unique<UnaryOperationNode>(operand->IDENTIFIER()->getText(),
+                                                    true, // prefix is true
+                                                    "--"  // isInc is false
+        );
+    }
+
+    // The operand is a unary postfix operation
+    if (operand->IDENTIFIER()) {
+        if (operand->INC()) {
+            return std::make_unique<UnaryOperationNode>(operand->IDENTIFIER()->getText(),
+                                                        false, // prefix is false
+                                                        "++"   // isInc is true
+            );
+        }
+        if (operand->DEC()) {
+            return std::make_unique<UnaryOperationNode>(operand->IDENTIFIER()->getText(),
+                                                        false, // prefix is false
+                                                        "--"   // isInc is false
+            );
+        }
+
+        // Simple variable
+        return std::make_unique<VariableRefNode>(operand->IDENTIFIER()->getText(), false);
     }
 
     throw std::runtime_error("Not a valid operand");

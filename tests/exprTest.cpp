@@ -109,6 +109,31 @@ TEST(exprTest, complexExpr) {
     test(fileName, root.get(), expectedIR);
 }
 
+TEST(exprTest, unaryPostfixOperation) {
+    const std::string fileName = std::string(TEST_FILES_DIR) + "postfixIncOperation.T";
+
+    /* Expected IR */
+    std::vector<std::string> regex;
+    regex.push_back(R"(%addtmp = add i32 %a_val, 1)");
+    regex.push_back(R"(store i32 %addtmp, ptr %a_ptr, align 4)");
+    regex.push_back(R"(%a_val1 = load i32, ptr %a_ptr, align 4)");
+    regex.push_back(R"(ret i32 %a_val1)");
+
+    test(fileName, regex);
+}
+
+TEST(exprTest, unaryPrefixOperation) {
+    const std::string fileName = std::string(TEST_FILES_DIR) + "prefixDecOperation.T";
+
+    /* Expected IR */
+    std::vector<std::string> regex;
+    regex.push_back(R"(%subtmp = sub i32 %a_val, 1)");
+    regex.push_back(R"(store i32 %subtmp, ptr %a_ptr, align 4)");
+    regex.push_back(R"(ret i32 %subtmp)");
+
+    test(fileName, regex);
+}
+
 /**
  * @brief Runs the tests associated with expressions.
  */

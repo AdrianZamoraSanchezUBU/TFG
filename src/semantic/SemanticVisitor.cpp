@@ -115,6 +115,13 @@ void *SemanticVisitor::visit(BinaryExprNode &node) {
     return nullptr;
 }
 
+void *SemanticVisitor::visit(UnaryOperationNode &node) {
+    if (!symtab.getCurrentScope()->contains(node.getValue())) {
+        throw std::runtime_error("Unary operation over a undefined variable");
+    }
+    return nullptr;
+}
+
 void *SemanticVisitor::visit(VariableDecNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
 

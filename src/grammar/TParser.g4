@@ -29,7 +29,7 @@ expr
 	: expr op=(MUL|DIV) expr		# arithmeticExpr
 	| expr op=(PLUS|MINUS) expr		# arithmeticExpr
 	| expr comparisonOperator expr	# logicalExpr
-  	| operand						# operandExpr
+	| operand						# operandExpr
   	| LPAREN expr RPAREN			# parenExpr
   	;
 
@@ -44,7 +44,8 @@ comparisonOperator
 
 operand
 	: literal
-	| IDENTIFIER
+	| IDENTIFIER(INC | DEC)?
+	| (INC | DEC)IDENTIFIER
 	| TYPE_PTR IDENTIFIER
 	| functionCall
 	;

@@ -364,6 +364,66 @@ class BinaryExprNode : public ASTNode {
 };
 
 /**
+ * @class UnaryOperationNode
+ * @brief Represents a variable usage with a unary operator
+ *
+ * This class represents a variable assignation within the AST,
+ * it has a identifier and a new value assigned to this identifier.
+ *
+ * @see ASTNode
+ */
+class UnaryOperationNode : public ASTNode {
+    std::string identifier;
+    std::string op;
+    bool prefix;
+
+  public:
+    /**
+     * @brief Constructor for UnaryOperation node.
+     * @param id Name of the variable.
+     */
+    explicit UnaryOperationNode(const std::string &id, bool pre, std::string o) : identifier(id), prefix(pre), op(o){};
+
+    /**
+     * @brief Returns true if the unary operator is a prefix, false otherwise.
+     * @return `true` if the unary operator is a prefix, `false` otherwise.
+     */
+    bool isPrefix() const { return prefix; }
+
+    /**
+     * @brief Returns the operator.
+     * @return String with the operator.
+     */
+    std::string getOp() const { return op; }
+
+    /// @copydoc ASTNode::getValue
+    std::string getValue() const override { return identifier; }
+
+    /// @copydoc ASTNode::print
+    std::string print() const override {
+        if (prefix) {
+            return "\n[{" + op + identifier + "},varRefNode]";
+        }
+        return "\n[{" + identifier + op + "},varRefNode]";
+    }
+
+    /// @copydoc ASTNode::equals
+    bool equals(const ASTNode *other) const override {
+        if (auto o = dynamic_cast<const UnaryOperationNode *>(other)) {
+            // Returns the result of comparing all the attributes
+            return identifier == o->identifier && op == o->op && prefix == o->prefix;
+        }
+
+        return false;
+    }
+    /// @copydoc ASTNode::accept(SemanticVisitor &)
+    void *accept(SemanticVisitor &visitor) override;
+
+    /// @copydoc ASTNode::accept(IRGenerator &visitor)
+    llvm::Value *accept(IRGenerator &visitor) override;
+};
+
+/**
  * @class VariableDec
  * @brief Represents a variable declaration in the AST.
  *
