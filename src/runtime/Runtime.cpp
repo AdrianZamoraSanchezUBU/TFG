@@ -6,8 +6,19 @@ Runtime &Runtime::get() {
     return instance;
 }
 
-void Runtime::registerEvent(std::string id, float time, void (*fn)()) {
-    events.emplace_back(std::make_shared<Event>(id, time, fn));
+void Runtime::checkEvents() {
+    for (int i = 0; i < events.size();) {
+        if (!events[i]->getEventRunningFlag()) {
+            events[i]->stopEvent();
+            events.erase(events.begin() + i);
+        } else {
+            ++i;
+        }
+    }
+};
+
+void Runtime::registerEvent(std::string id, float time, void (*fn)(), int limit) {
+    events.emplace_back(std::make_shared<Event>(id, time, fn, limit));
 }
 
 void Runtime::printEventList() {

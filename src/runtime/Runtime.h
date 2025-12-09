@@ -33,6 +33,8 @@ class Runtime {
      */
     void schedule(std::string id);
 
+    void checkEvents();
+
     /**
      * @brief Return the size of the Event list.
      * @return Amount of registered events.
@@ -44,8 +46,9 @@ class Runtime {
      * @param id Identifier of the new Event.
      * @param time Time period of the new Event.
      * @param fn Function to run when the Event is executed.
+     * @param limit Number of limit executions for this Event, if set to 0 it has no numeric limit.
      */
-    void registerEvent(std::string id, float time, void (*fn)());
+    void registerEvent(std::string id, float time, void (*fn)(), int limit);
 
     /// Prints the event list data.
     void printEventList();

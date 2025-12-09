@@ -25,8 +25,10 @@ class Event {
      * @param id Identifier for this Event.
      * @param f Its executable code (a extern function).
      * @param t Ticks associated with the periodic execution.
+     * @param execLimit Limit of executions.
      */
-    Event(std::string id, float t, Fn f) : id(id), ticks(static_cast<int>(std::ceil(t))), fn(f){};
+    Event(std::string id, float t, Fn f, int limit)
+        : id(id), ticks(static_cast<int>(std::ceil(t))), fn(f), execLimit(limit){};
 
     /// Executes the event code.
     void execute();
@@ -48,6 +50,9 @@ class Event {
 
     /// Sets the running flag to true for event execution.
     void startEvent() {
+        if (running.load())
+            return;
+
         running.store(true);
         getWorker() = std::thread([this]() { execute(); });
     };

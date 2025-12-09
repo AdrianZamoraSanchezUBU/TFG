@@ -13,9 +13,9 @@ extern "C" Runtime *getRuntime() {
 /**
  * Function responsable of loading data from extern functions to the runtime
  */
-extern "C" void registerEventData(const char *id, float period, void (*fn)()) {
+extern "C" void registerEventData(const char *id, float period, void (*fn)(), int limit) {
     std::string sid(id);
-    getRuntime()->registerEvent(sid, period, fn);
+    getRuntime()->registerEvent(sid, period, fn, limit);
 }
 
 /**
@@ -38,6 +38,8 @@ int main(int argc, char **argv) {
     while (true) {
         if (GLOBAL_RUNTIME.getEventCount() <= 0) {
             break;
+        } else {
+            GLOBAL_RUNTIME.checkEvents();
         }
     }
 

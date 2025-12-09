@@ -383,6 +383,11 @@ void *SemanticVisitor::visit(LoopControlStatementNode &node) {
 }
 
 void *SemanticVisitor::visit(EventNode &node) {
+    if (node.getLimit() < 0) {
+        throw std::runtime_error("The event limit was set to: " + std::to_string(node.getLimit()) +
+                                 " but it must be >= 0.");
+    }
+
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
 
     // Inserts the event identifier in the current scope

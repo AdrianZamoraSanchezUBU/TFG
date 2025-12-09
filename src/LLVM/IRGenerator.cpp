@@ -677,11 +677,13 @@ llvm::Value *IRGenerator::visit(EventNode &node) {
 
     llvm::Value *eventID = ctx.IRBuilder.CreateGlobalStringPtr(node.getValue(), "str");
     llvm::Value *time = node.getTimeStmt()->accept(*this);
+    llvm::Value *limit = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ctx.IRContext), node.getLimit());
 
     std::vector<llvm::Value *> args;
     args.push_back(eventID);
     args.push_back(time);
     args.push_back(event);
+    args.push_back(limit);
 
     // Inserting the event register function right after the event
     llvm::LLVMContext &C = ctx.IRContext;

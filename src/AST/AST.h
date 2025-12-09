@@ -1217,6 +1217,12 @@ class EventNode : public ASTNode {
     ASTNode *getTimeStmt() { return timeStmt.get(); }
 
     /**
+     * @brief Getter for limit.
+     * @return Event execution limit.
+     */
+    int getLimit() { return limit; }
+
+    /**
      * @brief Getter for the time command.
      * @return TimeCommand keyword.
      */
