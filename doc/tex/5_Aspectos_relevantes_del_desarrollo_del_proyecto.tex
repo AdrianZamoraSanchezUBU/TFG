@@ -1,4 +1,9 @@
 \capitulo{5}{Aspectos relevantes del proyecto} 
+
+\newcommand{\kw}[1]{\texttt{#1}}
+\newcommand{\fn}[1]{\texttt{#1}}
+\newcommand{\code}[1]{\texttt{#1}}
+
 El comienzo del proyecto parte del objetivo de conseguir una versión MVP (Minimal Viable Product) que pudiese aportar una base sólida y fácil de ampliar. En este caso el MVP se enfocó en la creación de un micro compilador capaz de procesar expresiones aritméticas y lógicas, puesto que esta estructura es básica y está presente en todos los lenguajes de programación.
 
 \subsection{Antes de compilar} 
@@ -9,19 +14,19 @@ Dentro del compilador se esperan algunos argumentos de llamada como:
     \item \textbf{<nombre de la entrada>}: argumento obligatorio, indica el nombre del fichero .T de entrada.
     \item \textbf{-o <nombre archivo>}: argumento obligatorio que especificar el fichero ejecutable de salida.
     \item \textbf{--debug}: permite ver información de la salida de cada una de las fases del compilador.
-    \item \textbf{--visualizeAST}: genera un fichero AST.pfd con una visualización del AST en el directorio donde se ha ejecutado el compilador.
+    \item \textbf{--visualizeAST}: genera un fichero \fn{AST.pfd} con una visualización del AST en el directorio donde se ha ejecutado el compilador.
     \item \textbf{--IR}: genera un fichero .ll con el LLVM IR generado por el compilador.
 \end{itemize}
 
 Para conocer los datos necesarios para ejecutar los comandos anteriores en el compilador se almacenan flags de compilado que permiten modificar el comportamiento de cada fase.
 
 \subsection{Proceso de compilación}
-Como el compilador se ha planificado como modular, a continuación se recorrerá el proceso de compilación completo, valiéndonos del contenido del MVP, es decir, un compilador capaz de reconocer expresiones ariméticas y lógicas. 
+Como el compilador se ha planificado de forma modular, a continuación se recorrerá el proceso de compilación completo, valiéndonos del contenido del MVP, es decir, un compilador capaz de reconocer expresiones aritméticas y lógicas. 
 
 \subsubsection{Análisis léxico}
 La primera fase de este desarrollo comienza con la creación de un lexer donde se definen algunas estructuras básicas como los literales de números enteros, números con decimales o las cadenas de caracteres, así como los operadores que se van a emplear para estas expresiones. 
 
-En este momento se definen los tipos básicos del lenguaje:
+En este momento se definen las palabras clave asociadas a los tipos básicos del lenguaje:
 \begin{verbatim}
     TYPE_INT     : 'int'    ;
     TYPE_FLOAT   : 'float'  ;
@@ -76,14 +81,14 @@ operand
     : literal
     ;
 \end{verbatim}
-Cabe destacar el uso de etiquetas (como # parenExpr) que falicitan posteriormente acceder a cada tipo de expresión gracias a la separación en contextos que realzia ANTLR4.
+Cabe destacar el uso de etiquetas (como \kw{\# parenExpr}) que facilitan posteriormente acceder a cada tipo de expresión gracias a la separación en contextos que realiza ANTLR4.
 
 A continuación se debe implementar una estructura de datos que sea capaz de representar cualquier tipo de estructura sintáctica bien formada de este lenguaje, la estructura del árbol de sintaxis abstracta (AST por sus siglas en inglés) será la encargada de crear este representacion en tiempo de ejecución del compilador, almacenando los datos relevantes de cada estructura para su posterior análisis en las siguientes fases.
 
-Para formar este AST se empleará un visitor patterns (patrón de visita), objeto que recibe el nombre de ASTBuilder, el cual se encarga de visitar cada contexto generado de forma automática por el parser de ANTLR, dando por resultado unos nodos enlazados, el AST.
+Para formar este AST se empleará un visitor patterns (patrón de visita), objeto que recibe el nombre de \kw{ASTBuilder}, el cual se encarga de visitar cada contexto generado de forma automática por el parser de ANTLR, dando por resultado unos nodos enlazados, el AST.
 
 
-Adicionalmente, si la flag --visualizeAST está activada, el compilador puede generar una representación visual del árbol tras su construcción, para conseguir esto se escriben cada nodo en el formato de la biblioteca `forest` de LaTex, permitiendo el análisis de la estructura del programa así como datos relacionados con los componentes, como los tipos u operadores.
+Adicionalmente, si la flag \kw{--visualizeAST} está activada, el compilador puede generar una representación visual del árbol tras su construcción, para conseguir esto se escriben cada nodo en el formato de la biblioteca `forest` de \LaTeX, permitiendo el análisis de la estructura del programa así como datos relacionados con los componentes, como los tipos u operadores.
 
 %TODO añadir una leyenda para este ejemplo
 
@@ -100,19 +105,19 @@ Durante la fase de análisis semántico se examina principalmente el uso de los 
 
 La tabla de símbolos está estructurada como una lista de scopes. Para los distintos bloques anidados se establecen referencias entre cada scope hijo y su scope padre, lo que permite verificar fácilmente los alcances y resolver identificadores de forma correcta.
 
-Para poder comprobar la corrección del uso de tipos, el análisis semántico debe ser capaz de entender los tipos, tanto de los literales como de las variables y funciones, para ello se implementa un sistema de representación de tipos en una enumeración llamada SupportedTypes que da soporte a los tipos:
+Para poder comprobar la corrección del uso de tipos, el análisis semántico debe ser capaz de entender los tipos, tanto de los literales como de las variables y funciones, para ello se implementa un sistema de representación de tipos en una enumeración llamada \kw{SupportedTypes} que da soporte a los tipos:
 \begin{itemize}
-    \item TYPE\_INT
-    \item TYPE\_FLOAT
-    \item TYPE\_CHAR
-    \item TYPE\_STRING
-    \item TYPE\_BOOLEAN
-    \item TYPE\_VOID
-    \item TYPE\_PTR
+    \item \kw{TYPE\_INT}
+    \item \kw{TYPE\_FLOAT}
+    \item \kw{TYPE\_CHAR}
+    \item \kw{TYPE\_STRING}
+    \item \kw{TYPE\_BOOLEAN}
+    \item \kw{TYPE\_VOID}
+    \item \kw{TYPE\_PTR}
 \end{itemize}
 
 \subsubsection{Generación de LLVM IR}
-Para la generación de IR es emplea un struct que almacena los datos necesarios para que LLVM pueda generar el IR de forma automática, para ello se inicializan dentro del CodegenContext los siguientes tres elementos:
+Para la generación de IR es emplea un struct que almacena los datos necesarios para que LLVM pueda generar el IR de forma automática, para ello se inicializan dentro del \kw{CodegenContext} los siguientes tres elementos:
 
 \begin{itemize}
     \item Un módulo de LLVM
@@ -120,7 +125,7 @@ Para la generación de IR es emplea un struct que almacena los datos necesarios 
     \item Un builder de LLVM
 \end{itemize}
 
-Durante el proceso de generación de código IR, se vuelve a recorer el AST con un visitor pattern, el cual emplea principalmente el builder para generar las instrucciones a partir de los datos contenidos en los nodos del AST.
+Durante el proceso de generación de código IR, se vuelve a recorrer el AST con un visitor pattern, el cual emplea principalmente el builder para generar las instrucciones a partir de los datos contenidos en los nodos del AST.
 
 Algunas de las consideraciones necesarias para compatibilizar el AST y el generación de IR serían los tipos que se manejan en cada uno, para poder hacer una conversión correcta se implementa una función capaz de transformar:
 \begin{table}[ht]
@@ -129,38 +134,37 @@ Algunas de las consideraciones necesarias para compatibilizar el AST y el genera
     \toprule
     \textbf{Tipo AST} & \textbf{Tipo LLVM} \\
     \midrule
-    TYPE\_INT     & i32 \\
-    TYPE\_FLOAT   & float \\
-    TYPE\_CHAR    & i8 \\
-    TYPE\_STRING  & i8* \\
-    TYPE\_BOOLEAN & i1 \\
-    TYPE\_VOID    & void \\
-    TYPE\_PTR     & ptrType \\
+    \kw{TYPE\_INT}    & \kw{i32} \\
+    \kw{TYPE\_FLOAT}   & \kw{float} \\
+    \kw{TYPE\_CHAR}    & \kw{i8} \\
+    \kw{TYPE\_STRING}  & \kw{i8*} \\
+    \kw{TYPE\_BOOLEAN} & \kw{i1} \\
+    \kw{TYPE\_VOID}    & \kw{void} \\
+    \kw{TYPE\_PTR}     & \kw{ptrType} \\
     \bottomrule
     \end{tabularx}
-    \caption{Correspondencia entre tipos del AST y tipos de LLVM IR}
+    \caption{\texorpdfstring{Correspondencia entre tipos del AST y tipos de LLVM IR}{Correspondencia entre tipos del AST y tipos de LLVM IR}}
 \end{table}
 
 
 \subsubsection{Optimizaciones}
 % TODO
-Para asegurar la calidad del código final, se aplican sobre el LLVM IR algunas optimizaciones incluidas en la API de LLVM, las cuales aplican transformaciones, inserciones/eliminaciones de codigo o correcciones mediante passes que recorren todo el programa generado.
+Para asegurar la calidad del código final, se aplican sobre el LLVM IR algunas optimizaciones incluidas en la API de LLVM, las cuales aplican transformaciones, inserciones/eliminaciones de código o correcciones mediante passes que recorren todo el programa generado.
 
 Algunas de las más importantes son:
 \begin{itemize}
     \item Dead code elimination: Aunque se trate de aplicar durante la generación del código, es importante utilizarla para casos donde el código está bien formado pero hay elementos sin usar, como variables o funciones que no sean externas y nunca son llamadas en el programa.
-    \item Dead store elimination: Se eliminan escrituras en memoria que nunca son leidas, ahorrando recursos internos.
+    \item Dead store elimination: Se eliminan escrituras en memoria que nunca son leídas, ahorrando recursos internos.
     \item Dead argument elimination: Esta optimización específica de las funciones permite eliminar los argumentos no utilizados, simplificando el programa.
-    \item 
 \end{itemize}
 % TODO
 
-El uso de estas combinaciones junto a las comprobaciones de calidad mínimas para compilar sin errores, generan un código de una calidad similar al código optimizado con -O2 de compiladores como Clang, Rustc o Swiftc 
+El uso de estas combinaciones junto a las comprobaciones de calidad mínimas para compilar sin errores, generan un código de una calidad similar al código optimizado con \code{-O2} de compiladores como Clang, Rustc o Swiftc 
 
 \subsubsection{Generación del ejecutable}
-La generación de un programa requiere conocer el "target triplet", es decir, la familia de CPU en la que se ejecuta el sistema. La API del sistema (llvm::sys) de LLVM contiene funciones que nos permiten conocer el triplet y así poder establecer un data layout correcto para el sistema en el que estamos trabajando.   
+La generación de un programa requiere conocer el "target triplet", es decir, la familia de CPU en la que se ejecuta el sistema. La API del sistema \code{llvm::sys} de LLVM contiene funciones que nos permiten conocer el triplet y así poder establecer un data layout correcto para el sistema en el que estamos trabajando.   
 
-Una vez hemos generado el código objeto del programa, el compilador ejecutra un enlace utilizando la herramienta clang/clang++, de forma que el archivo generado se enlaza con la librería estándar del compilador, la librería estándar de C y el runtime. 
+Una vez hemos generado el código objeto del programa, el compilador ejecuta un enlace utilizando la herramienta clang/clang++, de forma que el archivo generado se enlaza con la librería estándar del compilador, la librería estándar de C y el runtime. 
 
 \subsection{Runtime}
 El runtime es una parte necesaria para la ejecución de cualquier programa, normalmente aporta un punto de entrada valido mediante un system call en ensamblador.
