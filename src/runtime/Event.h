@@ -1,20 +1,31 @@
 #include <atomic>
 #include <chrono>
+#include <cstdint>
+#include <cstring>
+#include <ffi.h>
 #include <iostream>
 #include <math.h>
+#include <mutex>
 #include <string>
 #include <thread>
+#include <vector>
 #pragma once
 
 /// This class represents a Event.
 class Event {
-    using Fn = void (*)();
-
     std::string id;
-    Fn fn;
     std::chrono::milliseconds ticks;
     int execLimit;
-    int execCounter;
+    int execCounter = 0;
+
+    void *fnPtr = nullptr;
+
+    int argCount = 0;
+    std::vector<int> argTypes; // codes: 1=int,2=float,3=ptr,...
+    std::vector<void *> argv;  // punteros a valores reales (se setean en schedule)
+    std::vector<std::vector<uint8_t>> ownedArgs;
+
+    std::mutex argsMutex;
 
     std::atomic<bool> running{false};
     std::thread worker;
@@ -27,11 +38,13 @@ class Event {
      * @param t Ticks associated with the periodic execution.
      * @param execLimit Limit of executions.
      */
-    Event(std::string id, float t, Fn f, int limit)
-        : id(id), ticks(static_cast<int>(std::ceil(t))), fn(f), execLimit(limit){};
+    Event(std::string id, float t, void *fnPtr, int argCount, const int *argTypes, int limit);
 
     /// Executes the event code.
     void execute();
+
+    void setArgs(void **newArgv);
+    void setArgsCopy(void **incoming);
 
     /**
      * @brief Getter for the worker thread.

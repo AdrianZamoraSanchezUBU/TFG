@@ -468,15 +468,64 @@ llvm::Value *IRGenerator::visit(FunctionCallNode &node) {
         symb = symtab.getCurrentScope()->getSymbol(node.getValue());
 
         if (symb->getCategory() == SymbolCategory::EVENT) {
+
             llvm::LLVMContext &C = ctx.IRContext;
             llvm::Type *voidTy = llvm::Type::getVoidTy(C);
             llvm::Type *i8PtrTy = llvm::PointerType::get(llvm::Type::getInt8Ty(C), 0);
 
-            llvm::Value *eventID = ctx.IRBuilder.CreateGlobalStringPtr(node.getValue(), "str");
+            // Getting the event id
+            llvm::Value *eventID = ctx.IRBuilder.CreateGlobalStringPtr(node.getValue(), "event_id");
 
-            llvm::FunctionCallee fn =
-                ctx.IRModule->getOrInsertFunction("scheduleEvent", llvm::FunctionType::get(voidTy, {i8PtrTy}, false));
-            return ctx.IRBuilder.CreateCall(fn, eventID, "");
+            // Getting the scheduleEventData function from the module
+            llvm::FunctionCallee scheduleFn = ctx.IRModule->getOrInsertFunction(
+                "scheduleEventData", llvm::FunctionType::get(voidTy,
+                                                             {
+                                                                 i8PtrTy,                // const char* id
+                                                                 i8PtrTy->getPointerTo() // void** argv
+                                                             },
+                                                             false));
+
+            // Creating argv in the stack as void* argv[N]
+            unsigned argCount = node.getParamsCount();
+
+            llvm::ArrayType *argvArrayTy = llvm::ArrayType::get(i8PtrTy, argCount);
+
+            llvm::Value *argvAlloca = ctx.IRBuilder.CreateAlloca(argvArrayTy, nullptr, "event_argv");
+
+            // Filling argv[i] with  &valor_real
+            for (unsigned i = 0; i < argCount; ++i) {
+
+                // Argument generation
+                llvm::Value *argValue = node.getParam(i)->accept(*this);
+                llvm::Value *argAddr = nullptr;
+
+                if (argValue->getType()->isPointerTy()) {
+                    // Already an alloc
+                    argAddr = argValue;
+                } else {
+                    // Temp val
+                    llvm::Value *tmp = ctx.IRBuilder.CreateAlloca(argValue->getType(), nullptr, "arg_tmp");
+                    ctx.IRBuilder.CreateStore(argValue, tmp);
+                    argAddr = tmp;
+                }
+
+                // Cast to void*
+                llvm::Value *argVoidPtr = ctx.IRBuilder.CreateBitCast(argAddr, i8PtrTy);
+
+                // Setting argv[i]
+                llvm::Value *indices[] = {llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), 0),
+                                          llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), i)};
+
+                llvm::Value *slot = ctx.IRBuilder.CreateInBoundsGEP(argvArrayTy, argvAlloca, indices);
+
+                ctx.IRBuilder.CreateStore(argVoidPtr, slot);
+            }
+
+            // argv cast to void**
+            llvm::Value *argvPtr = ctx.IRBuilder.CreateBitCast(argvAlloca, i8PtrTy->getPointerTo());
+
+            // Calling scheduleEventData
+            return ctx.IRBuilder.CreateCall(scheduleFn, {eventID, argvPtr});
         }
     }
 
@@ -657,7 +706,54 @@ llvm::Value *IRGenerator::visit(LoopControlStatementNode &node) {
     return nullptr;
 }
 
+auto mapTypeToCode = [](SupportedTypes t) -> int {
+    switch (t) {
+    case SupportedTypes::TYPE_INT:
+        return 1;
+    case SupportedTypes::TYPE_FLOAT:
+        return 2;
+    case SupportedTypes::TYPE_STRING:
+        return 3;
+    default:
+        return 0; // UNKNOWN
+    }
+};
+
 llvm::Value *IRGenerator::visit(EventNode &node) {
+    int paramCount = node.getParamsCount();
+
+    llvm::LLVMContext &C = ctx.IRContext;
+
+    // === Base types ===
+    llvm::Type *i8PtrTy = llvm::PointerType::getUnqual(llvm::Type::getInt8Ty(C));
+    llvm::Type *i32Ty = llvm::Type::getInt32Ty(C);
+
+    // === Arrays LLVM ===
+    llvm::ArrayType *argsArrayTy = llvm::ArrayType::get(i8PtrTy, paramCount);
+    llvm::ArrayType *typesArrayTy = llvm::ArrayType::get(i32Ty, paramCount);
+
+    // === Type entries ===
+    std::vector<llvm::Constant *> typeEntries;
+
+    for (int i = 0; i < paramCount; i++) {
+        auto *varNode = dynamic_cast<VariableDecNode *>(node.getParam(i));
+        SupportedTypes t = varNode->getType().getSupportedType();
+
+        int code = mapTypeToCode(t);
+
+        typeEntries.push_back(llvm::ConstantInt::get(i32Ty, code));
+    }
+
+    llvm::Constant *typesArrayConst = llvm::ConstantArray::get(typesArrayTy, typeEntries);
+
+    llvm::GlobalVariable *typesGlobal = new llvm::GlobalVariable(*ctx.IRModule, typesArrayTy,
+                                                                 true, // constant
+                                                                 llvm::GlobalValue::PrivateLinkage, typesArrayConst,
+                                                                 node.getValue() + "_argtypes" // name
+    );
+
+    llvm::Value *typesPtr = ctx.IRBuilder.CreateBitCast(typesGlobal, i32Ty->getPointerTo());
+
     // Getting the param definition (only types)
     std::vector<llvm::Type *> paramTypes;
     for (int i = 0; i < node.getParamsCount(); i++) {
@@ -679,25 +775,25 @@ llvm::Value *IRGenerator::visit(EventNode &node) {
     llvm::Value *time = node.getTimeStmt()->accept(*this);
     llvm::Value *limit = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ctx.IRContext), node.getLimit());
 
-    std::vector<llvm::Value *> args;
-    args.push_back(eventID);
-    args.push_back(time);
-    args.push_back(event);
-    args.push_back(limit);
-
     // Inserting the event register function right after the event
-    llvm::LLVMContext &C = ctx.IRContext;
-    llvm::Type *i8PtrTy = llvm::PointerType::get(llvm::Type::getInt8Ty(C), 0);
-    llvm::Type *voidTy = llvm::Type::getVoidTy(C);
-    llvm::Type *float64Ty = llvm::Type::getFloatTy(C);
-    llvm::Type *fnPtrTy = llvm::PointerType::getUnqual(llvm::FunctionType::get(voidTy, false));
     llvm::FunctionCallee fn = ctx.IRModule->getOrInsertFunction(
-        "registerEventData", llvm::FunctionType::get(voidTy, {i8PtrTy, float64Ty, fnPtrTy}, false));
-    ctx.IRBuilder.CreateCall(fn, args, "");
+        "registerEventData", llvm::FunctionType::get(llvm::Type::getVoidTy(C),
+                                                     {
+                                                         i8PtrTy,                   // id
+                                                         llvm::Type::getFloatTy(C), // time
+                                                         i8PtrTy,                   // fn pointer
+                                                         i32Ty,                     // argCount
+                                                         i32Ty->getPointerTo(),     // int* argTypes
+                                                         i32Ty                      // limit
+                                                     },
+                                                     false));
+
+    llvm::Value *fnPtr = ctx.IRBuilder.CreateBitCast(event, i8PtrTy);
+
+    ctx.IRBuilder.CreateCall(fn, {eventID, time, fnPtr, llvm::ConstantInt::get(i32Ty, paramCount), typesPtr, limit});
 
     // Basic block generation and stack push
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(ctx.IRContext, "entry", event);
-
     ctx.pushFunction(entry);
 
     // Setting all the params as arguments in their symbol in the symbol table

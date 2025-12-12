@@ -40,8 +40,23 @@ struct CodegenContext {
         IRModule->getOrInsertFunction("print", llvm::FunctionType::get(i32Ty, {i8PtrTy}, true));
         IRModule->getOrInsertFunction("strlen", llvm::FunctionType::get(i32Ty, {i8PtrTy}, false));
         IRModule->getOrInsertFunction("registerEventData",
-                                      llvm::FunctionType::get(voidTy, {i8PtrTy, float64Ty, callbackPtrTy}, false));
-        IRModule->getOrInsertFunction("scheduleEvent", llvm::FunctionType::get(voidTy, {i8PtrTy}, false));
+                                      llvm::FunctionType::get(voidTy,
+                                                              {
+                                                                  i8PtrTy,                   // id
+                                                                  llvm::Type::getFloatTy(C), // time
+                                                                  i8PtrTy,                   // fn pointer
+                                                                  i32Ty,                     // argCount
+                                                                  i32Ty->getPointerTo(),     // int* argTypes
+                                                                  i32Ty                      // limit
+                                                              },
+                                                              false));
+        IRModule->getOrInsertFunction("scheduleEvent",
+                                      llvm::FunctionType::get(voidTy,
+                                                              {
+                                                                  i8PtrTy,                // const char* id
+                                                                  i8PtrTy->getPointerTo() // void** argv
+                                                              },
+                                                              false));
 
         // Program main function and basic block set up
         llvm::FunctionType *FT = llvm::FunctionType::get(llvm::Type::getInt32Ty(IRContext), false);

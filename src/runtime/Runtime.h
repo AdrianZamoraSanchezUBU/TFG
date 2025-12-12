@@ -6,6 +6,8 @@
 
 /// Class for the language runtime structure.
 class Runtime {
+    using Fn = void (*)(void *frame);
+
     std::vector<std::shared_ptr<Event>> events;
     std::mutex eventsMutex;
     bool running = true;
@@ -31,7 +33,7 @@ class Runtime {
      * @brief Schredule a registered event.
      * @param id of the Event to schedule.
      */
-    void schedule(std::string id);
+    void scheduleEvent(std::string id, void **argv);
 
     void checkEvents();
 
@@ -45,10 +47,10 @@ class Runtime {
      * @brief Saves the event data.
      * @param id Identifier of the new Event.
      * @param time Time period of the new Event.
-     * @param fn Function to run when the Event is executed.
+     * @param sig Compilated event function signature.
      * @param limit Number of limit executions for this Event, if set to 0 it has no numeric limit.
      */
-    void registerEvent(std::string id, float time, void (*fn)(), int limit);
+    void registerEvent(std::string id, float period, void *fnPtr, int argCount, const int *argTypes, int limit);
 
     /// Prints the event list data.
     void printEventList();

@@ -17,8 +17,8 @@ void Runtime::checkEvents() {
     }
 };
 
-void Runtime::registerEvent(std::string id, float time, void (*fn)(), int limit) {
-    events.emplace_back(std::make_shared<Event>(id, time, fn, limit));
+void Runtime::registerEvent(std::string id, float period, void *fnPtr, int argCount, const int *argTypes, int limit) {
+    events.emplace_back(std::make_shared<Event>(id, period, fnPtr, argCount, argTypes, limit));
 }
 
 void Runtime::printEventList() {
@@ -28,10 +28,12 @@ void Runtime::printEventList() {
     }
 }
 
-void Runtime::schedule(std::string id) {
-    for (const auto &ev : events) {
-        if (ev->getID() == id && ev->getEventRunningFlag() == false) {
-            ev->startEvent();
+void Runtime::scheduleEvent(std::string id, void **argv) {
+    for (auto &e : events) {
+        if (e->getID() == id) {
+            e->setArgsCopy(argv); // copia por valor
+            e->startEvent();
+            return;
         }
     }
 }
