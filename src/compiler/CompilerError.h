@@ -25,6 +25,7 @@ inline std::string phaseToString(CompilerPhase p) {
     case CompilerPhase::EXEC_GEN:
         return "Executable generation phase";
     default:
+        return "";
         break;
     }
 }

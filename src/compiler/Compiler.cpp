@@ -262,12 +262,12 @@ void Compiler::parse() {
 }
 
 void Compiler::analyze() {
-    getAST()->accept(*analyser);
+    getAST()->accept(*analyzer);
 
     // Debug symbol table print
     if (flags.debug) {
         std::cout << "****** SYMBOL TABLE ******" << std::endl;
-        analyser->printSymbolTable();
+        analyzer->printSymbolTable();
         std::cout << std::endl;
     }
 }

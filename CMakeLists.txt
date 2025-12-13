@@ -3,17 +3,10 @@ project(TFG)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Including header files
-include_directories(
-    ${PROJECT_SOURCE_DIR}/src/compiler
-    ${PROJECT_SOURCE_DIR}/src/grammar
-    ${PROJECT_SOURCE_DIR}/src/AST
-    ${PROJECT_SOURCE_DIR}/src/semantic
-    ${PROJECT_SOURCE_DIR}/src/LLVM
-    ${PROJECT_SOURCE_DIR}/tests
-    /usr/local/include/antlr4-runtime
-)
-link_directories(/usr/local/lib)
+# Libs
+find_package(spdlog REQUIRED)
+find_package(fmt REQUIRED)
+find_package(LLVM REQUIRED CONFIG)
 
 set(BUILD_DIR "${CMAKE_SOURCE_DIR}/build")
 
@@ -28,25 +21,36 @@ add_library(compilerLib STATIC
     src/semantic/SymbolTable.cpp
     src/semantic/Scope.cpp
 	src/LLVM/IRGenerator.cpp
-
-    tests/testHelpers.cpp
 )
 
-# Passing the build folder location to the main.cpp
-target_compile_definitions(compilerLib PUBLIC BUILD_DIR="${BUILD_DIR}")
+# Compiler header files
+target_include_directories(compilerLib
+    PUBLIC
+        ${PROJECT_SOURCE_DIR}/src/compiler
+        ${PROJECT_SOURCE_DIR}/src/grammar
+        ${PROJECT_SOURCE_DIR}/src/AST
+        ${PROJECT_SOURCE_DIR}/src/semantic
+        ${PROJECT_SOURCE_DIR}/src/LLVM
+        ${PROJECT_SOURCE_DIR}/src/compat
+        /usr/local/include/antlr4-runtime
+        ${LLVM_INCLUDE_DIRS}
+)
 
-# Libs LLVM
-find_package(LLVM REQUIRED CONFIG)
-include_directories(${LLVM_INCLUDE_DIRS})
-add_definitions(${LLVM_DEFINITIONS})
+target_compile_definitions(compilerLib
+    PRIVATE
+        ${LLVM_DEFINITIONS}
+        BUILD_DIR="${BUILD_DIR}" # Passing the build folder location to the main.cpp
+)
 
 # Linking all the dependencies in one lib
-target_link_libraries(compilerLib PUBLIC 
-	antlr4-runtime
-	LLVM
+target_link_libraries(compilerLib 
+    PUBLIC 
+        antlr4-runtime
+	    LLVM
+        spdlog::spdlog
 )
 
-add_executable(TCompiler src/main.cpp)
+add_executable(TCompiler src/main.cpp) # Compiler executable main.cpp
 
 # Compiling the runtime and standard lib as an independent object file 
 add_custom_target(runtime_obj ALL
@@ -70,7 +74,27 @@ enable_testing()
 # Inputs for tests
 add_definitions(-DTEST_FILES_DIR="${CMAKE_SOURCE_DIR}/tests/input/")
 
-# Tests souce
+find_library(GTEST_LIB gtest REQUIRED)
+find_library(GTEST_MAIN_LIB gtest_main REQUIRED)
+
+# Compilation of the tests helper functions
+add_library(testSupport STATIC
+    tests/testHelpers.cpp
+)
+
+# testHelper compilerLib dependency
+target_link_libraries(testSupport
+    PUBLIC
+        compilerLib
+)
+
+# Headers for the tests
+target_include_directories(testSupport
+    PUBLIC
+        ${PROJECT_SOURCE_DIR}/tests
+)
+
+# Tests sources
 set(TEST_SOURCES
     tests/exprTest.cpp
     tests/variableTest.cpp
@@ -83,7 +107,18 @@ set(TEST_SOURCES
 # Build each test
 foreach(test_src ${TEST_SOURCES})
     get_filename_component(test_name ${test_src} NAME_WE)
-    add_executable(${test_name} ${test_src})
-    target_link_libraries(${test_name} PRIVATE compilerLib gtest gtest_main pthread)
+
+    add_executable(${test_name}
+        ${test_src}
+    )
+
+    target_link_libraries(${test_name}
+        PRIVATE
+            testSupport
+            ${GTEST_LIB}
+            ${GTEST_MAIN_LIB}
+            pthread
+    )
+
     gtest_discover_tests(${test_name})
 endforeach()

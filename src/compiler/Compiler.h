@@ -23,7 +23,7 @@
  */
 
 #include "CompilerError.h"
-// #include "spdlog/spdlog.h"
+#include "spdlog/spdlog.h"
 
 // FLAGS
 #include "CompilerFlags.h"
@@ -70,7 +70,7 @@ class Compiler {
 
     /// Workers
     std::unique_ptr<TLexer> lexer;
-    std::unique_ptr<SemanticVisitor> analyser;
+    std::unique_ptr<SemanticVisitor> analyzer;
     std::unique_ptr<IRGenerator> IRgen;
 
     /// Error management
@@ -86,7 +86,7 @@ class Compiler {
      * @param flagStruct Structure with the compiler flags data.
      */
     explicit Compiler(CompilerFlags flagsStruct) : flags(flagsStruct) {
-        analyser = std::make_unique<SemanticVisitor>(symTable, errorList);
+        analyzer = std::make_unique<SemanticVisitor>(symTable, errorList);
         IRgen = std::make_unique<IRGenerator>(symTable, errorList);
     };
 
