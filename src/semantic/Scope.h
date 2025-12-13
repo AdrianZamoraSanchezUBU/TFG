@@ -127,6 +127,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
     int level;
     std::weak_ptr<Scope> parent;
     std::unordered_map<std::string, Symbol> symbols;
+    bool block;
 
   public:
     /**
@@ -135,7 +136,8 @@ class Scope : public std::enable_shared_from_this<Scope> {
      * @param level level of visibility of this Scope.
      * @param parent lower level parent Scope.
      */
-    explicit Scope(int id, int level, std::shared_ptr<Scope> parent) : id(id), level(level), parent(parent) {}
+    explicit Scope(int id, int level, std::shared_ptr<Scope> parent, bool b = true)
+        : id(id), level(level), parent(parent), block(b) {}
 
     /**
      * @brief Return true if the Symbol associated with the id is contained in the table.
@@ -168,9 +170,15 @@ class Scope : public std::enable_shared_from_this<Scope> {
 
     /**
      * @brief Returns the level of this Scope.
-     * @return Level of this Scope
+     * @return Level of this Scope.
      */
     int getLevel() const { return level; }
+
+    /**
+     * @brief Getter for the block flag.
+     * @return Returns true if this scope is a block, false if its a function.
+     */
+    bool isBlock() const { return block; }
 
     /**
      * @brief Returns the id of this Scope.

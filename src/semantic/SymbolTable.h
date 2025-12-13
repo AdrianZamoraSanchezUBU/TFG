@@ -44,7 +44,7 @@ class SymbolTable {
      * @brief Creates a new Scope and uses it as current Scope.
      * @return New Scope.
      */
-    std::shared_ptr<Scope> enterScope();
+    std::shared_ptr<Scope> enterScope(bool block = true);
 
     /// Exits the current Scope, changing the current Scope to its father Scope.
     void exitScope();

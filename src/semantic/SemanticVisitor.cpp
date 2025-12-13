@@ -156,7 +156,7 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
     node.getAssign()->accept(*this);
 
     /* Checks if the variable was already declared (only assign) */
-    if (currentScope->contains(node.getValue())) {
+    if (currentScope->getSymbol(node.getValue()) && currentScope->isBlock()) {
         Symbol *sym;
         if (currentScope->getSymbol(node.getValue()))
             sym = currentScope->getSymbol(node.getValue());
@@ -281,8 +281,8 @@ void *SemanticVisitor::visit(FunctionDefNode &node) {
     newSymbol.setNumParams(node.getParamsCount());
     currentScope->insertSymbol(newSymbol);
 
-    // Creates a new scope for this function
-    std::shared_ptr<Scope> newScope = symtab.enterScope();
+    // Creates a new function scope for this function
+    std::shared_ptr<Scope> newScope = symtab.enterScope(false);
 
     // Inserting parameters in the function scope
     if (node.getParamsCount() > 0) {
@@ -442,7 +442,7 @@ void *SemanticVisitor::visit(EventNode &node) {
     node.getTimeStmt()->accept(*this);
 
     // Creates a new scope for this event
-    std::shared_ptr<Scope> newScope = symtab.enterScope();
+    std::shared_ptr<Scope> newScope = symtab.enterScope(false);
 
     // Inserting parameters in the function scope
     if (node.getParamsCount() > 0) {

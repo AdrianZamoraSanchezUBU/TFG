@@ -236,7 +236,6 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
 
     // Visits the type of assignment
     if (auto expr = dynamic_cast<BinaryExprNode *>(node.getAssign())) {
-        std::cout << "here" << std::endl;
         assignVal = visit(*expr);
     } else if (auto lit = dynamic_cast<LiteralNode *>(node.getAssign())) {
         assignVal = visit(*lit);

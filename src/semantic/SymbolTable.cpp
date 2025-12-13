@@ -1,7 +1,7 @@
 #include "SymbolTable.h"
 
-std::shared_ptr<Scope> SymbolTable::enterScope() {
-    auto newScope = std::make_shared<Scope>(nextScopeId++, currentScope->getLevel() + 1, currentScope);
+std::shared_ptr<Scope> SymbolTable::enterScope(bool block) {
+    auto newScope = std::make_shared<Scope>(nextScopeId++, currentScope->getLevel() + 1, currentScope, block);
     currentScope = newScope;
     scopes.emplace_back(std::move(newScope));
 
