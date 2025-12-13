@@ -4,9 +4,9 @@ A continuación se detallan todas las dependencias necesarias para compilar y ej
 
 ## ANTLR4
 ### ANTLR4 tool
-`
+```
 sudo apt install -y default-jre
-`
+```
 
 ```
 mkdir -p $HOME/tools/antlr
@@ -18,9 +18,9 @@ El proceso de build espera encontrar en la ruta `HOME/tools/antlr` el .jar de la
 
 ### ANTLR4 C++ runtime 
 Descargar desde el repo:
-`
+```
 git clone https://github.com/antlr/antlr4.git
-`
+```
 
 Luego instalar con:
 ```
@@ -39,21 +39,21 @@ Nota: si el runtime se ha instalado en una ruta distinta de `/usr/local` será n
 
 ## LLVM
 Utilizado para la generación de LLVM IR y código máquina.
-`
+```
 sudo apt install -y llvm llvm-dev
-`
+```
 
 ## libspdlog
 Librería de logging utilizada por el compilador.
-`
+```
 sudo apt install -y libspdlog-dev
-`
+```
 
 ## Gtest
 Utilizado para la ejecución de tests automatizados.
-`
+```
 sudo apt install -y libgtest-dev
-`
+```
 
 ## Compilación y tests
 Para hacer build o ejecutar tests
