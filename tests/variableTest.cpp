@@ -5,9 +5,11 @@ TEST(variableTest, variableDec) {
 
     /* Expected AST */
     auto dec = std::make_unique<VariableDecNode>(SupportedTypes::TYPE_INT, "a");
+    auto ret = std::make_unique<ReturnNode>(std::make_unique<LiteralNode>(0, SupportedTypes::TYPE_INT));
 
     std::vector<std::unique_ptr<ASTNode>> statements;
     statements.push_back(std::move(dec));
+    statements.push_back(std::move(ret));
     auto root = std::make_unique<CodeBlockNode>(std::move(statements));
 
     /* Expected IR */
@@ -25,9 +27,12 @@ TEST(variableTest, variableAssign) {
     auto dec = std::make_unique<VariableDecNode>(SupportedTypes::TYPE_INT, "a");
     auto assign = std::make_unique<VariableAssignNode>(SupportedTypes::TYPE_VOID, "a", std::move(lit));
 
+    auto ret = std::make_unique<ReturnNode>(std::make_unique<LiteralNode>(0, SupportedTypes::TYPE_INT));
+
     std::vector<std::unique_ptr<ASTNode>> statements;
     statements.push_back(std::move(dec));
     statements.push_back(std::move(assign));
+    statements.push_back(std::move(ret));
     auto root = std::make_unique<CodeBlockNode>(std::move(statements));
 
     /* Expected IR */
@@ -44,8 +49,11 @@ TEST(variableTest, variableDecAssign) {
 
     auto dec = std::make_unique<VariableAssignNode>(SupportedTypes::TYPE_INT, "a", std::move(assing));
 
+    auto ret = std::make_unique<ReturnNode>(std::make_unique<LiteralNode>(0, SupportedTypes::TYPE_INT));
+
     std::vector<std::unique_ptr<ASTNode>> statements;
     statements.push_back(std::move(dec));
+    statements.push_back(std::move(ret));
     auto root = std::make_unique<CodeBlockNode>(std::move(statements));
 
     /* Expected IR */
@@ -71,10 +79,14 @@ TEST(variableTest, variableCall) {
     // y = x + 2
     auto assignY = std::make_unique<VariableAssignNode>(SupportedTypes::TYPE_VOID, "y", std::move(expr));
 
+    // Return
+    auto ret = std::make_unique<ReturnNode>(std::make_unique<LiteralNode>(0, SupportedTypes::TYPE_INT));
+
     std::vector<std::unique_ptr<ASTNode>> statements;
     statements.push_back(std::move(assignX));
     statements.push_back(std::move(decY));
     statements.push_back(std::move(assignY));
+    statements.push_back(std::move(ret));
 
     auto root = std::make_unique<CodeBlockNode>(std::move(statements));
 

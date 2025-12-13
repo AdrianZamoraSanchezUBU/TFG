@@ -1,6 +1,19 @@
 #include "Compiler.h"
 
 /**
+ * Wrapper function for single compiler phase execution.
+ */
+template <typename Func> bool runPhase(const char *phaseName, Func &&f) {
+    try {
+        f();
+        return true;
+    } catch (const std::exception &e) {
+        std::cerr << phaseName << " exception: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+/**
  * @brief Entry point of the compiler.
  *
  * This function performs the complete compilation process.
@@ -22,18 +35,27 @@ int main(int argc, char *argv[]) {
     // Creates the compiler with the flags
     Compiler compiler(flags);
 
-    try {
-        // Compilation process
-        compiler.lex();
-        compiler.parse();
-        compiler.analyze();
-        compiler.generateIR();
-        compiler.generateObjectCode();
-        compiler.linkObjectFile();
-    } catch (const std::exception &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+    // Compilation process
+    if (!runPhase("Lexer", [&] { compiler.lex(); }))
+        return 1;
+    if (!runPhase("Parser", [&] { compiler.parse(); }))
+        return 1;
+    if (!runPhase("Semantic analysis", [&] { compiler.analyze(); }))
+        return 1;
+    if (!runPhase("IR generation", [&] { compiler.generateIR(); }))
+        return 1;
+
+    // If errors are present in the code, the compiler will not try to generate the executable
+    if (compiler.getErrorCount() > 0) {
+        compiler.printErrors();
         return 1;
     }
+
+    // Final compilation phases, object and executable code generation
+    if (!runPhase("Object file generation", [&] { compiler.generateObjectCode(); }))
+        return 1;
+    if (!runPhase("Linker", [&] { compiler.linkObjectFile(); }))
+        return 1;
 
     return 0;
 }

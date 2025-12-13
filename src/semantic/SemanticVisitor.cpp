@@ -7,7 +7,11 @@ class Type;
 void *SemanticVisitor::visit(CodeBlockNode &node) {
     // Checks for a empty block of code
     if (node.getStmtCount() < 1) {
-        throw std::runtime_error("Empty block of code");
+        std::string errorMsg = "Empty block of code";
+
+        errorList.push_back(
+            CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
+
         return nullptr;
     }
 
@@ -34,7 +38,10 @@ void *SemanticVisitor::visit(TimeLiteralNode &node) {
 
     // Unvalid time value
     if (time < 0) {
-        throw std::runtime_error("Error in time literal, the time amount cant be negative");
+        std::string errorMsg = "Error in time literal, the time amount can not be negative";
+
+        errorList.push_back(
+            CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
     }
 
     // Calculating the equivalent in ticks
@@ -108,8 +115,11 @@ void *SemanticVisitor::visit(BinaryExprNode &node) {
     if (LT == RT) {
         node.setType(LT);
     } else {
-        throw std::runtime_error("Diferent types in binary experession with left: " + typeToString(LT) +
-                                 " and right: " + typeToString(RT));
+        std::string errorMsg =
+            "Different types in binary expression with left: " + typeToString(LT) + " and right: " + typeToString(RT);
+
+        errorList.push_back(
+            CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
     }
 
     return nullptr;
@@ -117,7 +127,10 @@ void *SemanticVisitor::visit(BinaryExprNode &node) {
 
 void *SemanticVisitor::visit(UnaryOperationNode &node) {
     if (!symtab.getCurrentScope()->contains(node.getValue())) {
-        throw std::runtime_error("Unary operation over a undefined variable");
+        std::string errorMsg = "Unary operation over a undefined variable";
+
+        errorList.push_back(
+            CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
     }
     return nullptr;
 }
@@ -126,7 +139,10 @@ void *SemanticVisitor::visit(VariableDecNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
 
     if (currentScope->contains(node.getValue())) {
-        throw std::runtime_error("Variable redeclaration error");
+        std::string errorMsg = "Variable redeclaration error";
+
+        errorList.push_back(
+            CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
     }
 
     Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE, node.getType());
@@ -139,7 +155,7 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
     node.getAssign()->accept(*this);
 
-    /* Checks if the variable was already declarated (only assign) */
+    /* Checks if the variable was already declared (only assign) */
     if (currentScope->contains(node.getValue())) {
         Symbol *sym;
         if (currentScope->getSymbol(node.getValue()))
@@ -147,13 +163,19 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
 
         // Check for identifier variable status
         if (sym->getCategory() != SymbolCategory::VARIABLE && sym->getCategory() != SymbolCategory::PARAMETER) {
-            throw std::runtime_error("Missing declaration for the identifier " + sym->getID() +
-                                     " used in a variable assignment");
+            std::string errorMsg =
+                "Missing declaration for the identifier " + sym->getID() + " used in a variable assignment";
+
+            errorList.push_back(
+                CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
         }
 
-        // Error throw when assigning a parameter value
+        // Error if the assign right side is a parameter
         if (!sym->isPtr() && sym->getCategory() == SymbolCategory::PARAMETER) {
-            throw std::runtime_error("Can not use the value of a parameter as a left side assign");
+            std::string errorMsg = "Can not use the value of a parameter as a left side assign";
+
+            errorList.push_back(
+                CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
         }
 
         return nullptr;
@@ -162,45 +184,53 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
     /* Type check for variable dec + assign */
     if (auto val = dynamic_cast<BinaryExprNode *>(node.getAssign())) {
         if (val->getType() != node.getType().getSupportedType()) {
-            return nullptr;
-            throw std::runtime_error("Variable assign with incompatible types, expr: " + typeToString(val->getType()) +
-                                     " and variable being assign has: " + typeToString(node.getType()));
+            std::string errorMsg = "Variable assign with incompatible types, expr: " + typeToString(val->getType()) +
+                                   " and variable being assign has: " + typeToString(node.getType());
+
+            errorList.push_back(
+                CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
         }
     }
     if (auto val = dynamic_cast<LiteralNode *>(node.getAssign())) {
         if (val->getType() != node.getType().getSupportedType()) {
-            return nullptr;
-            throw std::runtime_error(
+            std::string errorMsg =
                 "Variable assign with incompatible types for value: " + typeToString(val->getType()) +
-                " ,to a varianble declarated as: " + typeToString(node.getType()));
+                ", to a variable declared as: " + typeToString(node.getType());
+
+            errorList.push_back(
+                CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
         }
     }
     if (auto val = dynamic_cast<TimeLiteralNode *>(node.getAssign())) {
         if (node.getType().getSupportedType() != SupportedTypes::TYPE_TIME) {
-            return nullptr;
-            throw std::runtime_error(
+            std::string errorMsg =
                 "Variable assign with incompatible types for value: " + typeToString(Type(SupportedTypes::TYPE_TIME)) +
-                " ,to a varianble declarated as: " + typeToString(node.getType()));
+                ", to a variable declared as: " + typeToString(node.getType());
+
+            errorList.push_back(
+                CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
         }
     }
     if (auto val = dynamic_cast<VariableRefNode *>(node.getAssign())) {
         Symbol sym = *currentScope->getSymbol(val->getValue());
 
         if (sym.getType() != node.getType().getSupportedType()) {
-            return nullptr;
-            throw std::runtime_error(
-                "Variable assign with incompatible types for value: " + typeToString(sym.getType()) +
-                " ,to a varianble declarated as: " + typeToString(node.getType()));
+            std::string errorMsg = "Variable assign with incompatible types for value: " + typeToString(sym.getType()) +
+                                   ", to a variable declared as: " + typeToString(node.getType());
+
+            errorList.push_back(
+                CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
         }
     }
     if (auto val = dynamic_cast<FunctionCallNode *>(node.getAssign())) {
         Symbol sym = *currentScope->getSymbol(val->getValue());
 
         if (sym.getType() != node.getType().getSupportedType()) {
-            return nullptr;
-            throw std::runtime_error(
-                "Variable assign with incompatible types for value: " + typeToString(sym.getType()) +
-                " ,to a varianble declarated as: " + typeToString(node.getType()));
+            std::string errorMsg = "Variable assign with incompatible types for value: " + typeToString(sym.getType()) +
+                                   ", to a variable declared as: " + typeToString(node.getType());
+
+            errorList.push_back(
+                CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
         }
     }
 
@@ -214,14 +244,17 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
 void *SemanticVisitor::visit(VariableRefNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
 
-    // Checks if the variable was already declarated
+    // Checks if the variable was already declared
     if (currentScope->contains(node.getValue())) {
         // Check for this identifier variable or parameter status
         if (currentScope.get()->getSymbol(node.getValue())) {
             Symbol sym = *currentScope.get()->getSymbol(node.getValue());
 
             if (sym.getCategory() != SymbolCategory::VARIABLE && sym.getCategory() != SymbolCategory::PARAMETER) {
-                throw std::runtime_error("The symbol in use: " + node.getValue() + " is not a variable");
+                std::string errorMsg = "The symbol in use: " + node.getValue() + " is not a variable";
+
+                errorList.push_back(
+                    CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
             }
         }
     }
@@ -276,9 +309,12 @@ void *SemanticVisitor::visit(FunctionCallNode &node) {
     if (node.getParamsCount() != expectedParams) {
         // Variable arguments exception for the built-in function print
         if (node.getValue() != "print") {
-            throw std::runtime_error("The function " + node.getValue() + " was declared with " +
-                                     std::to_string(expectedParams) + " but is being called with " +
-                                     std::to_string(node.getParamsCount()));
+            std::string errorMsg = "The function " + node.getValue() + " was declared with " +
+                                   std::to_string(expectedParams) + " but is being called with " +
+                                   std::to_string(node.getParamsCount());
+
+            errorList.push_back(
+                CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
         }
     }
 
@@ -286,8 +322,11 @@ void *SemanticVisitor::visit(FunctionCallNode &node) {
     for (int i = 0; i < node.getParamsCount(); i++) {
         if (auto var = dynamic_cast<VariableRefNode *>(node.getParam(i))) {
             if (!currentScope->contains(var->getValue())) {
-                throw std::runtime_error("Missing declaration for a identifier used in a function call: " +
-                                         node.getParam(i)->getValue());
+                std::string errorMsg =
+                    "Missing declaration for a identifier used in a function call: " + node.getParam(i)->getValue();
+
+                errorList.push_back(
+                    CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
             }
         }
     }
@@ -376,7 +415,9 @@ void *SemanticVisitor::visit(ForNode &node) {
 void *SemanticVisitor::visit(LoopControlStatementNode &node) {
     // Check for correct use of continue and break statements
     if (loopDepth <= 0) {
-        throw std::runtime_error("Error: \"" + node.getValue() + "\" out of a loop block");
+        std::string errorMsg = "\"" + node.getValue() + "\" out of a loop block";
+        errorList.push_back(
+            CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
     }
 
     return nullptr;
@@ -384,8 +425,10 @@ void *SemanticVisitor::visit(LoopControlStatementNode &node) {
 
 void *SemanticVisitor::visit(EventNode &node) {
     if (node.getLimit() < 0) {
-        throw std::runtime_error("The event limit was set to: " + std::to_string(node.getLimit()) +
-                                 " but it must be >= 0.");
+        std::string errorMsg =
+            "The event limit was set to: " + std::to_string(node.getLimit()) + " but it must be >= 0.";
+        errorList.push_back(
+            CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
     }
 
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();

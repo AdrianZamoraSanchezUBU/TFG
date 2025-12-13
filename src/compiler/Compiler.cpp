@@ -175,7 +175,9 @@ void Compiler::lex() {
 
     // Checks for error
     if (lexerErrorListener->hasErrors()) {
-        throw std::runtime_error("Error in lexical analysis phase");
+        for (auto err : lexerErrorListener->getErrors()) {
+            errorList.push_back(err);
+        }
     }
 
     // Fill the token list
@@ -206,13 +208,15 @@ void Compiler::parse() {
 
     // Checks for error
     if (parserErrorListener->hasErrors()) {
-        throw std::runtime_error("Error in syntactic analysis phase");
+        for (auto err : parserErrorListener->getErrors()) {
+            errorList.push_back(err);
+        }
     }
 
     TParser::ProgramContext *programCtx = parser.program();
 
     // AST generation process
-    ASTBuilder builder;
+    ASTBuilder builder(errorList);
     ast = builder.visit(programCtx);
 
     if (flags.visualizeAST || flags.debug) {
@@ -330,12 +334,20 @@ void Compiler::linkObjectFile() {
     std::string programObjecFile = std::string(BUILD_DIR) + "/" + flags.outputFile;
 
     // Links the object file with the runtime to have a executable entry point and with a standard lib
-    std::string command =
-        "clang++ -no-pie " + entryPoint + basicLib + runtimeCpp + eventCpp + programObjecFile + " -o program -pthread";
+    std::string command = "clang++ -no-pie " + entryPoint + basicLib + runtimeCpp + eventCpp + programObjecFile +
+                          " -o program -pthread -lffi";
     std::system(command.c_str());
     std::system(("rm " + programObjecFile).c_str());
 
     if (flags.debug) {
         std::cout << "****** GENERATED EXECUTABLE ******" << std::endl;
+    }
+}
+
+void Compiler::printErrors() {
+    for (CompilerError err : errorList) {
+        std::cout << "Error in " + phaseToString(err.phase) + " at: " + std::to_string(err.location.line) + ":" +
+                         std::to_string(err.location.column) + " " + err.message
+                  << std::endl;
     }
 }

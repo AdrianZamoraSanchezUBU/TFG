@@ -15,13 +15,14 @@
 class SemanticVisitor {
     SymbolTable &symtab;
     unsigned int loopDepth = 0;
+    std::vector<CompilerError> &errorList;
 
   public:
     /**
      * @brief Default SemanticVisitor constructor.
      * @param table The SymbolTable object.
      */
-    explicit SemanticVisitor(SymbolTable &table) : symtab(table) {}
+    explicit SemanticVisitor(SymbolTable &table, std::vector<CompilerError> &err) : symtab(table), errorList(err) {}
 
     /**
      * @brief Visits the literal node.

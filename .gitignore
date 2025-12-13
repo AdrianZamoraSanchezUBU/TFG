@@ -8,6 +8,7 @@ doc/img/*:Zone*
 
 !doc/*.pdf
 !doc/*.tex
+!doc/*.bib
 !doc/tex/
 !doc/tex/*.tex
 !doc/img/

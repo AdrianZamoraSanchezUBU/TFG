@@ -6,6 +6,7 @@
  */
 
 #pragma once
+#include "CompilerError.h"
 #include "TimeStamp.h"
 #include "Type.h"
 #include <fstream>
@@ -31,6 +32,12 @@ class Function;
  * that make up the AST.
  */
 class ASTNode {
+    SourceLocation location;
+
+  protected:
+    /// Default constructor with SourceLocation
+    explicit ASTNode(const SourceLocation &loc = SourceLocation{}) : location(loc) {}
+
   public:
     virtual ~ASTNode() = default;
 
@@ -39,6 +46,21 @@ class ASTNode {
      * @return String with the value of this node.
      */
     virtual std::string getValue() const { return ""; };
+
+    /**
+     * @brief Setter for location.
+     *
+     * Adds the location where the symbol is present in the source code.
+     *
+     * @param loc Source location in the code.
+     */
+    void setSourceLocation(SourceLocation loc) { location = loc; };
+
+    /**
+     * @brief Returns the location of this symbol.
+     * @return Location of the symbol represented by this node.
+     */
+    const SourceLocation &getSourceLocation() const { return location; };
 
     /**
      * @brief Compares this node with another to check if they are equal.
@@ -91,7 +113,7 @@ class CodeBlockNode : public ASTNode {
     explicit CodeBlockNode(std::vector<std::unique_ptr<ASTNode>> stmt) : statements(std::move(stmt)) {}
 
     /**
-     * @brief Returns the ammount of statements in this block.
+     * @brief Returns the amount of statements in this block.
      * @return amount of statements in this block.
      */
     int getStmtCount() const { return statements.size(); }
@@ -154,8 +176,10 @@ class LiteralNode : public ASTNode {
      * @param val Value associated with the node.
      * @param t type of this literal.
      */
-    explicit LiteralNode(std::variant<int, float, char, std::string, bool> val, Type t)
-        : value(std::move(val)), type(t) {}
+    explicit LiteralNode(std::variant<int, float, char, std::string, bool> val,
+                         Type t,
+                         const SourceLocation &loc = SourceLocation{})
+        : ASTNode(loc), value(std::move(val)), type(t) {}
 
     /**
      * @brief Returns the value as std::variant.
@@ -236,7 +260,8 @@ class TimeLiteralNode : public ASTNode {
      * @param val Value associated with the node.
      * @param t Time unit defined for this variable.
      */
-    explicit TimeLiteralNode(float val, TimeStamp t) : value(val), type(t) {}
+    explicit TimeLiteralNode(float val, TimeStamp t, const SourceLocation &loc = SourceLocation{})
+        : ASTNode(loc), value(val), type(t) {}
 
     /**
      * @brief Getter for value.
@@ -309,8 +334,11 @@ class BinaryExprNode : public ASTNode {
      * @param lhs Left-hand operand.
      * @param rhs Right-hand operand.
      */
-    explicit BinaryExprNode(const std::string &op, std::unique_ptr<ASTNode> lhs, std::unique_ptr<ASTNode> rhs)
-        : op(op), left(std::move(lhs)), right(std::move(rhs)), type(Type(SupportedTypes::TYPE_VOID)) {}
+    explicit BinaryExprNode(const std::string &op,
+                            std::unique_ptr<ASTNode> lhs,
+                            std::unique_ptr<ASTNode> rhs,
+                            const SourceLocation &loc = SourceLocation{})
+        : ASTNode(loc), op(op), left(std::move(lhs)), right(std::move(rhs)), type(Type(SupportedTypes::TYPE_VOID)) {}
 
     /**
      * @brief Devuelve el operador asociado al nodo.
@@ -382,7 +410,11 @@ class UnaryOperationNode : public ASTNode {
      * @brief Constructor for UnaryOperation node.
      * @param id Name of the variable.
      */
-    explicit UnaryOperationNode(const std::string &id, bool pre, std::string o) : identifier(id), prefix(pre), op(o){};
+    explicit UnaryOperationNode(const std::string &id,
+                                bool pre,
+                                std::string o,
+                                const SourceLocation &loc = SourceLocation{})
+        : ASTNode(loc), identifier(id), prefix(pre), op(o){};
 
     /**
      * @brief Returns true if the unary operator is a prefix, false otherwise.
@@ -441,7 +473,8 @@ class ReturnNode : public ASTNode {
      * @brief Constructor for a return statement.
      * @param ret returned ASTNode.
      */
-    explicit ReturnNode(std::unique_ptr<ASTNode> ret) : stmt(std::move(ret)){};
+    explicit ReturnNode(std::unique_ptr<ASTNode> ret, const SourceLocation &loc = SourceLocation{})
+        : ASTNode(loc), stmt(std::move(ret)){};
 
     /**
      * @brief Getter for stmt.
@@ -497,7 +530,8 @@ class VariableDecNode : public ASTNode {
      * @param t Type of the variable.
      * @param id Identifier of this variable.
      */
-    explicit VariableDecNode(Type t, const std::string &id) : type(t), identifier(id){};
+    explicit VariableDecNode(Type t, const std::string &id, const SourceLocation &loc = SourceLocation{})
+        : ASTNode(loc), type(t), identifier(id){};
 
     /**
      * @brief Getter for type.
@@ -550,8 +584,11 @@ class VariableAssignNode : public ASTNode {
      * @param id Identifier of this variable.
      * @param val Value assigned to the variable.
      */
-    explicit VariableAssignNode(Type t, const std::string &id, std::unique_ptr<ASTNode> val)
-        : type(t), identifier(id), assign(std::move(val)){};
+    explicit VariableAssignNode(Type t,
+                                const std::string &id,
+                                std::unique_ptr<ASTNode> val,
+                                const SourceLocation &loc = SourceLocation{})
+        : ASTNode(loc), type(t), identifier(id), assign(std::move(val)){};
 
     /**
      * @brief Getter for type.
@@ -607,7 +644,8 @@ class VariableRefNode : public ASTNode {
      * @brief Constructor for VariableRef node.
      * @param id Name of this reference.
      */
-    explicit VariableRefNode(const std::string &id, bool b = false) : identifier(id), ref(b){};
+    explicit VariableRefNode(const std::string &id, const SourceLocation &loc = SourceLocation{}, bool b = false)
+        : ASTNode(loc), identifier(id), ref(b){};
 
     /**
      * @brief Returns true if this variable ref is a pointer, false otherwise.
@@ -666,8 +704,11 @@ class FunctionDecNode : public ASTNode {
      * @param params Params of the function.
      * @param t Return type of the function.
      */
-    explicit FunctionDecNode(const std::string &id, std::vector<Type> &params, Type t)
-        : identifier(id), paramList(params), type(t){};
+    explicit FunctionDecNode(const std::string &id,
+                             std::vector<Type> &params,
+                             Type t,
+                             const SourceLocation &loc = SourceLocation{})
+        : ASTNode(loc), identifier(id), paramList(params), type(t){};
 
     /**
      * @brief Getter for type.
@@ -752,8 +793,9 @@ class FunctionDefNode : public ASTNode {
     explicit FunctionDefNode(const std::string &id,
                              std::vector<std::unique_ptr<ASTNode>> &params,
                              Type t,
-                             std::unique_ptr<CodeBlockNode> code)
-        : identifier(id), paramList(std::move(params)), type(t), codeBlock(std::move(code)){};
+                             std::unique_ptr<CodeBlockNode> code,
+                             const SourceLocation &loc = SourceLocation{})
+        : ASTNode(loc), identifier(id), paramList(std::move(params)), type(t), codeBlock(std::move(code)){};
 
     /**
      * @brief Getter for type.
@@ -768,7 +810,7 @@ class FunctionDefNode : public ASTNode {
     CodeBlockNode *getCodeBlock() const { return codeBlock.get(); }
 
     /**
-     * @brief Returns the ammount of parameters in this function.
+     * @brief Returns the amount of parameters in this function.
      * @return Amount of parameters in this function.
      */
     int getParamsCount() const { return paramList.size(); }
@@ -830,14 +872,16 @@ class FunctionCallNode : public ASTNode {
      * @param id Name of the function.
      * @param params Types of the params of this function.
      */
-    explicit FunctionCallNode(const std::string &id, std::vector<std::unique_ptr<ASTNode>> params)
-        : identifier(id), paramList(std::move(params)){};
+    explicit FunctionCallNode(const std::string &id,
+                              std::vector<std::unique_ptr<ASTNode>> params,
+                              const SourceLocation &loc = SourceLocation{})
+        : ASTNode(loc), identifier(id), paramList(std::move(params)){};
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return identifier; }
 
     /**
-     * @brief Returns the ammount of parameters in this block.
+     * @brief Returns the amount of parameters in this block.
      * @return Amount of parameters in this function call.
      */
     int getParamsCount() const { return paramList.size(); }
@@ -897,8 +941,9 @@ class IfNode : public ASTNode {
      */
     explicit IfNode(std::unique_ptr<ASTNode> expression,
                     std::unique_ptr<CodeBlockNode> block,
+                    const SourceLocation &loc = SourceLocation{},
                     std::unique_ptr<ASTNode> els = nullptr)
-        : expr(std::move(expression)), codeBlock(std::move(block)), elseStmt(std::move(els)){};
+        : ASTNode(loc), expr(std::move(expression)), codeBlock(std::move(block)), elseStmt(std::move(els)){};
 
     /**
      * @brief Getter for the expr.
@@ -962,7 +1007,8 @@ class ElseNode : public ASTNode {
      * @brief Constructor for the ElseNode.
      * @param stmt Block of code or other if statement.
      */
-    explicit ElseNode(std::unique_ptr<ASTNode> elseStmt) : stmt(std::move(elseStmt)){};
+    explicit ElseNode(std::unique_ptr<ASTNode> elseStmt, const SourceLocation &loc = SourceLocation{})
+        : ASTNode(loc), stmt(std::move(elseStmt)){};
 
     /**
      * @brief Getter for the stmt.
@@ -1011,8 +1057,10 @@ class WhileNode : public ASTNode {
      * @param expression Condition for the loop execution.
      * @param block Block of code executed in loop.
      */
-    explicit WhileNode(std::unique_ptr<ASTNode> expression, std::unique_ptr<CodeBlockNode> block)
-        : expr(std::move(expression)), codeBlock(std::move(block)){};
+    explicit WhileNode(std::unique_ptr<ASTNode> expression,
+                       std::unique_ptr<CodeBlockNode> block,
+                       const SourceLocation &loc = SourceLocation{})
+        : ASTNode(loc), expr(std::move(expression)), codeBlock(std::move(block)){};
 
     /**
      * @brief Getter for the expr.
@@ -1074,8 +1122,9 @@ class ForNode : public ASTNode {
     explicit ForNode(std::unique_ptr<ASTNode> definition,
                      std::unique_ptr<ASTNode> loopCondition,
                      std::unique_ptr<ASTNode> assignation,
-                     std::unique_ptr<CodeBlockNode> block)
-        : def(std::move(definition)), condition(std::move(loopCondition)), assign(std::move(assignation)),
+                     std::unique_ptr<CodeBlockNode> block,
+                     const SourceLocation &loc = SourceLocation{})
+        : ASTNode(loc), def(std::move(definition)), condition(std::move(loopCondition)), assign(std::move(assignation)),
           codeBlock(std::move(block)){};
 
     /**
@@ -1146,7 +1195,8 @@ class LoopControlStatementNode : public ASTNode {
      * @brief Constructor for the loop control statement node.
      * @param id Keyword of the statement, could be continue or break.
      */
-    explicit LoopControlStatementNode(std::string identifier) : id(identifier){};
+    explicit LoopControlStatementNode(std::string identifier, const SourceLocation &loc = SourceLocation{})
+        : ASTNode(loc), id(identifier){};
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return id; }
@@ -1200,8 +1250,9 @@ class EventNode : public ASTNode {
                        TimeCommand timeCommand,
                        std::unique_ptr<ASTNode> time,
                        std::unique_ptr<CodeBlockNode> block,
+                       const SourceLocation &loc = SourceLocation{},
                        int execLimit = 0)
-        : id(identifier), paramList(std::move(params)), command(timeCommand), timeStmt(std::move(time)),
+        : ASTNode(loc), id(identifier), paramList(std::move(params)), command(timeCommand), timeStmt(std::move(time)),
           codeBlock(std::move(block)), limit(execLimit){};
 
     /**
@@ -1287,7 +1338,8 @@ class ExitNode : public ASTNode {
      * @brief Constructor for the exit node.
      * @param id identifier of the event to exit.
      */
-    explicit ExitNode(std::string identifier) : id(identifier){};
+    explicit ExitNode(std::string identifier, const SourceLocation &loc = SourceLocation{})
+        : ASTNode(loc), id(identifier){};
 
     /// @copydoc ASTNode::getValue
     std::string getValue() const override { return id; }

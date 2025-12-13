@@ -1,10 +1,9 @@
-int a = 0;
+int a = 1;
 
-event test(ref int x) every 2 sec {
-    int x = x + 1;
-    print("X val: ", toString(x));
+event test(int x) every 2 sec {
+    print(toString(x));
 }
 
-test(ref a);
+test(2);
 
 return 0;

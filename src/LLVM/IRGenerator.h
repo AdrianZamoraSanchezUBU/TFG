@@ -28,10 +28,11 @@ class BinaryExprNode;
  * @see CodegenContext
  */
 class IRGenerator {
-    CodegenContext ctx;          /// LLVM Context.
-    SymbolTable &symtab;         /// Symbol Table reference.
-    std::vector<int> scopeStack; /// Scope stack
-    int scopeRef = -1;           /// The scope is -1 before the main program initialization
+    CodegenContext ctx;                    /// LLVM Context.
+    SymbolTable &symtab;                   /// Symbol Table reference.
+    std::vector<int> scopeStack;           /// Scope stack
+    int scopeRef = -1;                     /// The scope is -1 before the main program initialization
+    std::vector<CompilerError> &errorList; /// List of language misuses
 
     /**
      * @brief Matches the condition and end of a loop.
@@ -50,7 +51,7 @@ class IRGenerator {
      *
      * Initializes the LLVM context.
      */
-    explicit IRGenerator(SymbolTable &table) : ctx(), symtab(table){};
+    explicit IRGenerator(SymbolTable &table, std::vector<CompilerError> &err) : ctx(), symtab(table), errorList(err){};
 
     /// Inserts a new scope ID in the stack.
     void pushScope() {

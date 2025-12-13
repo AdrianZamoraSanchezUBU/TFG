@@ -24,7 +24,10 @@ class ASTNode;
  * @see ASTNode
  */
 class ASTBuilder {
+    std::vector<CompilerError> &errorList;
+
   public:
+    ASTBuilder(std::vector<CompilerError> &errs) : errorList(errs){};
     /**
      * @brief Visits the program and returns the nodes it contains.
      * @param ctx Base program context.

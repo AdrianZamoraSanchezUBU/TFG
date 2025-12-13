@@ -7,6 +7,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ProgramContext *ctx) {
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ProgramMainBlockContext *ctx) {
     std::vector<std::unique_ptr<ASTNode>> stmt;
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
     // Visits all the stmts
     for (auto child : ctx->children) {
@@ -20,13 +21,12 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ProgramMainBlockContext *ctx
         }
     }
 
-    auto codeBlock = std::make_unique<CodeBlockNode>(std::move(stmt));
-
-    return codeBlock;
+    return std::make_unique<CodeBlockNode>(std::move(stmt));
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::BlockContext *ctx) {
     std::vector<std::unique_ptr<ASTNode>> stmt;
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
     // Visits all the stmts
     for (auto child : ctx->children) {
@@ -40,9 +40,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::BlockContext *ctx) {
         }
     }
 
-    auto codeBlock = std::make_unique<CodeBlockNode>(std::move(stmt));
-
-    return codeBlock;
+    return std::make_unique<CodeBlockNode>(std::move(stmt));
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::StmtContext *ctx) {
@@ -85,29 +83,28 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ExprContext *ctx) {
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ArithmeticExprContext *ctx) {
     std::string op = ctx->op->getText();
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
     auto lhs = visit(ctx->expr(0));
     auto rhs = visit(ctx->expr(1));
 
-    auto exprNode = std::make_unique<BinaryExprNode>(op, std::move(lhs), std::move(rhs));
-
-    return exprNode;
+    return std::make_unique<BinaryExprNode>(op, std::move(lhs), std::move(rhs), loc);
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LogicalExprContext *ctx) {
     std::string op = ctx->comparisonOperator()->getText();
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
     // Child visits
     auto lhs = visit(ctx->expr(0));
     auto rhs = visit(ctx->expr(1));
 
-    auto exprNode = std::make_unique<BinaryExprNode>(op, std::move(lhs), std::move(rhs));
-
-    return exprNode;
+    return std::make_unique<BinaryExprNode>(op, std::move(lhs), std::move(rhs), loc);
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::OperandExprContext *ctx) {
     auto operand = ctx->operand();
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
     // The operand is a literal
     if (operand->literal()) {
@@ -121,21 +118,21 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::OperandExprContext *ctx) {
 
     // The operand is a pointer to a identifier
     if (operand->TYPE_PTR()) {
-        return std::make_unique<VariableRefNode>(operand->IDENTIFIER()->getText(), true);
+        return std::make_unique<VariableRefNode>(operand->IDENTIFIER()->getText(), loc, true);
     }
 
     // The operand is a unary prefix operation
     if (operand->INC() && operand->INC()->getSymbol()->getTokenIndex() == operand->start->getTokenIndex()) {
         return std::make_unique<UnaryOperationNode>(operand->IDENTIFIER()->getText(),
                                                     true, // prefix is true
-                                                    "++"  // isInc is true
-        );
+                                                    "++", // isInc is true
+                                                    loc);
     }
     if (operand->DEC() && operand->DEC()->getSymbol()->getTokenIndex() == operand->start->getTokenIndex()) {
         return std::make_unique<UnaryOperationNode>(operand->IDENTIFIER()->getText(),
                                                     true, // prefix is true
-                                                    "--"  // isInc is false
-        );
+                                                    "--", // isInc is false
+                                                    loc);
     }
 
     // The operand is a unary postfix operation
@@ -143,30 +140,30 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::OperandExprContext *ctx) {
         if (operand->INC()) {
             return std::make_unique<UnaryOperationNode>(operand->IDENTIFIER()->getText(),
                                                         false, // prefix is false
-                                                        "++"   // isInc is true
-            );
+                                                        "++",  // isInc is true
+                                                        loc);
         }
         if (operand->DEC()) {
             return std::make_unique<UnaryOperationNode>(operand->IDENTIFIER()->getText(),
                                                         false, // prefix is false
-                                                        "--"   // isInc is false
-            );
+                                                        "--",  // isInc is false
+                                                        loc);
         }
 
         // Simple variable
-        return std::make_unique<VariableRefNode>(operand->IDENTIFIER()->getText(), false);
+        return std::make_unique<VariableRefNode>(operand->IDENTIFIER()->getText(), loc, false);
     }
 
     throw std::runtime_error("Not a valid operand");
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
+
     // Checks for a number or float context
     if (ctx->NUMBER_LITERAL()) {
         int value = stoi(ctx->NUMBER_LITERAL()->getText());
-        auto node = std::make_unique<LiteralNode>(value, Type(SupportedTypes::TYPE_INT));
-
-        return node;
+        return std::make_unique<LiteralNode>(value, Type(SupportedTypes::TYPE_INT), loc);
     }
 
     if (ctx->boolean_literal()) {
@@ -176,21 +173,16 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
             value = true;
         }
 
-        auto node = std::make_unique<LiteralNode>(value, Type(SupportedTypes::TYPE_BOOL));
-
-        return node;
+        return std::make_unique<LiteralNode>(value, Type(SupportedTypes::TYPE_BOOL), loc);
     }
 
     if (ctx->FLOAT_LITERAL()) {
         float value = stof(ctx->FLOAT_LITERAL()->getText());
-        auto node = std::make_unique<LiteralNode>(value, Type(SupportedTypes::TYPE_FLOAT));
-
-        return node;
+        return std::make_unique<LiteralNode>(value, Type(SupportedTypes::TYPE_FLOAT), loc);
     }
 
     if (ctx->STRING_LITERAL()) {
-        auto node = std::make_unique<LiteralNode>(ctx->STRING_LITERAL()->getText(), Type(SupportedTypes::TYPE_STRING));
-        return node;
+        return std::make_unique<LiteralNode>(ctx->STRING_LITERAL()->getText(), Type(SupportedTypes::TYPE_STRING), loc);
     }
 
     if (ctx->time_literal()) {
@@ -201,6 +193,8 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Time_literalContext *ctx) {
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
+
     // Float value of the time type
     float value;
 
@@ -214,7 +208,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Time_literalContext *ctx) {
     // Time stamp of the time type
     TimeStamp time = visit(ctx->timeStamp());
 
-    return std::make_unique<TimeLiteralNode>(value, time);
+    return std::make_unique<TimeLiteralNode>(value, time, loc);
 }
 
 TimeStamp ASTBuilder::visit(TParser::TimeStampContext *ctx) {
@@ -228,13 +222,14 @@ TimeStamp ASTBuilder::visit(TParser::TimeStampContext *ctx) {
     if (ctx->TIME_HR())
         return TimeStamp::TYPE_HR;
 
-    throw std::runtime_error("Not a valir time stamp");
+    throw std::runtime_error("Not a valid time stamp");
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableDecContext *ctx) {
     Type type = visit(ctx->type());
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
-    return std::make_unique<VariableDecNode>(type, ctx->IDENTIFIER()->getText());
+    return std::make_unique<VariableDecNode>(type, ctx->IDENTIFIER()->getText(), loc);
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableAssignContext *ctx) {
@@ -242,6 +237,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableAssignContext *ctx) 
     Type type;
     std::string typeString;
     std::unique_ptr<ASTNode> assign;
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
     // If this is a variable declaration + assignment visit the type
     if (ctx->variableDec()) {
@@ -256,12 +252,13 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::VariableAssignContext *ctx) 
     // Visits the expr that gives this variable its value
     assign = visit(ctx->expr());
 
-    return std::make_unique<VariableAssignNode>(type, varName, std::move(assign));
+    return std::make_unique<VariableAssignNode>(type, varName, std::move(assign), loc);
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDefinitionContext *ctx) {
     std::string id = ctx->IDENTIFIER()->getText();
     Type type = visit(ctx->type());
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
     // Visits all the param types
     std::vector<std::unique_ptr<ASTNode>> params;
@@ -269,8 +266,10 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDefinitionContext *c
         for (int i = 0; i < ctx->params()->IDENTIFIER().size(); i++) {
             std::string id = ctx->params()->IDENTIFIER(i)->getText();
             Type type = visit(ctx->params()->paramType(i));
+            SourceLocation paramLoc(ctx->params()->getStart()->getLine(),
+                                    ctx->params()->getStart()->getCharPositionInLine());
 
-            params.emplace_back(std::make_unique<VariableDecNode>(type, id));
+            params.emplace_back(std::make_unique<VariableDecNode>(type, id, paramLoc));
         }
     }
 
@@ -280,24 +279,26 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDefinitionContext *c
     auto functionScope = dynamic_cast<CodeBlockNode *>(raw);
     std::unique_ptr<CodeBlockNode> codeBlockPtr(functionScope);
 
-    return std::make_unique<FunctionDefNode>(id, params, type, std::move(codeBlockPtr));
+    return std::make_unique<FunctionDefNode>(id, params, type, std::move(codeBlockPtr), loc);
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionDeclarationContext *ctx) {
     std::string id = ctx->IDENTIFIER()->getText();
     Type type = visit(ctx->type());
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
     std::vector<Type> params;
     if (ctx->params() != nullptr && !ctx->params()->isEmpty()) {
         params = visit(ctx->params());
     }
 
-    return std::make_unique<FunctionDecNode>(id, params, type);
+    return std::make_unique<FunctionDecNode>(id, params, type, loc);
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionCallContext *ctx) {
     std::string id = ctx->IDENTIFIER()->getText();
     std::vector<std::unique_ptr<ASTNode>> params;
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
     // Visits all the params
     for (int i = 0; i < ctx->expr().size(); i++) {
@@ -305,10 +306,11 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::FunctionCallContext *ctx) {
         params.emplace_back(visit(ctx->expr(i)));
     }
 
-    return std::make_unique<FunctionCallNode>(id, std::move(params));
+    return std::make_unique<FunctionCallNode>(id, std::move(params), loc);
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Return_stmtContext *ctx) {
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
     // Visits the expr that gives this variable its value
     std::unique_ptr<ASTNode> retVal = nullptr;
@@ -317,7 +319,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::Return_stmtContext *ctx) {
     }
 
     // Returns a value or void
-    return std::make_unique<ReturnNode>(std::move(retVal));
+    return std::make_unique<ReturnNode>(std::move(retVal), loc);
 }
 
 std::vector<Type> ASTBuilder::visit(TParser::ParamsContext *ctx) {
@@ -332,6 +334,8 @@ std::vector<Type> ASTBuilder::visit(TParser::ParamsContext *ctx) {
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::IfContext *ctx) {
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
+
     // Expr for entering the if code block
     auto expr = visit(ctx->expr());
 
@@ -343,23 +347,25 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::IfContext *ctx) {
     std::unique_ptr<ASTNode> ifNode;
     if (ctx->else_()) {
         auto elseStmt = visit(ctx->else_());
-        ifNode = std::make_unique<IfNode>(std::move(expr), std::move(ifBlock), std::move(elseStmt));
+        ifNode = std::make_unique<IfNode>(std::move(expr), std::move(ifBlock), loc, std::move(elseStmt));
     } else {
-        ifNode = std::make_unique<IfNode>(std::move(expr), std::move(ifBlock));
+        ifNode = std::make_unique<IfNode>(std::move(expr), std::move(ifBlock), loc);
     }
 
     return std::move(ifNode);
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ElseContext *ctx) {
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
+
     // Vistis a nested else if statement or the else block
     std::unique_ptr<ASTNode> node;
     if (ctx->if_()) {
         auto ifStmt = visit(ctx->if_());
-        node = std::make_unique<ElseNode>(std::move(ifStmt));
+        node = std::make_unique<ElseNode>(std::move(ifStmt), loc);
     } else if (ctx->block()) {
         auto block = visit(ctx->block());
-        node = std::make_unique<ElseNode>(std::move(block));
+        node = std::make_unique<ElseNode>(std::move(block), loc);
     }
 
     return node;
@@ -367,6 +373,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ElseContext *ctx) {
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopContext *ctx) {
     std::unique_ptr<ASTNode> loop;
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
     // Visit the loop
     if (ctx->WHILE()) {
@@ -375,7 +382,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopContext *ctx) {
         auto block = visit(ctx->block());
         auto whileBlock = std::unique_ptr<CodeBlockNode>(static_cast<CodeBlockNode *>(block.release()));
 
-        loop = std::make_unique<WhileNode>(std::move(expr), std::move(whileBlock));
+        loop = std::make_unique<WhileNode>(std::move(expr), std::move(whileBlock), loc);
     } else if (ctx->FOR()) {
         // Visits the loop components
         auto def = visit(ctx->variableAssign(0));
@@ -386,14 +393,16 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopContext *ctx) {
         auto block = visit(ctx->block());
         auto forBlock = std::unique_ptr<CodeBlockNode>(static_cast<CodeBlockNode *>(block.release()));
 
-        loop = std::make_unique<ForNode>(std::move(def), std::move(condition), std::move(assign), std::move(forBlock));
+        loop = std::make_unique<ForNode>(std::move(def), std::move(condition), std::move(assign), std::move(forBlock),
+                                         loc);
     }
 
     return loop;
 };
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopControlStatementContext *ctx) {
-    return std::make_unique<LoopControlStatementNode>(ctx->getText());
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
+    return std::make_unique<LoopControlStatementNode>(ctx->getText(), loc);
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventBlockContext *ctx) {
@@ -404,7 +413,8 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventBlockContext *ctx) {
         if (auto stmtCtx = dynamic_cast<TParser::StmtContext *>(child)) {
             stmt.push_back(visit(stmtCtx));
         } else if (auto controlStmt = dynamic_cast<TParser::ExitStmtContext *>(child)) {
-            stmt.push_back(std::make_unique<ExitNode>(child->getText()));
+            SourceLocation loc(controlStmt->getStart()->getLine(), controlStmt->getStart()->getCharPositionInLine());
+            stmt.push_back(std::make_unique<ExitNode>(child->getText(), loc));
         }
     }
 
@@ -423,6 +433,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventDefContext *ctx) {
     std::unique_ptr<CodeBlockNode> codeBlockPtr(functionScope);
 
     std::unique_ptr<ASTNode> timeNode;
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
     // Visits all the param types
     std::vector<std::unique_ptr<ASTNode>> params;
@@ -430,8 +441,10 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventDefContext *ctx) {
         for (int i = 0; i < ctx->params()->IDENTIFIER().size(); i++) {
             std::string id = ctx->params()->IDENTIFIER(i)->getText();
             Type type = visit(ctx->params()->paramType(i));
+            SourceLocation loc(ctx->params()->getStart()->getLine(),
+                               ctx->params()->getStart()->getCharPositionInLine());
 
-            params.emplace_back(std::make_unique<VariableDecNode>(type, id));
+            params.emplace_back(std::make_unique<VariableDecNode>(type, id, loc));
         }
     }
 
@@ -444,11 +457,11 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventDefContext *ctx) {
     if (ctx->time_literal()) {
         timeNode = visit(ctx->time_literal());
     } else if (ctx->IDENTIFIER(1)) {
-        timeNode = std::make_unique<VariableRefNode>(ctx->IDENTIFIER(1)->getText());
+        timeNode = std::make_unique<VariableRefNode>(ctx->IDENTIFIER(1)->getText(), loc);
     }
 
     return std::make_unique<EventNode>(ctx->IDENTIFIER(0)->getText(), params, command, std::move(timeNode),
-                                       std::move(codeBlockPtr), execLimit);
+                                       std::move(codeBlockPtr), loc, execLimit);
 }
 
 int ASTBuilder::visit(TParser::EventLimitConditionContext *ctx) {
@@ -494,7 +507,7 @@ Type ASTBuilder::visit(TParser::ParamTypeContext *ctx) {
         return Type(new Type(t));
     }
 
-    throw std::runtime_error("Not a valid type");
+    throw std::runtime_error("Not a valid parameter type");
 }
 
 TimeCommand ASTBuilder::visit(TParser::TimeCommandContext *ctx) {

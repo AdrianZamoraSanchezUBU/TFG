@@ -22,6 +22,9 @@
  * @author Adrián Zamora Sánchez
  */
 
+#include "CompilerError.h"
+// #include "spdlog/spdlog.h"
+
 // FLAGS
 #include "CompilerFlags.h"
 
@@ -70,7 +73,8 @@ class Compiler {
     std::unique_ptr<SemanticVisitor> analyser;
     std::unique_ptr<IRGenerator> IRgen;
 
-    /// Lexer & Parser error listeners
+    /// Error management
+    std::vector<CompilerError> errorList;
     std::shared_ptr<ParserErrorListener> parserErrorListener;
     std::shared_ptr<LexerErrorListener> lexerErrorListener;
 
@@ -82,8 +86,8 @@ class Compiler {
      * @param flagStruct Structure with the compiler flags data.
      */
     explicit Compiler(CompilerFlags flagsStruct) : flags(flagsStruct) {
-        analyser = std::make_unique<SemanticVisitor>(symTable);
-        IRgen = std::make_unique<IRGenerator>(symTable);
+        analyser = std::make_unique<SemanticVisitor>(symTable, errorList);
+        IRgen = std::make_unique<IRGenerator>(symTable, errorList);
     };
 
     /// Lexical analysis phase of the compiler.
@@ -103,6 +107,12 @@ class Compiler {
 
     /// Object code linkage and executable generation.
     void linkObjectFile();
+
+    /// Getter for the error count.
+    int getErrorCount() const { return errorList.size(); }
+
+    /// Prints the error information.
+    void printErrors();
 
     /**
      * @brief IRGenerator CodegenContext getter;

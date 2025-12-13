@@ -163,8 +163,10 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
         }
     }
 
-    // Throws error
-    throw std::runtime_error("Unsupported binary operation: " + op + " on " + typeToString(operationType));
+    // Catches the error
+    std::string errorMsg = "Unsupported binary operation: " + op + " on " + typeToString(operationType);
+    errorList.push_back(CompilerError(CompilerPhase::IR_GEN, node.getSourceLocation(), node.getValue(), errorMsg));
+    return nullptr;
 }
 
 llvm::Value *IRGenerator::visit(UnaryOperationNode &node) {
@@ -207,7 +209,7 @@ llvm::Value *IRGenerator::visit(UnaryOperationNode &node) {
         return result;
     }
 
-    // If this node is a postfix unary oeprator the return value is the value of the variable before the operation
+    // If this node is a postfix unary operator the return value is the value of the variable before the operation
     return loaded;
 }
 
@@ -234,6 +236,7 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
 
     // Visits the type of assignment
     if (auto expr = dynamic_cast<BinaryExprNode *>(node.getAssign())) {
+        std::cout << "here" << std::endl;
         assignVal = visit(*expr);
     } else if (auto lit = dynamic_cast<LiteralNode *>(node.getAssign())) {
         assignVal = visit(*lit);
@@ -252,7 +255,8 @@ llvm::Value *IRGenerator::visit(VariableAssignNode &node) {
     } else if (auto fn = dynamic_cast<FunctionCallNode *>(node.getAssign())) {
         assignVal = visit(*fn);
     } else {
-        throw std::runtime_error("Not a valid assigment for: " + node.getValue());
+        std::string errorMsg = "Not a valid assignment for: " + node.getValue();
+        errorList.push_back(CompilerError(CompilerPhase::IR_GEN, node.getSourceLocation(), node.getValue(), errorMsg));
     }
 
     // Getting the symbol info
@@ -295,12 +299,14 @@ llvm::Value *IRGenerator::visit(VariableRefNode &node) {
     // Getting the symbol data
     Symbol *symbol = symtab.getCurrentScope()->getSymbol(node.getValue());
     if (!symbol) {
-        throw std::runtime_error("Symbol not found in scope: " + node.getValue());
+        std::string errorMsg = "Symbol not found in scope: " + node.getValue();
+        errorList.push_back(CompilerError(CompilerPhase::IR_GEN, node.getSourceLocation(), node.getValue(), errorMsg));
     }
 
     llvm::Value *alloc = symbol->getLlvmValue();
     if (!alloc) {
-        throw std::runtime_error("There is no value associated to the symbol: " + node.getValue());
+        std::string errorMsg = "There is no value associated to the symbol: " + node.getValue();
+        errorList.push_back(CompilerError(CompilerPhase::IR_GEN, node.getSourceLocation(), node.getValue(), errorMsg));
     }
 
     // Returning a direct value
@@ -330,7 +336,9 @@ llvm::Value *IRGenerator::visit(VariableRefNode &node) {
         return ctx.IRBuilder.CreateLoad(type, alloca, node.getValue() + "_val");
     }
 
-    throw std::runtime_error("The symbol: " + node.getValue() + " does not have a valid allocation");
+    std::string errorMsg = "The symbol: " + node.getValue() + " does not have a valid allocation";
+    errorList.push_back(CompilerError(CompilerPhase::IR_GEN, node.getSourceLocation(), node.getValue(), errorMsg));
+    return nullptr;
 }
 
 llvm::Value *IRGenerator::visit(FunctionDefNode &node) {
@@ -431,7 +439,8 @@ llvm::Value *IRGenerator::visit(FunctionCallNode &node) {
     // Function caller
     llvm::Function *callee = ctx.IRModule->getFunction(node.getValue());
     if (!callee) {
-        throw std::runtime_error("Undefined function: " + node.getValue());
+        std::string errorMsg = "Undefined function: " + node.getValue();
+        errorList.push_back(CompilerError(CompilerPhase::IR_GEN, node.getSourceLocation(), node.getValue(), errorMsg));
     }
 
     // Built-in function with different generation
