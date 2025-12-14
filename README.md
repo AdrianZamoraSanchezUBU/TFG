@@ -2,6 +2,12 @@
 # Dependencias del proyecto
 A continuación se detallan todas las dependencias necesarias para compilar y ejecutar el proyecto.
 
+## Clonar e inicializar submódulos
+```
+git clone --recursive <repository-url>
+cd TFG
+```
+
 ## ANTLR4
 ### ANTLR4 tool
 ```
@@ -76,5 +82,35 @@ Puesto que para los cambios en los archivos .g4 de ANTLR4 hay que compilar con l
 ./build.sh --test
 ``` 
 
+
+
 # Uso del compilador
-TODO
+### Argumentos
+
+- `<archivo_entrada>`  
+  Archivo fuente escrito en el lenguaje T que se va a compilar.
+
+---
+
+### Opciones
+
+- `-o <archivo>`  
+  Especifica el nombre del archivo objeto de salida.  
+  Por defecto: `out.o`
+
+- `--debug`  
+  Activa el modo de depuración. Muestra información interna del compilador como:
+  - Lista de tokens
+  - Árbol de Sintaxis Abstracta (AST)
+  - Tabla de símbolos
+  - LLVM IR generado
+
+- `--visualizeAST`  
+  Genera una representación visual del Árbol de Sintaxis Abstracta.  
+  Produce un archivo `AST.pdf` en el directorio actual.
+
+- `-IR <archivo>`  
+  Emite el LLVM IR generado al archivo especificado.
+
+- `-h, --help`  
+  Muestra la ayuda del compilador.

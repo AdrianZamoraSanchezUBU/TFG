@@ -18,15 +18,21 @@ CompilerFlags argvToFlags(int argc, char **argv) {
     argparse::ArgumentParser program("TCompiler");
 
     // Defined arguments
-    program.add_argument("input").help("Input source file");
+    program.add_argument("input").help("Input source file.");
 
     program.add_argument("-o", "--output").help("Output object file").default_value(std::string("out.o"));
 
-    program.add_argument("--visualizeAST").help("Generate AST visualization").default_value(false).implicit_value(true);
+    program.add_argument("--visualizeAST")
+        .help("Generates a AST visualization -pdf file")
+        .default_value(false)
+        .implicit_value(true);
 
-    program.add_argument("--debug").help("Enable debug output").default_value(false).implicit_value(true);
+    program.add_argument("--debug")
+        .help("Shows debug data about all the compiler phases.")
+        .default_value(false)
+        .implicit_value(true);
 
-    program.add_argument("-IR").help("Generate LLVM IR file").default_value(std::string(""));
+    program.add_argument("-IR").help("Generates a LLVM IR file.").default_value(std::string(""));
 
     // Is the arguments are invalid throws invalid_argument exception
     try {
