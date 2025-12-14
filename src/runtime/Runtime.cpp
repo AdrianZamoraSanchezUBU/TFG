@@ -22,7 +22,7 @@ void Runtime::registerEvent(std::string id, float period, void *fnPtr, int argCo
 }
 
 void Runtime::printEventList() {
-    std::cout << "\nPrinting events " + std::to_string(events.size()) + " in the list:" << std::endl;
+    spdlog::debug("\nPrinting events {} in the list:", std::to_string(events.size()));
     for (const auto &ev : events) {
         ev->print();
     }

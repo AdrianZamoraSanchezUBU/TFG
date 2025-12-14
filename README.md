@@ -55,6 +55,12 @@ Utilizado para la ejecución de tests automatizados.
 sudo apt install -y libgtest-dev
 ```
 
+## LaTex
+Necesario para generar visualizaciones del AST.
+```
+sudo apt install texlive-xetex
+```
+
 ## Compilación y tests
 Para hacer build o ejecutar tests
 Se pueden utilizar los comandos estándar:

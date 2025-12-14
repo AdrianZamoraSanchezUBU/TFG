@@ -184,17 +184,17 @@ void Compiler::lex() {
     tokenList = std::make_shared<antlr4::CommonTokenStream>(lexer.get());
     tokenList->fill();
 
-    // Shows the tokens if the debug flag is set to true
+    // Printing the input text
+    spdlog::debug("****** COMPILER INPUT ******");
     if (flags.debug) {
-        // Printing the input text
-        std::cout << "****** COMPILER INPUT ****** \n" << fileContent << "\n" << std::endl;
+        fmt::print(fileContent);
+        fmt::print("\n\n");
+    }
 
-        // Printing tokens
-        std::cout << "****** TOKEN LIST ******" << std::endl;
-        for (auto token : tokenList->getTokens()) {
-            std::cout << token->toString() << std::endl;
-        }
-        std::cout << std::endl;
+    // Printing tokens
+    spdlog::debug("****** TOKEN LIST ******");
+    for (auto token : tokenList->getTokens()) {
+        spdlog::debug(token->toString());
     }
 }
 
@@ -246,13 +246,13 @@ void Compiler::parse() {
     }
 
     // xelatex compilation and cleaning
-    if (std::system("xelatex --version > /dev/null 2>&1") == 0 && (flags.visualizeAST || flags.debug)) {
+    if (std::system("xelatex --version > /dev/null 2>&1") == 0) {
         // Compiles the .tex file
         std::string texName = "AST";
         std::string command = "xelatex -interaction=nonstopmode " + texName + ".tex > /dev/null 2>&1";
 
-        if (std::system(command.c_str()) == 0 && flags.debug) {
-            std::cout << "****** AST VISUALIZATION GENERATED AT: ./AST.pdf ******\n" << std::endl;
+        if (std::system(command.c_str()) == 0) {
+            spdlog::debug("****** AST VISUALIZATION GENERATED AT: ./AST.pdf ******\n");
         }
 
         // Clean the .log .aux and .tex files
@@ -265,11 +265,8 @@ void Compiler::analyze() {
     getAST()->accept(*analyzer);
 
     // Debug symbol table print
-    if (flags.debug) {
-        std::cout << "****** SYMBOL TABLE ******" << std::endl;
-        analyzer->printSymbolTable();
-        std::cout << std::endl;
-    }
+    spdlog::debug("****** SYMBOL TABLE ******");
+    analyzer->printSymbolTable();
 }
 
 void Compiler::generateIR() {
@@ -278,7 +275,8 @@ void Compiler::generateIR() {
 
     // Debug IR print
     if (flags.debug) {
-        std::cout << "****** GENERATED LLVM IR ******" << std::endl;
+        fmt::print("\n");
+        spdlog::debug("****** GENERATED LLVM IR ******");
         ctx.IRModule->print(llvm::outs(), nullptr);
     }
 
@@ -321,9 +319,7 @@ void Compiler::generateObjectCode() {
     emitPM.run(*ctx.IRModule);
     dest.flush();
 
-    if (flags.debug) {
-        std::cout << "****** GENERATED OBJECT FILE ******" << std::endl;
-    }
+    spdlog::debug("****** GENERATED OBJECT FILE ******");
 }
 
 void Compiler::linkObjectFile() {
@@ -335,19 +331,19 @@ void Compiler::linkObjectFile() {
 
     // Links the object file with the runtime to have a executable entry point and with a standard lib
     std::string command = "clang++ -no-pie " + entryPoint + basicLib + runtimeCpp + eventCpp + programObjecFile +
-                          " -o program -pthread -lffi";
+                          " -o program -pthread -lffi -lspdlog -lfmt";
     std::system(command.c_str());
     std::system(("rm " + programObjecFile).c_str());
 
-    if (flags.debug) {
-        std::cout << "****** GENERATED EXECUTABLE ******" << std::endl;
-    }
+    spdlog::debug("****** GENERATED EXECUTABLE ******");
+
+    spdlog::info("Program generated successfully");
 }
 
 void Compiler::printErrors() {
     for (CompilerError err : errorList) {
-        std::cout << "Error in " + phaseToString(err.phase) + " at: " + std::to_string(err.location.line) + ":" +
-                         std::to_string(err.location.column) + " " + err.message
-                  << std::endl;
+        std::string errorMsg = "Error in " + phaseToString(err.phase) + " at: " + std::to_string(err.location.line) +
+                               ":" + std::to_string(err.location.column) + " " + err.message;
+        spdlog::error(errorMsg);
     }
 }

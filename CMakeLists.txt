@@ -52,16 +52,26 @@ target_link_libraries(compilerLib
 
 add_executable(TCompiler src/main.cpp) # Compiler executable main.cpp
 
-# Compiling the runtime and standard lib as an independent object file 
-add_custom_target(runtime_obj ALL
-    # Compiled without nostdlib as it is pure ASM
-    COMMAND clang -c ${CMAKE_SOURCE_DIR}/src/runtime/entry.s -o ${CMAKE_BINARY_DIR}/entry.o 
+# Runtime compilation
+add_library(runtimeLib STATIC
+    src/runtime/Event.cpp
+    src/runtime/Runtime.cpp
+    src/runtime/TLib.cpp
+    src/runtime/main.cpp
+)
 
-    # Compiled without stdlib as they are only called from the entry.o (the _start: )
-    COMMAND clang++ -c ${CMAKE_SOURCE_DIR}/src/runtime/Event.cpp -o ${CMAKE_BINARY_DIR}/Event.o
-    COMMAND clang++ -c ${CMAKE_SOURCE_DIR}/src/runtime/Runtime.cpp -o ${CMAKE_BINARY_DIR}/Runtime.o
-    COMMAND clang++ -c ${CMAKE_SOURCE_DIR}/src/runtime/TLib.cpp -o ${CMAKE_BINARY_DIR}/TLib.o
-    COMMAND clang++ -c ${CMAKE_SOURCE_DIR}/src/runtime/main.cpp ${CMAKE_BINARY_DIR}/entry.o -o ${CMAKE_BINARY_DIR}/main.o
+# Runtime header files
+target_include_directories(runtimeLib
+    PUBLIC
+        ${PROJECT_SOURCE_DIR}/src/runtime
+)
+
+# Runtime needed libs
+target_link_libraries(runtimeLib
+    PUBLIC
+        spdlog::spdlog
+        fmt::fmt
+        pthread
 )
 
 # Linking with antlr4-runtime

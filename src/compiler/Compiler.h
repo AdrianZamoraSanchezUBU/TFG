@@ -86,6 +86,14 @@ class Compiler {
      * @param flagStruct Structure with the compiler flags data.
      */
     explicit Compiler(CompilerFlags flagsStruct) : flags(flagsStruct) {
+        if (flags.debug) {
+            spdlog::set_level(spdlog::level::debug);
+        } else {
+            spdlog::set_level(spdlog::level::info);
+        }
+
+        spdlog::set_pattern("[%l] %v");
+
         analyzer = std::make_unique<SemanticVisitor>(symTable, errorList);
         IRgen = std::make_unique<IRGenerator>(symTable, errorList);
     };

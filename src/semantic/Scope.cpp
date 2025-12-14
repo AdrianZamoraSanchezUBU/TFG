@@ -58,15 +58,15 @@ bool Scope::insertSymbol(Symbol symbol) {
         return true;
     }
 
-    std::cerr << "Symbol already present in symbol table" << std::endl;
+    spdlog::warn("Symbol already present in symbol table");
     return false;
 };
 
 void Scope::print() const {
-    std::cout << "Scope nº " << id << " at level " << level << " with symbols:" << std::endl;
+    spdlog::debug("Scope nº {} at level {} with symbols:", id, level);
 
     // Prints the pairs {key,symbol} in the map
     for (const auto &[key, symbol] : symbols) {
-        std::cout << "- {Key: " << key << ",(" << symbol.print() << ")}" << std::endl;
+        spdlog::debug("- Key: {} , {}", key, symbol.print());
     }
 };

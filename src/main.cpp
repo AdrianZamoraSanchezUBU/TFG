@@ -8,7 +8,7 @@ template <typename Func> bool runPhase(const char *phaseName, Func &&f) {
         f();
         return true;
     } catch (const std::exception &e) {
-        std::cerr << phaseName << " exception: " << e.what() << std::endl;
+        spdlog::critical("{} exception: {}", phaseName, e.what());
         return false;
     }
 }
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     try {
         flags = argvToFlags(argc, argv);
     } catch (const std::exception &e) {
-        std::cerr << "Invalid argument: " << e.what() << std::endl;
+        spdlog::critical("Invalid argument: {}", e.what());
         return 1;
     }
 

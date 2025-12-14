@@ -9,6 +9,7 @@
 #include "CompilerError.h"
 #include "TimeStamp.h"
 #include "Type.h"
+#include "spdlog/spdlog.h"
 #include <fstream>
 #include <iostream>
 #include <memory>

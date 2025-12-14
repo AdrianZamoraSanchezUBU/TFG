@@ -2,7 +2,7 @@
  * @file CompilerFlags.h
  * @brief Defines the compiler flags and a helper to parse them.
  *
- * @author Adrián Zamora Sánche
+ * @author Adrián Zamora Sánchez
  */
 #pragma once
 #include <fstream>

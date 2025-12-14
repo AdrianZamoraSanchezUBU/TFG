@@ -1,10 +1,12 @@
+
+#include "math.h"
+#include "spdlog/spdlog.h"
 #include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <cstring>
 #include <ffi.h>
 #include <iostream>
-#include <math.h>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -22,7 +24,7 @@ class Event {
 
     int argCount = 0;
     std::vector<int> argTypes; // codes: 1=int,2=float,3=ptr,...
-    std::vector<void *> argv;  // punteros a valores reales (se setean en schedule)
+    std::vector<void *> argv;  // set at schedule
     std::vector<std::vector<uint8_t>> ownedArgs;
 
     std::mutex argsMutex;
@@ -77,5 +79,5 @@ class Event {
     bool getEventRunningFlag() { return running.load(); };
 
     /// Prints the event data.
-    void print() const { std::cout << "event: " + id << std::endl; };
+    void print() const { spdlog::debug("Event: {}", id); };
 };

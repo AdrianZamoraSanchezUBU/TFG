@@ -1,5 +1,6 @@
 #pragma once
 #include "Event.h"
+#include "spdlog/spdlog.h"
 #include <memory>
 #include <mutex>
 #include <vector>
