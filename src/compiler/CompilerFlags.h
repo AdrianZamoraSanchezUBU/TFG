@@ -5,6 +5,7 @@
  * @author Adrián Zamora Sánchez
  */
 #pragma once
+#include <argparse/argparse.hpp>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -34,10 +35,12 @@ std::string readFile(const std::string &);
  * @brief Parses command-line arguments, supporting both simple flags and key-value pairs.
  *
  * Supported forms:
- *   - `-o output.o`      -> Output file
- *   - `fileName.T`       -> Input file
- *   - `--visualizeAST`   -> Sets visualize flag to true
- *   - `--debug`          -> Sets the debug flag to true
+ *   - `-o output.o`      -> Output file.
+ *   - `fileName.T`       -> Input file.
+ *   - `--visualizeAST`   -> Sets visualize flag to true.
+ *   - `--debug`          -> Sets the debug flag to true.
+ *   - `-IR IRfile`       -> Generates a file with the LLVM IR code.
+ *   - `-h`               -> Prints the compiler's help.
  *
  * @param argc Argument count.
  * @param argv Argument values.

@@ -34,6 +34,7 @@ target_include_directories(compilerLib
         ${PROJECT_SOURCE_DIR}/src/compat
         /usr/local/include/antlr4-runtime
         ${LLVM_INCLUDE_DIRS}
+        ${PROJECT_SOURCE_DIR}/external/argparse/include
 )
 
 target_compile_definitions(compilerLib
