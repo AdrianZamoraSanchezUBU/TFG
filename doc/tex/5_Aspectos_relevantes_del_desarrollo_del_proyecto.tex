@@ -4,7 +4,7 @@
 \newcommand{\fn}[1]{\texttt{#1}}
 \newcommand{\code}[1]{\texttt{#1}}
 
-El comienzo del proyecto parte del objetivo de conseguir una versión MVP (Minimal Viable Product) que pudiese aportar una base sólida y fácil de ampliar. En este caso el MVP se enfocó en la creación de un micro compilador capaz de procesar expresiones aritméticas y lógicas, puesto que esta estructura es básica y está presente en todos los lenguajes de programación.
+El comienzo del proyecto parte del objetivo de conseguir una versión MVP \emph{Minimal Viable Product} que pudiese aportar una base sólida y fácil de ampliar. En este caso el MVP se enfocó en la creación de un micro compilador capaz de procesar expresiones aritméticas y lógicas, puesto que esta estructura es básica y está presente en todos los lenguajes de programación.
 
 \subsection{Antes de compilar} 
 El compilador antes de comenzar el proceso de compilación debe recibir en su ejecución datos que hagan referencia al archivo que se debe compilar, que archivo de salida se quiere generar y de que forma se debe realizar el proceso, permitiendo así al programador ajustar este proceso a sus necesidades.
@@ -146,6 +146,27 @@ Algunas de las consideraciones necesarias para compatibilizar el AST y el genera
     \caption{\texorpdfstring{Correspondencia entre tipos del AST y tipos de LLVM IR}{Correspondencia entre tipos del AST y tipos de LLVM IR}}
 \end{table}
 
+Una vez completado el proceso obtendremos un programa equivalente en formato LLVM IR, el cual para este ejemplo concreto es:
+\begin{verbatim}
+source_filename = "program"
+
+declare ptr @toString(i32)
+
+declare i32 @print(ptr, ...)
+
+declare i32 @strlen(ptr)
+
+declare void @registerEventData(ptr, float, ptr, i32, ptr, i32)
+
+declare void @scheduleEvent(ptr, ptr)
+
+define i32 @mainLLVM() {
+entry:
+  ret i32 17
+}
+\end{verbatim}
+
+En este caso vemos una optimización automática de LLVM que se explicará en el siguiente apartado.
 
 \subsubsection{Optimizaciones}
 % TODO
@@ -153,11 +174,13 @@ Para asegurar la calidad del código final, se aplican sobre el LLVM IR algunas 
 
 Algunas de las más importantes son:
 \begin{itemize}
+    \item Constant folding: las operaciones calculables en tiempo de compilación se deben realizar en este momento para evitar recalcular en cada ejecución.
     \item Dead code elimination: Aunque se trate de aplicar durante la generación del código, es importante utilizarla para casos donde el código está bien formado pero hay elementos sin usar, como variables o funciones que no sean externas y nunca son llamadas en el programa.
     \item Dead store elimination: Se eliminan escrituras en memoria que nunca son leídas, ahorrando recursos internos.
     \item Dead argument elimination: Esta optimización específica de las funciones permite eliminar los argumentos no utilizados, simplificando el programa.
 \end{itemize}
-% TODO
+
+En el ejemplo con el que estamos trabajando, podemos observar un ejemplo de \emph{constant folding}, donde la expresión original \emph{return 2+3*5;} puede ser traducida a \emph{return 2+15;} y finalmente \emph{return 17;}, obteniendo de esta manera un \emph{return statement} exento de cálculos.
 
 El uso de estas combinaciones junto a las comprobaciones de calidad mínimas para compilar sin errores, generan un código de una calidad similar al código optimizado con \code{-O2} de compiladores como Clang, Rustc o Swiftc 
 

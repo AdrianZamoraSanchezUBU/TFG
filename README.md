@@ -37,11 +37,11 @@ make
 sudo make install
 ```
 
-El runtime de ANTLR4 para C++ debería encontrarse en las rutas:
-`/usr/local/include/antlr4-runtime` y 
-`/usr/local/lib/libantlr4-runtime.*`
+El runtime de ANTLR4 para C++ debería encontrarse instalado en las rutas:
+- `/usr/local/include/antlr4-runtime`
+- `/usr/local/lib/libantlr4-runtime.*`
 
-Nota: si el runtime se ha instalado en una ruta distinta de `/usr/local` será necesario moverlo a esta ruta o cambiar la configuración de CMake.
+*Nota: si el runtime se ha instalado en una ruta distinta de `/usr/local` será necesario moverlo a esta ruta o cambiar la configuración de CMake.*
 
 ## LLVM
 Utilizado para la generación de LLVM IR y código máquina.
@@ -50,9 +50,15 @@ sudo apt install -y llvm llvm-dev
 ```
 
 ## libspdlog
-Librería de logging utilizada por el compilador.
+Librería de logging a consola utilizada por el compilador.
 ```
 sudo apt install -y libspdlog-dev
+```
+
+## argparse
+Librería de para crear parsers de argumentos de consola, utilizado por el compilador. Se puede obtener la lib desde:
+```
+git clone https://github.com/p-ranav/argparse.git
 ```
 
 ## Gtest
@@ -83,7 +89,6 @@ Puesto que para los cambios en los archivos .g4 de ANTLR4 hay que compilar con l
 ``` 
 
 
-
 # Uso del compilador
 ### Argumentos
 
@@ -96,7 +101,7 @@ Puesto que para los cambios en los archivos .g4 de ANTLR4 hay que compilar con l
 
 - `-o <archivo>`  
   Especifica el nombre del archivo objeto de salida.  
-  Por defecto: `out.o`
+  Por defecto: `out.o`.
 
 - `--debug`  
   Activa el modo de depuración. Muestra información interna del compilador como:

@@ -1,23 +1,28 @@
 \capitulo{4}{Técnicas y herramientas}
 
-Esta parte de la memoria tiene como objetivo presentar las técnicas metodológicas y las herramientas de desarrollo que se han utilizado para llevar a cabo el proyecto. Si se han estudiado diferentes alternativas de metodologías, herramientas, bibliotecas se puede hacer un resumen de los aspectos más destacados de cada alternativa, incluyendo comparativas entre las distintas opciones y una justificación de las elecciones realizadas. 
-No se pretende que este apartado se convierta en un capítulo de un libro dedicado a cada una de las alternativas, sino comentar los aspectos más destacados de cada opción, con un repaso somero a los fundamentos esenciales y referencias bibliográficas para que el lector pueda ampliar su conocimiento sobre el tema.
+Este capítulo se divide en dos bloques principales: en primer lugar, se describe la metodología seguida durante el desarrollo del proyecto, tanto a nivel organizativo como técnico; en segundo lugar, se presentan las herramientas y tecnologías empleadas.
 
 \section{Metodología de desarrollo}
-El desarrollo del proyecto se ha organizado siguiendo una metodología ágil, concretamente el marco de trabajo \textbf{SCRUM}, apoyado en la herramienta \textbf{ZenHub} para su gestión y seguimiento. La elección de una metodología ágil se justifica por su \textit{flexibilidad} y \textit{adaptabilidad}, características especialmente valiosas en un proyecto de investigación y desarrollo como este, donde la evolución del conocimiento y del propio software ocurre de forma simultánea e iterativa.
+El desarrollo del proyecto se ha organizado siguiendo una metodología ágil inspirada> el marco de trabajo \textbf{SCRUM}, apoyado en la herramienta \textbf{ZenHub} para su gestión y seguimiento. La elección de una metodología ágil se justifica por su \textit{flexibilidad} y \textit{adaptabilidad}, características que son especialmente valoradas en un contexto tan experimental como lo es el diseño e implementación de un lenguaje de programación.
 
-El flujo de trabajo se estructura mediante un tablero \textbf{Kanban} en ZenHub, el cual permite visualizar de manera clara el estado actual del proyecto. En dicho tablero se gestionan las \textit{issues} y los \textit{milestones} de GitHub, representando las distintas tareas, etapas o funcionalidades en desarrollo.  
+El flujo de trabajo se estructura mediante un tablero \textbf{Kanban} en ZenHub, el cual permite visualizar de manera clara el estado actual del proyecto. En dicho tablero se gestionan las \emph{issues} y los \emph{milestones} de GitHub, representando las distintas tareas, etapas o funcionalidades en desarrollo.  
 Cada elemento del tablero incluye información relevante como la prioridad, la duración estimada, el tipo de tarea y su relación con otras, lo que facilita la planificación y el control del progreso de manera visual y dinámica.
 
 Esta metodología fomenta un desarrollo incremental y una mejora continua del código, permitiendo incorporar nuevas funcionalidades, corregir errores y ajustar los objetivos a medida que avanza el trabajo, garantizando así un resultado más coherente y alineado con los objetivos técnicos del proyecto.
 
+\imagen{zenhub_kanban}{Imagen con la visualización del tablero Kanban en ZenHub}{0.55}
+
 \section{Metodología de programación}
-El desarrollo del compilador y de las herramientas asociadas se ha abordado desde el paradigma de la \textbf{programación orientada a objetos} (OOP, por sus siglas en inglés). Este enfoque resulta especialmente adecuado para un proyecto de estas características, ya que facilita la modularización del código y la definición clara de las responsabilidades de cada componente del sistema (analizador léxico, analizador sintáctico, generador de código, etc.).
+El desarrollo del compilador y de las herramientas asociadas se ha abordado desde el paradigma de la \textbf{programación orientada a objetos} (OOP, por sus siglas en inglés), reflejándose directamente en la estructura del código y en la organización de los distintos módulos del compilador. De forma más concreta, esta metodología permite la incorporación del patrón \textbf{Visitor}, el cual puede encontrar detallado en el anexo de diseño.
+
 
 La OOP favorece la reutilización, extensibilidad y mantenibilidad del software, permitiendo aislar los distintos módulos del compilador y facilitar su evolución futura. Además, este paradigma se integra de forma natural con las herramientas empleadas, como \textbf{ANTLR} y \textbf{LLVM}, ambas diseñadas con arquitecturas orientadas a objetos.
 
-Otro motivo determinante en la elección de este enfoque es el uso de \textbf{C++} como lenguaje de implementación. C++ ofrece un modelo de programación fuertemente orientado a objetos, combinado con una gestión eficiente de recursos y un rendimiento elevado, aspectos cruciales en el desarrollo de compiladores y sistemas de bajo nivel. La compatibilidad nativa de C++ con las bibliotecas de ANTLR y LLVM refuerza aún más la idoneidad de esta metodología para el proyecto.
+Otro motivo determinante en la elección de este enfoque es el uso de \textbf{C++} como lenguaje de implementación. C++ ofrece un control preciso sobre el uso de memoria y las abstracciones de bajo nivel, aspectos especialmente relevantes en la implementación de compiladores y runtimes personalizados. La compatibilidad de la metodología OOP entre C++ y las herramientas ANTLR y LLVM refuerza aún más la idoneidad de esta metodología para el proyecto.
 
+La trazabilidad y el control de versiones del código se han gestionado mediante la herramienta \textbf{Git} y el repositorio remoto ya mencionado en \textbf{GitHub}, lo que permite registrar de forma precisa la evolución del proyecto y consultar en todo momento los cambios realizados desde su inicio.
+
+Dado que el desarrollo del proyecto ha sido llevado a cabo de forma individual y siguiendo un flujo de trabajo mayoritariamente lineal, se ha optado por un modelo de trabajo simplificado basado en una única rama principal. Esta decisión permite mantener un historial de cambios claro y fácilmente interpretable, sin introducir la complejidad adicional asociada a la gestión de múltiples ramas, la cual resulta especialmente útil en entornos colaborativos pero menos relevante en un contexto de desarrollo individual y controlado como el presente.
 
 \section{Elección de herramientas}
 A continuación se presentan las principales herramientas empleadas en el desarrollo del proyecto, así como la justificación de su elección frente a otras alternativas disponibles. Las herramientas seleccionadas se han escogido teniendo en cuenta su madurez, soporte, documentación, integración con C++ y adecuación a los objetivos técnicos del proyecto.
@@ -40,10 +45,10 @@ Entre sus características más destacables se encuentran:
 \end{itemize}
 
 \textbf{Justificación de la elección:}  
-ANTLR se considera la opción más equilibrada entre facilidad de uso, potencia y soporte técnico. Permite definir la gramática del lenguaje de manera declarativa y coherente, integrándose perfectamente con el entorno C++. Además, su ecosistema y documentación la convierten en una herramienta moderna y sólida frente a las opciones más tradicionales.
+ANTLR se considera la opción más equilibrada entre facilidad de uso, potencia y soporte técnico. Permite definir la gramática del lenguaje de manera declarativa y coherente, integrándose perfectamente con el entorno C++ mediante un runtime específico para este lenguaje. Además, ANTLR permite generar automáticamente componentes como los contextos, \textit{visitors} y \textit{listeners}, lo que facilita enormemente la construcción del AST.
 
 \subsection{LLVM}
-LLVM (Low Level Virtual Machine) es una infraestructura modular y extensible para el desarrollo de compiladores, enlazadores y optimizadores de código. Su arquitectura se basa en una representación intermedia (IR) que actúa como un lenguaje ensamblador universal, lo que permite desarrollar compiladores portables, eficientes y escalables.
+LLVM (Low Level Virtual Machine) es una infraestructura modular y extensible para el desarrollo de compiladores, enlazadores y optimizadores de código. En este proyecto, LLVM se utiliza principalmente como una frontera intermedia estable entre las primeras fases de análisis y la generación de código máquina. El uso de LLVM IR permite validar la corrección del código generado, aplicar optimizaciones estándar y delegar la generación de código específico de arquitectura a la infraestructura de LLVM, reduciendo la complejidad de implementación y aportando soporte multiplataforma.
 
 Entre sus principales ventajas destacan:
 \begin{itemize}
@@ -69,9 +74,9 @@ El entorno Linux (conseguido mediante WSL) es especialmente sencillo para trabaj
 
 Sus principales ventajas frente a Windows:
 \begin{itemize}
-    \item \textbf{Simpleza:} Con un entono únicamente de CLI permite un gran rendimiento y mantiene una sencillez coherente con el desarrollo de un compilador.
+    \item \textbf{Simplicidad:} Con un entono únicamente de CLI permite un gran rendimiento y mantiene un entorno coherente con el desarrollo de un compilador, evitando elementos innecesarios que puedan interferir con el desarrollo del proyecto.
     \item \textbf{Shell scripting:} Permite crear rutinas de ejecución sencillas que ahorran repetir trabajo a la hora de compilar y probar código.
-    \item \textbf{Integración:} Todos los paquetes están preparados para su uso en Unix-like, no se requiere ningún parche para compatibilizar las herramientas entre si. 
+    \item \textbf{Integración:} Todos los paquetes están preparados para su uso en Unix-like, no se requiere ningún parche para compatibilizar las herramientas entre si. Gran parte del software viene preinstalado en muchas distribuciones de Linux.
 \end{itemize}
 
 \subsection{Visual Studio Code}

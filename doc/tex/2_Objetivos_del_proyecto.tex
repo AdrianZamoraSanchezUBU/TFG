@@ -2,7 +2,7 @@
 
 \begin{itemize}
     \item \textbf{Diseñar un lenguaje de programación}: 
-    Definir la sintaxis y semántica de un nuevo lenguaje, estableciendo sus estructuras básicas, tipos de datos, operadores y reglas gramaticales.
+    Definir nuevo lenguaje de programación, estableciendo sus estructuras básicas, tipos de datos, operadores y reglas gramaticales.
 
     \item \textbf{Desarrollar un compilador capaz de reconocer el lenguaje}: 
     Implementar un compilador con un diseño modular y moderno, capaz de analizar y procesar el código fuente del lenguaje, abarcando las fases de análisis léxico, sintáctico, semántico, generación de IR, optimización y finalmente generación de un ejecutable.
@@ -11,33 +11,20 @@
     Separar las diferentes fases de compilación manteniendo las responsabilidades bien definidas dentro de cada una de las fases, evitando así una sobrecarga de responsabilidades que dificulte realizar ampliaciones o modificaciones.
 
     \item \textbf{Generación y gestión de errores}: 
-    Incorporar un sistema de detección y reporte de errores léxicos, sintácticos y semánticos, proporcionando mensajes claros y detallados que faciliten la depuración del código.
+    Incorporar un sistema de detección y reporte de errores léxicos, sintácticos y semánticos, proporcionando mensajes claros y detallados que faciliten la depuración del código. 
 
     \item \textbf{Herramienta de análisis y depuración visual}: 
-    Desarrollar una utilidad visual que permita representar y explorar estructuras internas del compilador, como el árbol de sintaxis abstracta, facilitando la comprensión y depuración del lenguaje.
+    Desarrollar una utilidad visual que permita representar y explorar estructuras internas del compilador, como el árbol de sintaxis abstracta o la tabla de símbolos, facilitando la comprensión y depuración del lenguaje.
 
-    \item \textbf{Generación de una representación intermedia (IR)}: 
+    \item \textbf{Generación de una representación intermedia (IR) basada en el ecosistema LLVM}: 
     Implementar la traducción del lenguaje diseñado a una representación intermedia basada en LLVM IR, permitiendo la optimización y posterior generación de código máquina para distintas arquitecturas.
 
-    \item \textbf{Implementación de utilidades internas del lenguaje}: 
-    Desarrollar un conjunto de funciones o bibliotecas básicas que proporcionen utilidades estándar dentro del entorno del lenguaje diseñado.
+    \item \textbf{Implementación de una biblioteca estándar}: 
+    Desarrollar una pequeña librería estándar, es decir, un conjunto de funciones básicas que proporcionen utilidades estándar dentro del lenguaje diseñado.
 
-    \item \textbf{Proporcionar un runtime personalizado}:
-    Para poder implementar las funcionalidades específicas del lenguaje, se requiere de un runtime personalizado capaz soportar estas características.  
-\end{itemize}
-
-\subsection{Objetivos técnicos}
-
-El desarrollo del proyecto se apoya en el uso de herramientas y tecnologías ampliamente reconocidas en el ámbito de los compiladores modernos:
-
-\begin{itemize}
-    \item \textbf{ANTLR}: Se utiliza ANTLR como generador de analizadores léxicos y sintácticos, dada su modernidad, robustez y amplia adopción en el desarrollo de lenguajes formales.
-
-    \item \textbf{LLVM}: Se emplea LLVM como infraestructura de compilación, debido a su capacidad para generar una representación intermedia (IR) portable y optimizable, independiente de la arquitectura de hardware.
-
-    \item \textbf{C++}: El proyecto se desarrolla con el lenguaje C++, por su excelente integración tanto con ANTLR (a través del ANTLR \emph{C++ Runtime}) como con LLVM, además de sus ventajas en programación orientada a objetos y gestión eficiente de memoria.
-
-    \item \textbf{LaTex forest}: Esta herramienta ampliamente utilizada en el ámbio académico se utiliza para visualizaciones y diagramas. 
+    \item \textbf{Proporcionar al menos una funcionalidad específica del lenguaje}: 
+    Se trabajará en la implementación de un sistema de ejecución de código basado en eventos y tiempo. Este será un factor diferenciador y experimental frente a otros lenguajes de propósito general.
     
-    \item \textbf{Cmake}: Una herramienta como CMake hace que el proceso de compilación y construcción del proyecto sea sencillo, fácilmente replicable y personalizable.
+    \item \textbf{Proporcionar un runtime personalizado}:
+    Para poder implementar las funcionalidades específicas del lenguaje e indagar en otro aspecto académico de los lenguajes de programación, se implementará un runtime diseñado específicamente para poder ejecutar el código generado.  
 \end{itemize}
