@@ -166,6 +166,13 @@ void Compiler::lex() {
     std::string fileContent = readFile(flags.inputFile);
     inputStream = std::make_unique<antlr4::ANTLRInputStream>(fileContent);
 
+    // Printing the input text
+    spdlog::debug("****** COMPILER INPUT ******");
+    if (flags.debug) {
+        fmt::print("{}", fileContent);
+        fmt::print("\n\n");
+    }
+
     lexer = std::make_unique<TLexer>(inputStream.get());
 
     // Custom lexer error listener
@@ -184,17 +191,11 @@ void Compiler::lex() {
     tokenList = std::make_shared<antlr4::CommonTokenStream>(lexer.get());
     tokenList->fill();
 
-    // Printing the input text
-    spdlog::debug("****** COMPILER INPUT ******");
-    if (flags.debug) {
-        fmt::print(fileContent);
-        fmt::print("\n\n");
-    }
-
     // Printing tokens
     spdlog::debug("****** TOKEN LIST ******");
+
     for (auto token : tokenList->getTokens()) {
-        spdlog::debug(token->toString());
+        spdlog::debug("{}", token->toString());
     }
 }
 
@@ -346,6 +347,6 @@ void Compiler::printErrors() {
     for (CompilerError err : errorList) {
         std::string errorMsg = "Error in " + phaseToString(err.phase) + " at: " + std::to_string(err.location.line) +
                                ":" + std::to_string(err.location.column) + " " + err.message;
-        spdlog::error(errorMsg);
+        spdlog::error("{}", errorMsg);
     }
 }

@@ -20,7 +20,7 @@ CompilerFlags argvToFlags(int argc, char **argv) {
     // Defined arguments
     program.add_argument("input").help("Input source file.");
 
-    program.add_argument("-o", "--output").help("Output object file").default_value(std::string("out.o"));
+    program.add_argument("-o", "--output").help("Output object file").default_value(std::string("out"));
 
     program.add_argument("--visualizeAST")
         .help("Generates a AST visualization -pdf file")

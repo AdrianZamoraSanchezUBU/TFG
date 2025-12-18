@@ -23,6 +23,29 @@ enum SymbolCategory {
     CONSTANT   ///< Constant value
 };
 
+inline std::string categoryToString(SymbolCategory cat) {
+    switch (cat) {
+    case SymbolCategory::VARIABLE:
+        return "VARIABLE";
+        break;
+    case SymbolCategory::FUNCTION:
+        return "FUNCTION";
+        break;
+    case SymbolCategory::EVENT:
+        return "EVENT";
+        break;
+    case SymbolCategory::PARAMETER:
+        return "PARAMETER";
+        break;
+    case SymbolCategory::CONSTANT:
+        return "CONSTANT";
+        break;
+
+    default:
+        break;
+    }
+}
+
 /**
  * @brief Represents a declared identifier in the program.
  * @see AST.h

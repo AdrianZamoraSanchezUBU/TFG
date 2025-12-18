@@ -63,10 +63,27 @@ bool Scope::insertSymbol(Symbol symbol) {
 };
 
 void Scope::print() const {
-    spdlog::debug("Scope nº {} at level {} with symbols:", id, level);
+    constexpr int WIDTH = 47;            ///< Max screen table width
+    auto line = std::string(WIDTH, '-'); ///< table width delimiter
 
-    // Prints the pairs {key,symbol} in the map
+    // Scope header
+    std::string title = fmt::format("Scope #{} (level {})", id, level);
+
+    spdlog::debug("{}", line);
+    spdlog::debug("| {:<{}} |", title, WIDTH - 4);
+    spdlog::debug("{}", line);
+
+    // Data fields
+    spdlog::debug("| {:<12} | {:<10} | {:<15} |", "Key", "Category", "Type");
+    spdlog::debug("{}", line);
+
+    // Symbols info
     for (const auto &[key, symbol] : symbols) {
-        spdlog::debug("- Key: {} , {}", key, symbol.print());
+        for (const auto &[key, symbol] : symbols) {
+            spdlog::debug("| {:<12} | {:<10} | {:<15} |", key, categoryToString(symbol.getCategory()),
+                          typeToString(symbol.getType()));
+        }
     }
+
+    spdlog::debug("{}", line); // Footer of the table
 };
