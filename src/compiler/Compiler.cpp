@@ -311,7 +311,7 @@ void Compiler::generateObjectCode() {
 
     // Object file destination
     std::error_code EC;
-    llvm::raw_fd_ostream dest(std::string(BUILD_DIR) + "/" + flags.outputFile, EC, llvm::sys::fs::OF_None);
+    llvm::raw_fd_ostream dest(std::string(BUILD_DIR) + "/" + flags.outputFile + ".o", EC, llvm::sys::fs::OF_None);
 
     // Object file emission
     llvm::legacy::PassManager emitPM;
@@ -327,13 +327,15 @@ void Compiler::linkObjectFile() {
     std::string runtimeCpp = std::string(BUILD_DIR) + "/Runtime.o ";
     std::string eventCpp = std::string(BUILD_DIR) + "/Event.o ";
     std::string basicLib = std::string(BUILD_DIR) + "/TLib.o ";
-    std::string programObjecFile = std::string(BUILD_DIR) + "/" + flags.outputFile;
+    std::string programObjectFile = std::string(BUILD_DIR) + "/" + flags.outputFile + ".o";
 
     // Links the object file with the runtime to have a executable entry point and with a standard lib
-    std::string command = "clang++ -no-pie " + entryPoint + basicLib + runtimeCpp + eventCpp + programObjecFile +
-                          " -o program -pthread -lffi -lspdlog -lfmt";
+    std::string command = "clang++ -no-pie " + entryPoint + basicLib + runtimeCpp + eventCpp + programObjectFile +
+                          " -o " + flags.outputFile + " -pthread -lffi -lspdlog -lfmt";
     std::system(command.c_str());
-    std::system(("rm " + programObjecFile).c_str());
+
+    // Deleting the .o file
+    std::system(("rm " + programObjectFile).c_str());
 
     spdlog::debug("****** GENERATED EXECUTABLE ******");
 

@@ -4,7 +4,7 @@
 \newcommand{\fn}[1]{\texttt{#1}}
 \newcommand{\code}[1]{\texttt{#1}}
 
-El comienzo del proyecto parte del objetivo de conseguir una versión MVP \emph{Minimal Viable Product} que pudiese aportar una base sólida y fácil de ampliar. En este caso el MVP se enfocó en la creación de un micro compilador capaz de procesar expresiones aritméticas y lógicas, puesto que esta estructura es básica y está presente en todos los lenguajes de programación.
+El comienzo del proyecto parte del objetivo de conseguir una versión MVP \emph{Minimal Viable Product} que pudiese aportar una base sólida y fácil de ampliar. En este caso el MVP se enfocó en la creación de un micro compilador capaz de procesar expresiones aritméticas y lógicas, puesto que esta estructura es básica que está presente en todos los lenguajes de programación.
 
 \subsection{Antes de compilar} 
 El compilador antes de comenzar el proceso de compilación debe recibir en su ejecución datos que hagan referencia al archivo que se debe compilar, que archivo de salida se quiere generar y de que forma se debe realizar el proceso, permitiendo así al programador ajustar este proceso a sus necesidades.
@@ -13,9 +13,10 @@ Dentro del compilador se esperan algunos argumentos de llamada como:
 \begin{itemize}
     \item \textbf{<nombre de la entrada>}: argumento obligatorio, indica el nombre del fichero .T de entrada.
     \item \textbf{-o <nombre archivo>}: argumento obligatorio que especificar el fichero ejecutable de salida.
-    \item \textbf{--debug}: permite ver información de la salida de cada una de las fases del compilador.
+    \item \textbf{--debug}: permite ver información de la salida de cada una de las fases del compilador. Este argumento también activa el efecto del argumento \emph{--visualizeAST};
     \item \textbf{--visualizeAST}: genera un fichero \fn{AST.pfd} con una visualización del AST en el directorio donde se ha ejecutado el compilador.
     \item \textbf{--IR}: genera un fichero .ll con el LLVM IR generado por el compilador.
+    \item \textbf{--help / -h}: genera un fichero .ll con el LLVM IR generado por el compilador.
 \end{itemize}
 
 Para conocer los datos necesarios para ejecutar los comandos anteriores en el compilador se almacenan flags de compilado que permiten modificar el comportamiento de cada fase.
