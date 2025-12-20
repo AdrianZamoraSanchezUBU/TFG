@@ -181,18 +181,36 @@ entry:
 En este caso vemos una optimización automática de LLVM que se explicará en el siguiente apartado.
 
 \subsubsection{Optimizaciones}
-% TODO
 Para asegurar la calidad del código final, se aplican sobre el LLVM IR algunas optimizaciones incluidas en la API de LLVM, las cuales aplican transformaciones, inserciones/eliminaciones de código o correcciones mediante passes que recorren todo el programa generado.
 
 Algunas de las más importantes son:
 \begin{itemize}
-    \item Constant folding: las operaciones calculables en tiempo de compilación se deben realizar en este momento para evitar recalcular en cada ejecución.
-    \item Dead code elimination: Aunque se trate de aplicar durante la generación del código, es importante utilizarla para casos donde el código está bien formado pero hay elementos sin usar, como variables o funciones que no sean externas y nunca son llamadas en el programa.
-    \item Dead store elimination: Se eliminan escrituras en memoria que nunca son leídas, ahorrando recursos internos.
-    \item Dead argument elimination: Esta optimización específica de las funciones permite eliminar los argumentos no utilizados, simplificando el programa.
+    \item \textbf{Propagación y plegado de constantes (Constant propagation \& Constant folding):}  
+    Evalúa expresiones cuyos operandos son constantes en tiempo de compilación, sustituyéndolas por su valor resultante y eliminando cálculos innecesarios en tiempo de ejecución.
+
+    \item \textbf{Eliminación de código muerto (Dead code elimination):}  
+    Suprime instrucciones, variables y bloques de código que no producen efectos observables sobre el programa, reduciendo el tamaño del código generado y mejorando su eficiencia.
+
+    \item \textbf{Simplificación del flujo de control (Control flow graph simplification):}  
+    Simplifica la estructura del grafo de control eliminando ramas inalcanzables, saltos redundantes y bloques básicos innecesarios.
+
+    \item \textbf{Optimización de bucles (Loop optimizations):}  
+    Incluye transformaciones como la extracción de código invariante fuera de los bucles y la simplificación de bucles con límites conocidos para reducir el coste de iteraciones repetidas.
+
+    \item \textbf{Optimización interprocedural (IPO):}  
+    Analiza las relaciones entre funciones para aplicar optimizaciones como la eliminación de funciones no utilizadas y la propagación de información entre llamadas.
+
+    \item \textbf{Inlining de funciones:}  
+    Sustituye llamadas a funciones pequeñas por el cuerpo de la función llamada cuando resulta beneficioso, reduciendo el coste de llamada y habilitando nuevas optimizaciones posteriores.
+
+    \item \textbf{Optimización de accesos a memoria:}  
+    Reduce cargas y almacenamientos redundantes mediante análisis de alias y de flujo de datos, mejorando el uso de registros y la localidad de memoria.
+
+    \item \textbf{Optimización de expresiones comunes (Common subexpression elimination):}  
+    Detecta cálculos idénticos que se repiten dentro de una función o bloque y los reutiliza, evitando evaluaciones duplicadas.
 \end{itemize}
 
-En el ejemplo con el que estamos trabajando, podemos observar un ejemplo de \emph{constant folding}, donde la expresión original \emph{return 2+3*5;} puede ser traducida a \emph{return 2+15;} y finalmente \emph{return 17;}, obteniendo de esta manera un \emph{return statement} exento de cálculos.
+En el ejemplo anterior, podemos observar un ejemplo de \emph{constant folding}, donde la expresión original \emph{return 2+3*5;} puede ser traducida a \emph{return 2+15;} y finalmente \emph{return 17;}, obteniendo de esta manera un \emph{return statement} exento de cálculos.
 
 El uso de estas combinaciones junto a las comprobaciones de calidad mínimas para compilar sin errores, generan un código de una calidad similar al código optimizado con \code{-O2} de compiladores como Clang, Rustc o Swiftc.
 
