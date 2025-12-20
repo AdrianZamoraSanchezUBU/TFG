@@ -14,9 +14,10 @@
 struct CompilerFlags {
     std::string inputFile;
     std::string outputFile;
-    bool visualizeAST = false;
     std::string generateIRFile;
+    bool visualizeAST = false;
     bool debug = false;
+    bool optimization = true;
 };
 
 /**
@@ -39,8 +40,9 @@ std::string readFile(const std::string &);
  *   - `fileName.T`       -> Input file.
  *   - `--visualizeAST`   -> Sets visualize flag to true.
  *   - `--debug`          -> Sets the debug flag to true.
+ *   - `--basic`          -> Sets the debug optimization flag to false.
  *   - `-IR IRfile`       -> Generates a file with the LLVM IR code.
- *   - `-h`               -> Prints the compiler's help.
+ *   - `-h / --help`      -> Prints the compiler's help.
  *
  * @param argc Argument count.
  * @param argv Argument values.

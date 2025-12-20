@@ -5,7 +5,7 @@ En esta sección se analizará la estructura del trabajo de programación, cómo
 
 \section{Estructura de directorios}
 A continuación se muestra un diagrama con los principales directorios y ficheros presentes en el proyecto.
-\imagen{diagramaDirectorios}{Diagrama de directorios}
+\imagen{diagramaDirectorios}{Diagrama de directorios}%TODO actualizar
 
 \section{Manual del programador}
 El objetivo de este manual es ofrecer una visión técnica del código fuente, de manera que cualquier desarrollador que necesite mantener, extender o comprender el sistema pueda hacerlo.
@@ -17,7 +17,7 @@ Instalación de ANTLR y LLVM %TODO
 El compilador está desarrollado en C++17, empleando un estilo de programación modular y orientado a objetos. Se sigue la convención de nombres en \textit{camelCase} para métodos y variables, y como es estándar de C++, \textit{PascalCase} para clases. El código está documentado con comentarios en formato Doxygen para la generación automática de documentación.
 
 \subsection{Convenciones internas}
-\begin{itemize}
+\begin{itemize} % TODO rehacer
   \item Los ficheros de cabecera se ubican en el directorio \texttt{include/}, y las implementaciones en \texttt{src/}.
   \item La definición del lenguaje de ANTLR se encuentra en el directorio \texttt{src/grammar/}.
   \item El AST y las clases de nodos se implementan en \texttt{src/ast/}.

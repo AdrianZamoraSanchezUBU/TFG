@@ -110,6 +110,9 @@ class Compiler {
     /// IR generation phase of the compiler.
     void generateIR();
 
+    /// Optimizes the LLVM IR code.
+    void optimize();
+
     /// Object code generation phase of the compiler.
     void generateObjectCode();
 

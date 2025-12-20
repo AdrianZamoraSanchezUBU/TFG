@@ -44,6 +44,10 @@ int main(int argc, char *argv[]) {
         return 1;
     if (!runPhase("IR generation", [&] { compiler.generateIR(); }))
         return 1;
+    if (flags.optimization) {
+        if (!runPhase("Optimization", [&] { compiler.optimize(); }))
+            return 1;
+    }
 
     // If errors are present in the code, the compiler will not try to generate the executable
     if (compiler.getErrorCount() > 0) {

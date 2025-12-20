@@ -1,9 +1,7 @@
-int a;
-
-event test(int x) every 2 sec {
-    print("a");
+event test every 2 sec {
+    print("execution");
 }
 
-test(1);
+test();
 
 return 0;

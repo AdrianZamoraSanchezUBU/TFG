@@ -288,6 +288,38 @@ void Compiler::generateIR() {
     }
 }
 
+void Compiler::optimize() {
+    CodegenContext &ctx = IRgen.get()->getContext();
+
+    // PassBuilder setup
+    llvm::PassBuilder passBuilder;
+
+    llvm::LoopAnalysisManager LAM;
+    llvm::FunctionAnalysisManager FAM;
+    llvm::CGSCCAnalysisManager CGAM;
+    llvm::ModuleAnalysisManager MAM;
+
+    // Including all the analysis in the pipeline
+    passBuilder.registerModuleAnalyses(MAM);   // Analyses the whole LLVM module
+    passBuilder.registerCGSCCAnalyses(CGAM);   // Analyses the call graph (interprocedural / IPO)
+    passBuilder.registerFunctionAnalyses(FAM); // Analyses individual functions
+    passBuilder.registerLoopAnalyses(LAM);     // Analyses loop structures
+
+    // Enable analysis sharing between different IR levels
+    passBuilder.crossRegisterProxies(LAM, FAM, CGAM, MAM);
+
+    // LLVM default optimization pipeline equivalent with a -O2 level.
+    llvm::ModulePassManager MPM = passBuilder.buildPerModuleDefaultPipeline(llvm::OptimizationLevel::O2);
+
+    // Optimization passes
+    MPM.run(*ctx.IRModule, MAM);
+
+    if (flags.debug) {
+        spdlog::debug("****** OPTIMIZED LLVM IR ******");
+        ctx.IRModule->print(llvm::outs(), nullptr);
+    }
+}
+
 void Compiler::generateObjectCode() {
     // LLVM and CodegenContext set up
     llvm::InitializeNativeTarget();

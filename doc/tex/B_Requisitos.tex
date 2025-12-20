@@ -72,7 +72,7 @@ Los casos de uso se describen siguiendo un formato estructurado, basado en la pr
 		\toprule
 		\textbf{CU-1}    & \textbf{Traducción a código ejecutable}\\
 		\toprule
-		\textbf{Actor principal:}     & Usuario\\
+		\textbf{Actor:}     & Usuario\\
 		\textbf{Requisitos asociados} & RF-7\\
 		\textbf{Descripción}          & El sistema compila un programa escrito en el lenguaje fuente y genera un programa ejecutable.\\
 		\textbf{Precondición}         & El fichero de entrada existe y es accesible por el sistema.\\
@@ -102,7 +102,7 @@ Los casos de uso se describen siguiendo un formato estructurado, basado en la pr
 		\toprule
 		\textbf{CU-2}    & \textbf{Visualización del estado de compilación}\\
 		\toprule
-		\textbf{Actor principal:} 	  & Usuario\\
+		\textbf{Actor:} 	  & Usuario\\
 		\textbf{Requisitos asociados} & RF-1, RF-2, RF-3, RF-4, RF-5\\
 		\textbf{Descripción}          & El sistema compila un programa fuente y muestra información detallada sobre las distintas fases del compilador, permitiendo analizar su funcionamiento interno o visualizar la estructura del AST.\\
 		\textbf{Precondición}         & El fichero de entrada existe y es accesible por el sistema.\\
@@ -131,7 +131,7 @@ Los casos de uso se describen siguiendo un formato estructurado, basado en la pr
 		\toprule
 		\textbf{CU-3}    & \textbf{Traducción a código intermedio (IR)}\\
 		\toprule
-		\textbf{Actor principal:}     & Usuario\\
+		\textbf{Actor:}     & Usuario\\
 		\textbf{Requisitos asociados} & RF-5\\
 		\textbf{Descripción}          & El sistema procesa un programa escrito en el lenguaje fuente y genera un fichero con la representación intermedia del código en LLVM IR.\\
 		\textbf{Precondición}         & El fichero de entrada existe y es accesible por el sistema.\\
@@ -160,7 +160,7 @@ Los casos de uso se describen siguiendo un formato estructurado, basado en la pr
 		\toprule
 		\textbf{CU-4}    & \textbf{Ayuda de la herramienta}\\
 		\toprule
-		\textbf{Actor principal:}     & Usuario\\
+		\textbf{Actor:}     & Usuario\\
 		\textbf{Requisitos asociados} & RF-5\\
 		\textbf{Descripción}          & El usuario requiere de instrucciones para utilizar el compilador\\
 		\textbf{Precondición}         & El usuario conoce el formato de ayuda mediante argumentos \code{-h} o \code{--help}\\
@@ -188,7 +188,7 @@ Los casos de uso se describen siguiendo un formato estructurado, basado en la pr
 		\toprule
 		\textbf{CU-5}    & \textbf{Compilación sin optimizaciones}\\
 		\toprule
-		\textbf{Actor principal:}     & Usuario\\
+		\textbf{Actor:}     & Usuario\\
 		\textbf{Requisitos asociados} & RF-6.1\\
 		\textbf{Descripción}          & El programa parte de un código fuente y realiza el proceso completo a excepción de las optimizaciones finales, el cual sirve para poder comparar con uno optimizado y analizar este proceso \\
 		\textbf{Precondición}         & El fichero de entrada existe y es correcto a nivel léxico y sintáctico.\\
@@ -217,7 +217,7 @@ Los casos de uso se describen siguiendo un formato estructurado, basado en la pr
 		\toprule
 		\textbf{CU-6}    & \textbf{Generación de una visualización del AST en formato PDF}\\
 		\toprule
-		\textbf{Actor principal:}     & Usuario\\
+		\textbf{Actor:}     & Usuario\\
 		\textbf{Requisitos asociados} & RF-3.3\\
 		\textbf{Descripción}          & El programa parte de un código fuente y realiza el proceso completo, generando un archivo en formato PDF con una representación visual del AST.\\
 		\textbf{Precondición}         & El fichero de entrada existe y es correcto a nivel léxico y sintáctico.\\

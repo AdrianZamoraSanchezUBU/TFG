@@ -32,6 +32,11 @@ CompilerFlags argvToFlags(int argc, char **argv) {
         .default_value(false)
         .implicit_value(true);
 
+    program.add_argument("--basic")
+        .help("Skips the optimization phase over the LLVM IR module.")
+        .default_value(true)
+        .implicit_value(false);
+
     program.add_argument("-IR").help("Generates a LLVM IR file.").default_value(std::string(""));
 
     // Is the arguments are invalid throws invalid_argument exception
@@ -47,6 +52,7 @@ CompilerFlags argvToFlags(int argc, char **argv) {
     flags.outputFile = program.get<std::string>("--output");
     flags.visualizeAST = program.get<bool>("--visualizeAST");
     flags.debug = program.get<bool>("--debug");
+    flags.optimization = program.get<bool>("--basic");
     flags.generateIRFile = program.get<std::string>("-IR");
 
     return flags;
