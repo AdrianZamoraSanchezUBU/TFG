@@ -194,7 +194,45 @@ Algunas de las más importantes son:
 
 En el ejemplo con el que estamos trabajando, podemos observar un ejemplo de \emph{constant folding}, donde la expresión original \emph{return 2+3*5;} puede ser traducida a \emph{return 2+15;} y finalmente \emph{return 17;}, obteniendo de esta manera un \emph{return statement} exento de cálculos.
 
-El uso de estas combinaciones junto a las comprobaciones de calidad mínimas para compilar sin errores, generan un código de una calidad similar al código optimizado con \code{-O2} de compiladores como Clang, Rustc o Swiftc 
+El uso de estas combinaciones junto a las comprobaciones de calidad mínimas para compilar sin errores, generan un código de una calidad similar al código optimizado con \code{-O2} de compiladores como Clang, Rustc o Swiftc.
+
+Este ejemplo ilustra cómo las optimizaciones permiten simplificar significativamente el código generado, reduciendo tanto el número de instrucciones como la complejidad del flujo de control, sin alterar el comportamiento del programa.
+\textbf{Código fuente original:}
+\begin{verbatim}
+if (2 < 3) {
+    return 1;
+}
+
+return 2;
+\end{verbatim}
+
+\textbf{LLVM IR generado sin optimizaciones:}
+
+En una primera fase, el generador de IR traduce directamente la estructura del programa fuente, manteniendo el flujo de control explícito mediante saltos condicionales.
+
+\begin{verbatim}
+define i32 @mainLLVM() {
+entry:
+  br i1 true, label %then, label %endif
+then:
+  ret i32 1
+endif:
+  ret i32 2
+}
+\end{verbatim}
+
+Puede observarse que la condición \texttt{2 < 3} se evalúa en tiempo de compilación mediante una optimización de \emph{constant folding}, sustituyendo la condición por un valor constante (\texttt{true}).
+
+\textbf{LLVM IR tras la fase de optimización:}
+
+Durante la fase de optimización, el compilador analiza el flujo de control del programa y detecta que todas las rutas de ejecución alcanzables conducen al mismo valor de retorno. Como consecuencia, el bloque condicional completo puede eliminarse, reduciendo la función a una única instrucción de retorno.
+
+\begin{verbatim}
+define noundef i32 @mainLLVM() local_unnamed_addr #0 {
+entry:
+  ret i32 1
+}
+\end{verbatim}
 
 \subsubsection{Generación del ejecutable}
 La generación de un programa requiere conocer el "target triplet", es decir, la familia de CPU en la que se ejecuta el sistema. La API del sistema \code{llvm::sys} de LLVM contiene funciones que nos permiten conocer el triplet y así poder establecer un data layout correcto para el sistema en el que estamos trabajando.   

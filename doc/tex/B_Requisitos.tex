@@ -7,58 +7,38 @@ En este anexo se especifican los requisitos que debe cumplir el proyecto para co
 A continuación se listan los RF (requisitos funcionales) necesarios para completar el proyecto, utilizando para la redacción de estos requisitos el formato \emph{Easy Approach to Requirements Syntax (EARS)}:
 
 \begin{enumerate}
-\item[\textbf{RF-1}] \textbf{Análisis del texto fuente:} 
-El sistema deberá aceptar como entrada programas escritos en el lenguaje fuente definido.
+\item[\textbf{RF-1}] \textbf{Análisis del texto fuente:} El sistema deberá aceptar como entrada programas escritos en el lenguaje fuente definido.
 	\begin{enumerate}
-		\item[\textbf{RF-1.1}] \textbf{Gestión de errores léxicos:} 
-		Cuando el sistema detecte errores léxicos durante el análisis del texto de entrada, deberá informar de dichos errores indicando su localización en el código fuente.
-		\item[\textbf{RF-1.2}] \textbf{Información de depuración léxica:} 
-		Cuando el usuario habilite el modo de depuración mediante un argumento de compilación, el sistema deberá mostrar la lista de \emph{tokens} generados durante el análisis léxico.
+		\item[\textbf{RF-1.1}] \textbf{Gestión de errores léxicos:} Cuando el sistema detecte errores léxicos durante el análisis del texto de entrada, deberá informar de dichos errores indicando su localización en el código fuente.
+		\item[\textbf{RF-1.2}] \textbf{Información de depuración léxica:} Cuando el usuario habilite el modo de depuración mediante un argumento de compilación, el sistema deberá mostrar la lista de \emph{tokens} generados durante el análisis léxico.
 	\end{enumerate}
-\item[\textbf{RF-2}] \textbf{Análisis sintáctico del programa:} 
-El sistema deberá analizar sintácticamente el texto recibido conforme a las reglas de producción definidas para el lenguaje.
+\item[\textbf{RF-2}] \textbf{Análisis sintáctico del programa:} El sistema deberá analizar sintácticamente el texto recibido conforme a las reglas de producción definidas para el lenguaje.
 	\begin{enumerate}
-		\item[\textbf{RF-2.1}] \textbf{Gestión de errores sintácticos:} 
-		Cuando el sistema detecte un error sintáctico, deberá mostrar un mensaje de error indicando la causa y la posición del error en el código fuente.
-		\item[\textbf{RF-2.2}] \textbf{Información de depuración sintáctica:} 
-		Cuando el modo de depuración esté habilitado, el sistema deberá mostrar información relativa al proceso de análisis sintáctico.
+		\item[\textbf{RF-2.1}] \textbf{Gestión de errores sintácticos:} Cuando el sistema detecte un error sintáctico, deberá mostrar un mensaje de error indicando la causa y la posición del error en el código fuente.
+		\item[\textbf{RF-2.2}] \textbf{Información de depuración sintáctica:} Cuando el modo de depuración esté habilitado, el sistema deberá mostrar información relativa al proceso de análisis sintáctico.
 	\end{enumerate}
-\item[\textbf{RF-3}] \textbf{Creación del AST:} 
-Tras completar correctamente el análisis léxico y sintáctico, el sistema deberá generar un Árbol de Sintaxis Abstracta (AST) que represente la estructura del programa.
+\item[\textbf{RF-3}] \textbf{Creación del AST:} Tras completar correctamente el análisis léxico y sintáctico, el sistema deberá generar un Árbol de Sintaxis Abstracta (AST) que represente la estructura del programa.
 	\begin{enumerate}	
-		\item[\textbf{RF-3.1}] \textbf{Recorrido con patrón \emph{visitor}:} 
-		El sistema deberá implementar un patrón \emph{visitor} que permita recorrer de forma ordenada los nodos del AST.
-		\item[\textbf{RF-3.2}] \textbf{Recolecta de información estructural:} 
-		Durante el recorrido del AST, el sistema deberá almacenar en cada nodo la información necesaria para las fases posteriores del compilador.
-		\item[\textbf{RF-3.3}] \textbf{Visualización del AST:} 
-		Cuando el usuario lo solicite mediante un argumento de compilación, el sistema deberá generar una representación visual del AST.
+		\item[\textbf{RF-3.1}] \textbf{Recorrido con patrón \emph{visitor}:} El sistema deberá implementar un patrón \emph{visitor} que permita recorrer de forma ordenada los nodos del AST.
+		\item[\textbf{RF-3.2}] \textbf{Recolecta de información estructural:} Durante el recorrido del AST, el sistema deberá almacenar en cada nodo la información necesaria para las fases posteriores del compilador.
+		\item[\textbf{RF-3.3}] \textbf{Visualización del AST:} Cuando el usuario lo solicite mediante un argumento de compilación, el sistema deberá generar una representación visual del AST.
 	\end{enumerate}	
-\item[\textbf{RF-4}] \textbf{Análisis semántico:} 
-El sistema deberá realizar un análisis semántico del programa, construyendo la tabla de símbolos y verificando la corrección de tipos.
+\item[\textbf{RF-4}] \textbf{Análisis semántico:} El sistema deberá realizar un análisis semántico del programa, construyendo la tabla de símbolos y verificando la corrección de tipos.
 	\begin{enumerate}	
-		\item[\textbf{RF-4.1}] \textbf{Asociación de símbolos y sus datos:} 
-		El sistema deberá asociar cada símbolo declarado con la información relevante para su uso posterior, incluyendo su tipo y su referencia en memoria.
-		\item[\textbf{RF-4.2}] \textbf{Gestión de ámbitos (\emph{scopes}):} 
-		El sistema deberá gestionar correctamente los distintos ámbitos del programa, garantizando que el acceso a los símbolos respete las reglas de visibilidad.
-		\item[\textbf{RF-4.3}] \textbf{Comprobaciones de tipos:} 
-		Durante el análisis semántico, el sistema deberá comprobar la compatibilidad de tipos en declaraciones, asignaciones y operaciones, detectando usos incorrectos.
+		\item[\textbf{RF-4.1}] \textbf{Asociación de símbolos y sus datos:} El sistema deberá asociar cada símbolo declarado con la información relevante para su uso posterior, incluyendo su tipo y su referencia en memoria.
+		\item[\textbf{RF-4.2}] \textbf{Gestión de ámbitos (\emph{scopes}):} El sistema deberá gestionar correctamente los distintos ámbitos del programa, garantizando que el acceso a los símbolos respete las reglas de visibilidad.
+		\item[\textbf{RF-4.3}] \textbf{Comprobaciones de tipos:} Durante el análisis semántico, el sistema deberá comprobar la compatibilidad de tipos en declaraciones, asignaciones y operaciones, detectando usos incorrectos.
 	\end{enumerate}	
-\item[\textbf{RF-5}] \textbf{Generación de código intermedio:} 
-Una vez superado el análisis semántico, el sistema deberá generar una representación intermedia del programa en LLVM IR.
+\item[\textbf{RF-5}] \textbf{Generación de código intermedio:} Una vez superado el análisis semántico, el sistema deberá generar una representación intermedia del programa en LLVM IR.
 	\begin{enumerate}	
-		\item[\textbf{RF-5.1}] \textbf{Recorrido del AST para generación de IR:} 
-		El sistema deberá recorrer el AST utilizando un patrón \emph{Visitor} para generar el código LLVM IR correspondiente a cada estructura del lenguaje.
-		\item[\textbf{RF-5.2}] \textbf{Uso de identificadores propios:} 
-		Durante la generación del código intermedio, el sistema deberá aplicar a los nombres de símbolos una serie de etiquetas como \emph{ptr_} para punteros o \emph{_val} para valores.
+		\item[\textbf{RF-5.1}] \textbf{Recorrido del AST para generación de IR:} El sistema deberá recorrer el AST utilizando un patrón \emph{Visitor} para generar el código LLVM IR correspondiente a cada estructura del lenguaje.
+		\item[\textbf{RF-5.2}] \textbf{Uso de identificadores propios:} Durante la generación del código intermedio, el sistema deberá aplicar a los nombres de símbolos una serie de etiquetas como \emph{ptr\_} para punteros o \emph{\_val} para valores.
 	\end{enumerate}	
-\item[\textbf{RF-6}] \textbf{Optimizaciones:} 
-El sistema deberá permitir la optimización del código LLVM IR generado.
+\item[\textbf{RF-6}] \textbf{Optimizaciones:} El sistema deberá permitir la optimización del código LLVM IR generado.
 	\begin{enumerate}	
-		\item[\textbf{RF-6.1}] \textbf{Control mediante opciones de compilación:} 
-		Cuando el usuario lo especifique mediante una argumento de compilación, el sistema deberá generar el código con o sin optimizaciones.
+		\item[\textbf{RF-6.1}] \textbf{Control mediante opciones de compilación:} Cuando el usuario lo especifique mediante una argumento de compilación, el sistema deberá generar el código con o sin optimizaciones.
 	\end{enumerate}	
-\item[\textbf{RF-7}] \textbf{Generación de un ejecutable:} 
-Cuando el programa de entrada sea correcto, el sistema deberá realizar el proceso completo, transformando todo el resultado final en un programa ejecutable para la arquitectura donde se ha ejecutando.
+\item[\textbf{RF-7}] \textbf{Generación de un ejecutable:} Cuando el programa de entrada sea correcto, el sistema deberá realizar el proceso completo, transformando todo el resultado final en un programa ejecutable para la arquitectura donde se ha ejecutando.
 \end{enumerate}
 
 \section{Casos de uso}
