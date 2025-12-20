@@ -15,8 +15,9 @@ Dentro del compilador se esperan algunos argumentos de llamada como:
     \item \textbf{-o <nombre archivo>}: argumento obligatorio que especificar el fichero ejecutable de salida.
     \item \textbf{--debug}: permite ver información de la salida de cada una de las fases del compilador. Este argumento también activa el efecto del argumento \emph{--visualizeAST};
     \item \textbf{--visualizeAST}: genera un fichero \fn{AST.pfd} con una visualización del AST en el directorio donde se ha ejecutado el compilador.
-    \item \textbf{--IR}: genera un fichero .ll con el LLVM IR generado por el compilador.
+    \item \textbf{--IR <nombre archivo>}: genera un fichero .ll con el LLVM IR generado por el compilador.
     \item \textbf{--help / -h}: genera un fichero .ll con el LLVM IR generado por el compilador.
+    \item \textbf{--version / -v}: muestra la versión actual del compilador.
 \end{itemize}
 
 Para conocer los datos necesarios para ejecutar los comandos anteriores en el compilador se almacenan flags de compilado que permiten modificar el comportamiento de cada fase.
@@ -91,9 +92,7 @@ Para formar este AST se empleará un visitor patterns (patrón de visita), objet
 
 Adicionalmente, si la flag \kw{--visualizeAST} está activada, el compilador puede generar una representación visual del árbol tras su construcción, para conseguir esto se escriben cada nodo en el formato de la biblioteca `forest` de \LaTeX, permitiendo el análisis de la estructura del programa así como datos relacionados con los componentes, como los tipos u operadores.
 
-%TODO añadir una leyenda para este ejemplo
-
-\imagen{AST_ejemplo_expr}{Ejemplo de expresión 2 + 3 * 5}{0.55}
+\imagen{AST_ejemplo_expr}{Ejemplo de visualización de la expresión 2 + 3 * 5 con la flag \emph{--visualizeAST}}{0.55}
 
 \subsubsection{Análisis semántico}
 Durante la fase de análisis semántico se examina principalmente el uso de los identificadores, como los nombres de variables y funciones. Entre las comprobaciones más relevantes se incluyen:
@@ -106,6 +105,8 @@ Durante la fase de análisis semántico se examina principalmente el uso de los 
 
 La tabla de símbolos está estructurada como una lista de scopes. Para los distintos bloques anidados se establecen referencias entre cada scope hijo y su scope padre, lo que permite verificar fácilmente los alcances y resolver identificadores de forma correcta.
 
+\imagen{symbol_table}{Ejemplo de la visualización de una tabla de símbolos \emph{--visualizeAST}}{0.55}
+
 Para poder comprobar la corrección del uso de tipos, el análisis semántico debe ser capaz de entender los tipos, tanto de los literales como de las variables y funciones, para ello se implementa un sistema de representación de tipos en una enumeración llamada \kw{SupportedTypes} que da soporte a los tipos:
 \begin{itemize}
     \item \kw{TYPE\_INT}
@@ -116,6 +117,16 @@ Para poder comprobar la corrección del uso de tipos, el análisis semántico de
     \item \kw{TYPE\_VOID}
     \item \kw{TYPE\_PTR}
 \end{itemize}
+
+\subsubsection{Librería estándar}
+Para permitir mayor flexibilidad al programador, todas las funciones de la librería estándar de C son enlazadas con el programa final generado. Adicionalmente, se agregan o adaptan algunas funciones para crear una pequeña librería propia, que demuestra la capacidad del compilador de incluir funciones preinstaladas o \emph{built-in functions}.
+
+\begin{itemize}
+    \item \code{char *toString(int x)}
+    \item \code{void print(const char *first, ...)}
+\end{itemize}
+
+La función antes mencionada, \code{char* toString(int x)}, aprovecha internamente funciones estándar de C como \code{sprintf} para devolver un buffer de tipo \code{char *} sin tener que reinventar este mecanismo y a su vez abstrayendo al programador del uso de estas funciones y el manejo de memoria. 
 
 \subsubsection{Generación de LLVM IR}
 Para la generación de IR es emplea un struct que almacena los datos necesarios para que LLVM pueda generar el IR de forma automática, para ello se inicializan dentro del \kw{CodegenContext} los siguientes tres elementos:
@@ -188,7 +199,7 @@ El uso de estas combinaciones junto a las comprobaciones de calidad mínimas par
 \subsubsection{Generación del ejecutable}
 La generación de un programa requiere conocer el "target triplet", es decir, la familia de CPU en la que se ejecuta el sistema. La API del sistema \code{llvm::sys} de LLVM contiene funciones que nos permiten conocer el triplet y así poder establecer un data layout correcto para el sistema en el que estamos trabajando.   
 
-Una vez hemos generado el código objeto del programa, el compilador ejecuta un enlace utilizando la herramienta clang/clang++, de forma que el archivo generado se enlaza con la librería estándar del compilador, la librería estándar de C y el runtime. 
+Una vez hemos generado el código objeto del programa, el compilador ejecuta un enlace utilizando la herramienta clang++, de forma que el archivo generado se enlaza con la librería estándar del compilador, la librería estándar de C y el \emph{runtime}. 
 
 \subsection{Runtime}
 El runtime es una parte necesaria para la ejecución de cualquier programa, normalmente aporta un punto de entrada valido mediante un system call en ensamblador.

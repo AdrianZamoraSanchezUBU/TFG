@@ -1,4 +1,5 @@
 \apendice{Plan de Proyecto Software}
+\newcommand{\code}[1]{\texttt{#1}}
 
 \section{Introducción}
 En este apartado se tiene como objetivo definir y estructurar el plan de proyecto para el desarrollo de un lenguaje de programación y el compilador del mismo, de forma que queden satisfechas sus necesidades y requerimientos técnicos, garantizando la calidad, eficiencia y cumplimiento de unos plazos establecidos. Este plan proporciona un marco de referencia para la gestión del proyecto, incluyendo la planificación temporal así como un estudio de la viabilidad tanto económica como legal.
@@ -29,7 +30,7 @@ A continuación se citan los sprints realizados:
 
 \textbf{Sprint 6 (09/11/2025 - 14/11/2025):} Tercera ampliación del lenguaje, se añaden bucles while y for. Se añade la fase del compilador responsable de llevar el LLVM IR a código máquina específico de la arquitectura host.
 
-\textbf{Sprint 7 (15/11/2025 - 21/11/2025):} Se añade un runtime mínimo personalizado, se integran funciones de la librería estándar de C como printf, strlen e implementa una librería estándar propia con una función toString. Se añade el tipo que modelará el tiempo.
+\textbf{Sprint 7 (15/11/2025 - 21/11/2025):} Se añade un runtime mínimo personalizado, se integran funciones de la librería estándar de C como \code{printf}, \code{strlen} e implementa una librería estándar propia con una función toString. Se añade el tipo que modelará el tiempo.
 
 \textbf{Sprint 8 (22/11/2025 - 28/11/2025):} Se añade la estructura event, que modela la principal característica propia del lenguaje, además se trabaja en refactorizaciones de calidad y seguridad de la fase de análisis semántico del compilador.
 
@@ -39,9 +40,9 @@ A continuación se citan los sprints realizados:
 
 \textbf{Sprint 11 (13/12/2025 - 19/12/2025):} Se mejora la gestión de argumentos con la librería  y de errores del compilador mediante registro de información adicional y el uso de una estructura de datos específica para los errores.
 
-\textbf{Sprint 12 (20/12/2025 - 26/12/2025):}Se completa el paso de parámetros mediante libffi entre runtime y código compilado.
+\textbf{Sprint 12 (20/12/2025 - 26/12/2025):} Se completa el paso de parámetros mediante libffi entre runtime y código compilado. Se añade la fase de compilación. 
 
-\textbf{Sprint 13 (27/12/2025 - 03/01/2025):}
+\textbf{Sprint 13 (27/12/2025 - 03/01/2025):} Refactorizaciones para aumentar la calidad del código. Redacción exhaustiva y revisiones de la memoria y anexos. 
 
 \textbf{Sprint 14 (04/01/2025 - 15/01/2025):} El sprint final.
 
@@ -59,6 +60,7 @@ A continuación analizaremos que costes deben ser tenidos en cuenta para el desa
 
 \subsection{Coste total}
 En este caso de un proyecto de 5 meses, los costes los podemos aproximar de la siguiente forma:
+
 \tablaSmallSinColores{Costes totales}{lcr}{3}{Tipo de coste & Precio aproximado \\}{
   Coste humano & 7500€ \\
   Coste hardware & 1000€  \\
@@ -68,7 +70,7 @@ En este caso de un proyecto de 5 meses, los costes los podemos aproximar de la s
 }
 
 \subsection{Viabilidad legal}
-A continuación se citan todos las herramientas utilizadas y las licencias asociadas a las mismas:
+A continuación se citan todos las herramientas y librerías utilizadas junto con las licencias asociadas a las mismas:
 
 \tablaSmallSinColores{Licencias}{lcr}{3}{Herramienta & Licencia \\}{
   Ubuntu & GPL \\
@@ -78,6 +80,9 @@ A continuación se citan todos las herramientas utilizadas y las licencias asoci
   CMake & BSD \\
   LaTex & LPPL \\
   Doxygen & GPL \\
+  Gtest & BDS \\
+  argparse lib & MIT \\
+  spdlog lib & MIT \\
 }
 
 Como podemos observar, todas las licencias de estas herramientas permiten el uso \textbf{gratuito} de las mismas, sin restricciones adicionales que afecten a este proyecto.

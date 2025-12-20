@@ -35,6 +35,8 @@ AST.tex
 experimental/*
 cppcheck_out.txt
 program
+out
+*.log
 
 # Ignores VScode config files
 .vscode/
