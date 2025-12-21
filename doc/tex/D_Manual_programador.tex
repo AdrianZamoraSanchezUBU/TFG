@@ -1,41 +1,109 @@
 \apendice{Documentación técnica de programación}
 
 \section{Introducción}
-En esta sección se analizará la estructura del trabajo de programación, cómo se estructuran los ficheros de código, cómo se instalan los requisitos, cómo compilar el proyecto, etc.
+Este anexo tiene como objetivo servir de guía técnica para desarrolladores que deseen comprender, mantener, extender o colaborar en el proyecto. Se describe la estructura del código fuente, las decisiones de diseño más relevantes, los requisitos técnicos, el proceso de compilación y ejecución, así como el sistema de pruebas existente.
+
+La documentación está orientada a programadores con conocimientos previos de C++ y compiladores, y pretende facilitar la continuidad del proyecto sin necesidad de conocer en profundidad su desarrollo original.
 
 \section{Estructura de directorios}
 A continuación se muestra un diagrama con los principales directorios y ficheros presentes en el proyecto.
-\imagen{diagramaDirectorios}{Diagrama de directorios}%TODO actualizar
+
+\imagen{diagramaDirectorios}{Diagrama de directorios del proyecto}
+
+De forma resumida, el proyecto se organiza siguiendo una separación clara por responsabilidades, alineada con las distintas fases del compilador.
 
 \section{Manual del programador}
-El objetivo de este manual es ofrecer una visión técnica del código fuente, de manera que cualquier desarrollador que necesite mantener, extender o comprender el sistema pueda hacerlo.
+El objetivo de este manual es ofrecer una visión técnica del código fuente, de manera que cualquier desarrollador que necesite mantener, extender o comprender el sistema pueda hacerlo de forma progresiva y estructurada.
 
 \subsection{Requisitos previos}
-Instalación de ANTLR y LLVM %TODO
+Para poder compilar y trabajar con el proyecto es necesario disponer de los siguientes elementos:
 
-\subsection{Lenguaje de programación y estilo}
-El compilador está desarrollado en C++17, empleando un estilo de programación modular y orientado a objetos. Se sigue la convención de nombres en \textit{camelCase} para métodos y variables, y como es estándar de C++, \textit{PascalCase} para clases. El código está documentado con comentarios en formato Doxygen para la generación automática de documentación.
-
-\subsection{Convenciones internas}
-\begin{itemize} % TODO rehacer
-  \item Los ficheros de cabecera se ubican en el directorio \texttt{include/}, y las implementaciones en \texttt{src/}.
-  \item La definición del lenguaje de ANTLR se encuentra en el directorio \texttt{src/grammar/}.
-  \item El AST y las clases de nodos se implementan en \texttt{src/ast/}.
-  \item El análisis semántico se implementa en \texttt{src/semantic/}.
-  \item El generador de código intermedio se localiza en \texttt{src/LLVM/}.
-  \item El sistema de tests se encuentra en el directorio \texttt{test/}.
-  \item La documentación del proyecto se encuentra en \texttt{doc/}.
+\begin{itemize}
+    \item Compilador C++ compatible con el estándar C++17.
+    \item LLVM instalado en el sistema (Versión 18).
+    \item ANTLR4:
+    \begin{itemize}
+        \item Java Runtime Environment (JRE) para la herramienta ANTLR.
+        \item Runtime de ANTLR4 para C++ instalado en el sistema.
+    \end{itemize}
+    \item CMake (versión mínima 3.10).
+    \item GoogleTest para la ejecución de las pruebas unitarias.
 \end{itemize}
 
+\subsection{Lenguaje de programación y estilo}
+El compilador está desarrollado íntegramente en \textbf{C++17}, empleando un estilo de programación modular y orientado a objetos. Este enfoque permite una clara separación de responsabilidades entre los distintos componentes del sistema (análisis léxico, sintáctico, semántico y generación de código).
+
+Se siguen las siguientes convenciones de estilo:
+\begin{itemize}
+    \item \textit{PascalCase} para nombres de clases.
+    \item \textit{camelCase} para métodos y variables.
+    \item Uso explícito de \texttt{const} siempre que es posible.
+    \item Preferencia por \texttt{std::unique\_ptr} y \texttt{std::shared\_ptr} para la gestión de memoria.
+\end{itemize}
+
+El código está documentado mediante comentarios en formato \textbf{Doxygen}, lo que permite generar documentación automática a partir del código fuente.
+
+\subsection{Convenciones internas y organización del código}
+El proyecto sigue una estructura basada en capas, donde cada módulo corresponde a una fase concreta del compilador:
+
+\begin{itemize}
+  \item \textbf{\texttt{src/grammar/}}:  
+  Contiene la gramática del lenguaje definida mediante ANTLR4, así como el lexer y parser generados.
+
+  \item \textbf{\texttt{src/AST/}}:  
+  Implementa la estructura del Árbol de Sintaxis Abstracta (AST) y el visitante encargado de construirlo a partir del árbol sintáctico.
+
+  \item \textbf{\texttt{src/semantic/}}:  
+  Contiene el análisis semántico, incluyendo la tabla de símbolos, la gestión de ámbitos (\textit{scopes}) y la detección de errores semánticos.
+
+  \item \textbf{\texttt{src/LLVM/}}:  
+  Implementa el generador de código intermedio LLVM IR mediante el patrón \textit{Visitor}, así como la integración con el backend de LLVM.
+
+  \item \textbf{\texttt{src/compiler/}}:  
+  Orquesta el flujo completo del compilador, desde la lectura del archivo fuente hasta la generación del ejecutable final.
+
+  \item \textbf{\texttt{src/runtime/}}:  
+  Contiene el sistema de ejecución en tiempo de ejecución (runtime), incluyendo la gestión de eventos, temporización y funciones auxiliares.
+
+  \item \textbf{\texttt{tests/}}:  
+  Incluye los tests unitarios implementados con GoogleTest.
+
+  \item \textbf{\texttt{tests/input}}:  
+  Incluye ejemplos de diferentes códigos fuente. Estos son utilizados por los tests unitarios.
+
+  \item \textbf{\texttt{doc/}}:  
+  Contiene la documentación del proyecto, incluida la memoria del TFG y sus anexos.
+\end{itemize}
+
+Esta organización permite que un desarrollador pueda trabajar en una fase concreta del compilador sin necesidad de modificar el resto del sistema.
+
 \section{Compilación, instalación y ejecución del proyecto}
+
 \subsection{Compilación}
-El fichero CMakeLists.txt será el responsable de compilar el proyecto, mediante CMake, herramienta la cual tiene muy buena integración con C++. 
+El proyecto utiliza \textbf{CMake} como sistema de construcción. El fichero \texttt{CMakeLists.txt} define todas las dependencias, objetivos y opciones de compilación necesarias.
+
+El proceso de compilación estándar es el siguiente:
+
+\begin{verbatim}
+mkdir build
+cd build
+cmake ..
+make
+\end{verbatim}
+
+Este proceso genera el ejecutable del compilador, así como los objetos necesarios del runtime.
 
 \subsection{Instalación}
+El proyecto no requiere un proceso de instalación formal. Una vez compilado, el ejecutable puede copiarse a cualquier directorio del sistema.
+
+De forma opcional, el desarrollador puede añadir la ruta del ejecutable a las variables de entorno o definir un alias para facilitar su uso durante el desarrollo.
 
 \subsection{Ejecución}
+El compilador se ejecuta desde línea de comandos indicando como argumento el archivo fuente a compilar. Opcionalmente, se pueden añadir distintas banderas para depuración, visualización del AST o generación de LLVM IR.
+
+Durante el desarrollo, se recomienda ejecutar el compilador en modo \texttt{--debug} para facilitar el análisis del flujo interno del sistema.
 
 \section{Pruebas del sistema}
-Para un desarrollo de calidad, debemos asegurarnos que cuando introducimos cambios en el sistema, las características anteriores se mantengan funcionales. Para ello se aportan tests unitarios mediante GoogleTest, un framework diseñado por Google para hacer tests unitarios sobre código C++.
+Para garantizar la estabilidad del sistema ante modificaciones o extensiones, el proyecto incluye un conjunto de pruebas unitarias implementadas mediante \textbf{GoogleTest}.
 
-Los tests se encuentran en el directorio "test" y se encargan de comprobar la correcta aceptación de código fuente, generación de AST, tablas de símbolos y algunos casos de generación de código IR.
+Las pruebas pueden ejecutarse tras la compilación mediante los objetivos generados por CMake, permitiendo validar que los cambios introducidos no rompen el comportamiento previo del compilador.

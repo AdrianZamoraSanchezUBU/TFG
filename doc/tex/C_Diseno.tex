@@ -1,42 +1,107 @@
-\apendice{Especificación de diseño} %TODO
+\apendice{Especificación de diseño}
 
 \section{Introducción}
-En esta sección se describe cómo se construirá el sistema desde el punto de vista del diseño. El objetivo es definir la estructura general de la aplicación, los modelos de datos que la sustentan y los procedimientos que regirán su funcionamiento. De esta manera se establece un puente entre los requisitos previamente definidos y la posterior implementación, garantizando que el desarrollo siga una organización clara y coherente.
+En esta sección se describe el diseño del sistema desde un punto de vista arquitectónico y conceptual. El objetivo es definir la estructura general del compilador, los modelos de datos que lo sustentan y los procedimientos que rigen su funcionamiento interno.
 
-\section{Diseño de datos} 
+Este anexo actúa como un puente entre los requisitos funcionales definidos previamente y la implementación final, permitiendo comprender las decisiones de diseño adoptadas y facilitando futuras tareas de mantenimiento, ampliación o refactorización del sistema.
+
+\section{Diseño de datos}
+
 \subsection{Estructuras de datos utilizadas}
-AST
+El compilador se apoya en dos estructuras de datos principales: el Árbol de Sintaxis Abstracta (AST) y la tabla de símbolos. Ambas estructuras son fundamentales para separar correctamente las distintas fases del proceso de compilación.
 
-Tabla de símbolos
+\subsubsection{Árbol de Sintaxis Abstracta (AST)}
+El AST representa la estructura semántica del programa fuente, eliminando detalles sintácticos innecesarios y conservando únicamente la información relevante para el análisis y la generación de código.
+
+Cada nodo del AST representa una construcción del lenguaje (expresiones, declaraciones, sentencias, funciones, eventos, etc.). Todos los nodos heredan de una clase base común, lo que permite recorrer el árbol mediante el patrón \textit{Visitor} sin acoplar la lógica de procesamiento a la estructura concreta de los nodos.
+
+Esta representación intermedia facilita:
+\begin{itemize}
+    \item La realización del análisis semántico.
+    \item La detección temprana de errores.
+    \item La generación de código intermedio de forma estructurada.
+\end{itemize}
+
+\subsubsection{Tabla de símbolos}
+La tabla de símbolos almacena la información asociada a los identificadores del programa, como variables, funciones, parámetros y eventos. Está organizada mediante una estructura jerárquica de ámbitos (\textit{scopes}), lo que permite modelar correctamente la visibilidad y el sombreado de identificadores.
+
+Cada ámbito contiene un conjunto de símbolos y mantiene una referencia a su ámbito padre. Este diseño permite:
+\begin{itemize}
+    \item Búsqueda eficiente de identificadores.
+    \item Gestión correcta de ámbitos anidados.
+    \item Diferenciación entre bloques y ámbitos de función.
+\end{itemize}
 
 \subsection{Diagramas UML de los objetos del sistema}
+El sistema se modela mediante un conjunto de clases que representan los distintos componentes del compilador. Destacan especialmente las clases asociadas al AST, la tabla de símbolos y el generador de código.
+
+Los diagramas UML permiten visualizar las relaciones de herencia entre nodos del AST, la composición de la tabla de símbolos y la interacción entre los visitantes y las estructuras de datos principales.
+% TODO DIAGRAMAS UML
 
 \subsection{Tipos de datos del lenguaje}
+El lenguaje implementado soporta un conjunto reducido pero expresivo de tipos de datos, entre los que se incluyen:
+\begin{itemize}
+    \item Tipos primitivos: enteros, booleanos, caracteres y valores en coma flotante.
+    \item Tipo cadena, representado internamente mediante punteros.
+    \item Tipo temporal, utilizado para la gestión de eventos basados en tiempo.
+    \item Tipos puntero, que permiten el paso por referencia y la manipulación indirecta de valores.
+\end{itemize}
 
+Cada tipo del lenguaje se mapea de forma explícita a su correspondiente tipo en LLVM IR, garantizando una generación de código coherente y segura.
 
-\section{Diseño arquitectónico} % TODO
-A continuación se lista los módulos principales:
+\section{Diseño arquitectónico}
+El compilador sigue una arquitectura por capas, donde cada módulo corresponde a una fase concreta del proceso de compilación. Esta separación permite aislar responsabilidades y facilita la extensibilidad del sistema.
 
-Analizador léxico o lexer
+Los módulos principales son:
+\begin{itemize}
+    \item Analizador léxico (\textit{lexer}).
+    \item Analizador sintáctico (\textit{parser}).
+    \item Analizador semántico.
+    \item Generador de código intermedio (LLVM IR).
+    \item Sistema de ejecución en tiempo de ejecución (\textit{runtime}).
+\end{itemize}
 
-Analizador sintáctico o parser
+El siguiente diagrama muestra una ejecución lineal del compilador en ausencia de errores, ilustrando el flujo de datos entre las distintas capas del sistema:
 
-Analizador semántico
+\imagen{diagramaFasesCompilador}{Diagrama de fases del compilador}
 
-Generador de código IR
+Esta arquitectura garantiza que cada fase trabaje únicamente sobre representaciones válidas generadas por la fase anterior.
 
-El siguiente diagrama muestra linealmente una ejecución sin errores, donde se puede visualizar el estado de los datos en cada capa:
-\imagen{diagramaFasesCompilador}{Diagrama fases del compilador}
+\section{Diseño procedimental}
+A continuación se describen los principales algoritmos y procedimientos empleados en cada uno de los módulos del sistema.
 
-\section{Diseño procedimental} % TODO
-A continuación se explican de qué formas realizan sus tareas los elementos del diseño arquitectónico visto anteriormente:
+\subsection{Algoritmo del analizador léxico}
+El analizador léxico se basa en autómatas finitos, siguiendo el esquema clásico de transformación de una expresión regular en un autómata no determinista (NFA), y posteriormente en un autómata determinista (DFA).
 
-Algoritmo del lexer (NFA → DFA)
+Este proceso permite reconocer de forma eficiente los tokens del lenguaje, que serán consumidos por el analizador sintáctico.
 
-Algoritmo parser (Adaptive LL()* / ALL(*)) que primero intenta decisiones con bajo lookahead (SLL), y si falla, usa contexto completo (modo LL)
+\subsection{Algoritmo del analizador sintáctico}
+El analizador sintáctico utiliza el algoritmo \textit{Adaptive LL(*)} proporcionado por ANTLR. Este enfoque combina dos modos de análisis:
+\begin{itemize}
+    \item Modo SLL, con bajo \textit{lookahead} para un análisis rápido.
+    \item Modo LL completo, que utiliza contexto completo cuando el modo SLL falla.
+\end{itemize}
 
-Algoritmo para generar la AST (visitor pattern sobre contextos ANTLR) 
+Este mecanismo permite obtener un equilibrio entre eficiencia y expresividad gramatical.
 
-También visitor pattern para recorrer AST en análisis semántico y generación de IR.
+\subsection{Generación del AST}
+La construcción del AST se realiza mediante el patrón \textit{Visitor}, recorriendo los contextos generados por ANTLR y creando los nodos correspondientes del árbol abstracto.
 
-Algoritmo de scheduling de eventos
+Este diseño desacopla completamente la gramática del lenguaje de la representación interna del programa.
+
+\subsection{Análisis semántico y generación de código}
+Tanto el análisis semántico como la generación de código LLVM IR utilizan el patrón \textit{Visitor} para recorrer el AST.
+
+Durante el análisis semántico se validan los tipos, la correcta declaración de identificadores y el uso de ámbitos. En la fase de generación de código, el AST se traduce a instrucciones LLVM IR de forma progresiva y estructurada.
+
+\subsection{Algoritmo de \textit{scheduling} de eventos}
+El sistema de eventos se gestiona en tiempo de ejecución mediante un mecanismo de planificación basado en hilos. Cada evento se registra con un periodo temporal y una función asociada.
+
+El \textit{runtime} se encarga de:
+\begin{itemize}
+    \item Registrar los eventos definidos en el programa.
+    \item Programar su ejecución periódica.
+    \item Gestionar la sincronización y el ciclo de vida de los eventos.
+\end{itemize}
+
+Este enfoque permite implementar un modelo de ejecución reactivo y temporal, integrando de forma transparente la semántica de eventos dentro del lenguaje.

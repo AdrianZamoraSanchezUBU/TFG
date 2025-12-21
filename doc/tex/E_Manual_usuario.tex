@@ -1,44 +1,83 @@
 \apendice{Documentación de usuario}
+
 \section{Introducción}
-Este anexo tiene el propósito de guiar a un usuario final que desee instalar, configurar y usar el compilador. Se describen los requisitos que debe cumplir el usuario, el proceso de Instalación y las instrucciones fundamentales para poder utilizar el compilador de forma correcta.
+Este anexo tiene el propósito de guiar a un usuario final que desee instalar, configurar y usar el compilador. Se describen los requisitos que debe cumplir el usuario, el proceso de instalación y las instrucciones fundamentales para poder utilizar el compilador de forma correcta.
 
 \section{Requisitos de usuarios}
 Antes de comenzar a utilizar el sistema, el usuario debe contar con los siguientes requisitos:
 
 \subsection{Conocimientos}
 \begin{itemize}
-    \item Conocimientos básicos de programación
-    \item Familiaridad con un editor de código
-    \item Conocimiento de uso de programas CLI
+    \item Conocimientos básicos de programación.
+    \item Familiaridad con algún editor de código o entorno de desarrollo.
+    \item Conocimiento básico del uso de programas mediante línea de comandos (CLI).
 \end{itemize}
 
-\subsection{Requisitos de hardware} 
+\subsection{Requisitos de hardware}
 \begin{itemize}
-    \item CPU: 1GHz
-    \item RAM: 1GB
-    \item Espacio en disco: 500MB
+    \item CPU: Procesador de al menos 1 GHz.
+    \item RAM: 1 GB de memoria RAM.
+    \item Espacio en disco: 500 MB libres.
 \end{itemize}
 
-\subsection{Requisitos de software} 
+\subsection{Requisitos de software}
 \begin{itemize}
     \item Sistema operativo Windows, Linux o macOS.
-    \item Entorno C++
+    \item Compilador C++ compatible con el estándar C++17.
+    \item LLVM instalado en el sistema.
 \end{itemize}
 
 \section{Instalación}
-La descarga se realizará desde el repositorio de código en este enlace. 
+La descarga del compilador se realiza desde el repositorio de código del proyecto. Una vez descargado, el usuario puede compilar el proyecto siguiendo las instrucciones proporcionadas en el repositorio.
 
-Una completada la descargada se puede colocar el compilador en la ruta que se desee y utilizar esa misma ruta para ejecutar el compilador, o bien introducir la ruta al compilador como variable de entorno en sistemas Windows o como un alias en sistemas Linux, de forma que podamos ejecutar más comodamente el compilador.
+Tras completar la compilación, el ejecutable del compilador puede colocarse en cualquier directorio del sistema. Para facilitar su uso, se recomienda añadir la ruta del ejecutable a las variables de entorno del sistema o definir un alias, según el sistema operativo utilizado.
 
 \subsection{Variables de entorno (Windows)}
+En sistemas Windows, se puede añadir la carpeta que contiene el ejecutable del compilador a la variable de entorno \texttt{PATH} siguiendo estos pasos:
+
+\begin{itemize}
+    \item Abrir el panel de \emph{Configuración del sistema}.
+    \item Acceder a \emph{Variables de entorno}.
+    \item Editar la variable \texttt{PATH} del sistema o del usuario.
+    \item Añadir la ruta donde se encuentra el ejecutable del compilador.
+\end{itemize}
+
+Una vez realizado este proceso, el compilador podrá ejecutarse desde cualquier terminal de comandos sin necesidad de indicar su ruta completa.
 
 \subsection{Alias (Linux)}
+En sistemas Linux o macOS, se puede crear un alias para facilitar la ejecución del compilador. Para ello, basta con añadir la siguiente línea al archivo \texttt{\textasciitilde/.bashrc} o \texttt{\textasciitilde/.zshrc}:
+
+\begin{verbatim}
+alias Tcompiler="/ruta/al/ejecutable/TCompiler"
+\end{verbatim}
+
+Tras recargar la configuración del terminal, el compilador podrá ejecutarse escribiendo simplemente \texttt{Tcompiler}.
 
 \section{Manual del usuario}
-Para compilar, requerimos de tener un fichero con código y podremos ejecutar el compilador con las siguientes opciones:
+Para compilar un programa escrito en el lenguaje, es necesario disponer de un fichero fuente con el código a compilar. El compilador se ejecuta desde la línea de comandos utilizando la siguiente sintaxis general:
+
+\begin{verbatim}
+Tcompiler <archivo_fuente> [opciones]
+\end{verbatim}
+
+A continuación se describen las principales opciones disponibles:
+
 \begin{itemize}
-    \item \textbf{Compilación básica:}
-    \item \textbf{Comprobación de validez léxica:}
-    \item \textbf{Comprobación de validez sintáctica:}
-    \item \textbf{Compilación a IR:} 
+    \item \textbf{Tcompiler -h / --help:}  
+    Muestra un mensaje de ayuda con la descripción de las opciones disponibles.
+
+    \item \textbf{Tcompiler <archivo fuente>:}  
+    Compila el archivo fuente especificado y genera un archivo objeto como salida.
+
+    \item \textbf{Tcompiler <archivo fuente> --debug:}  
+    Activa el modo de depuración, mostrando información adicional como la lista de tokens, la tabla de símbolos y el código LLVM IR generado.
+
+    \item \textbf{Tcompiler <archivo fuente> --visualizeAST:}  
+    Genera una representación visual del Árbol de Sintaxis Abstracta (AST) en formato PDF.
+
+    \item \textbf{Tcompiler <archivo fuente> -IR <archivo>:}  
+    Exporta el código LLVM IR generado al archivo especificado.
+
+    \item \textbf{Tcompiler <archivo fuente> -o <programa a generar>:}  
+    Permite especificar el nombre del archivo objeto o ejecutable generado por el compilador.
 \end{itemize}
