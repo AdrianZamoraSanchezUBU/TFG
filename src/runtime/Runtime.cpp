@@ -17,7 +17,9 @@ void Runtime::checkEvents() {
     }
 };
 
-void Runtime::registerEvent(std::string id, float period, void *fnPtr, int argCount, const int *argTypes, int limit) {
+using EventFn = void (*)();
+
+void Runtime::registerEvent(std::string id, float period, EventFn fnPtr, int argCount, const int *argTypes, int limit) {
     events.emplace_back(std::make_shared<Event>(id, period, fnPtr, argCount, argTypes, limit));
 }
 

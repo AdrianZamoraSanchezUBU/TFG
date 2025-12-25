@@ -37,7 +37,7 @@ struct CodegenContext {
 
         // Inserta la función C si no existe
         IRModule->getOrInsertFunction("toString", llvm::FunctionType::get(i8PtrTy, {i32Ty}, false));
-        IRModule->getOrInsertFunction("print", llvm::FunctionType::get(i32Ty, {i8PtrTy}, true));
+        IRModule->getOrInsertFunction("print", llvm::FunctionType::get(voidTy, {i8PtrTy}, true));
         IRModule->getOrInsertFunction("strlen", llvm::FunctionType::get(i32Ty, {i8PtrTy}, false));
         IRModule->getOrInsertFunction("registerEventData",
                                       llvm::FunctionType::get(voidTy,

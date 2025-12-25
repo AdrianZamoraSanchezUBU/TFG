@@ -496,44 +496,33 @@ llvm::Value *IRGenerator::visit(FunctionCallNode &node) {
             // Creating argv in the stack as void* argv[N]
             unsigned argCount = node.getParamsCount();
 
-            llvm::ArrayType *argvArrayTy = llvm::ArrayType::get(i8PtrTy, argCount);
-
-            llvm::Value *argvAlloca = ctx.IRBuilder.CreateAlloca(argvArrayTy, nullptr, "event_argv");
+            llvm::Value *argCountV = llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), argCount);
+            llvm::Value *argvAlloca = ctx.IRBuilder.CreateAlloca(i8PtrTy, argCountV, "event_argv");
 
             // Filling argv[i] with  &valor_real
             for (unsigned i = 0; i < argCount; ++i) {
-
-                // Argument generation
                 llvm::Value *argValue = node.getParam(i)->accept(*this);
                 llvm::Value *argAddr = nullptr;
 
                 if (argValue->getType()->isPointerTy()) {
-                    // Already an alloc
                     argAddr = argValue;
                 } else {
-                    // Temp val
                     llvm::Value *tmp = ctx.IRBuilder.CreateAlloca(argValue->getType(), nullptr, "arg_tmp");
                     ctx.IRBuilder.CreateStore(argValue, tmp);
                     argAddr = tmp;
                 }
 
-                // Cast to void*
                 llvm::Value *argVoidPtr = ctx.IRBuilder.CreateBitCast(argAddr, i8PtrTy);
 
-                // Setting argv[i]
-                llvm::Value *indices[] = {llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), 0),
-                                          llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), i)};
-
-                llvm::Value *slot = ctx.IRBuilder.CreateInBoundsGEP(argvArrayTy, argvAlloca, indices);
+                // slot = &argv[i]
+                llvm::Value *iV = llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), i);
+                llvm::Value *slot = ctx.IRBuilder.CreateInBoundsGEP(i8PtrTy, argvAlloca, iV);
 
                 ctx.IRBuilder.CreateStore(argVoidPtr, slot);
             }
 
-            // argv cast to void**
-            llvm::Value *argvPtr = ctx.IRBuilder.CreateBitCast(argvAlloca, i8PtrTy->getPointerTo());
-
             // Calling scheduleEventData
-            return ctx.IRBuilder.CreateCall(scheduleFn, {eventID, argvPtr});
+            return ctx.IRBuilder.CreateCall(scheduleFn, {eventID, argvAlloca});
         }
     }
 

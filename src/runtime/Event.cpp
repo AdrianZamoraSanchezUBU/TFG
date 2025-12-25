@@ -3,7 +3,9 @@
 #include <iostream>
 #include <stdexcept>
 
-Event::Event(std::string id, float t, void *fnPtr, int argCount, const int *argTypesIn, int limit)
+using EventFn = void (*)();
+
+Event::Event(std::string id, float t, EventFn fnPtr, int argCount, const int *argTypesIn, int limit)
     : id(std::move(id)), ticks(static_cast<int>(std::ceil(t))), execLimit(limit), fnPtr(fnPtr), argCount(argCount),
       argTypes(argTypesIn, argTypesIn + argCount), argv(argCount, nullptr) {}
 
@@ -30,10 +32,12 @@ static size_t typeSize(int code) {
 void Event::setArgsCopy(void **incoming) {
     std::lock_guard<std::mutex> lock(argsMutex);
 
-    if ((int)argv.size() != argCount) {
+    // Asegurar tamaños SIEMPRE
+    if ((int)argv.size() != argCount)
         argv.assign(argCount, nullptr);
+
+    if ((int)ownedArgs.size() != argCount)
         ownedArgs.assign(argCount, {});
-    }
 
     for (int i = 0; i < argCount; ++i) {
         if (!incoming[i]) {
@@ -41,10 +45,12 @@ void Event::setArgsCopy(void **incoming) {
         }
 
         size_t sz = typeSize(argTypes[i]);
-        ownedArgs[i].resize(sz);
-        std::memcpy(ownedArgs[i].data(), incoming[i], sz);
+        if (sz > ownedArgs[i].bytes.size()) {
+            throw std::runtime_error("ArgSlot too small for arg " + std::to_string(i));
+        }
 
-        argv[i] = ownedArgs[i].data(); // <- puntero estable para libffi
+        std::memcpy(ownedArgs[i].bytes.data(), incoming[i], sz);
+        argv[i] = ownedArgs[i].bytes.data();
     }
 }
 
@@ -57,12 +63,12 @@ static ffi_type *codeToFFI(int code) {
     case 3:
         return &ffi_type_pointer;
     default:
-        return &ffi_type_pointer; // o abort si prefieres
+        return &ffi_type_pointer;
     }
 }
 
 void Event::execute() {
-    // Prepara libffi una sola vez (tipos no cambian)
+    // libffi preparation
     ffi_cif cif;
     std::vector<ffi_type *> ffiTypes(argCount);
     for (int i = 0; i < argCount; ++i) {
@@ -77,7 +83,7 @@ void Event::execute() {
 
     while (running.load()) {
         try {
-            // Copiar argv bajo mutex para evitar data race si schedule actualiza mientras ejecuta
+            // Copy argvb under mutex
             std::vector<void *> localArgv;
             localArgv.resize(argCount);
 
@@ -86,14 +92,19 @@ void Event::execute() {
                 localArgv = argv;
             }
 
-            // (Opcional) validar que no haya nullptr
+            // Check for nullptr
             for (int i = 0; i < argCount; ++i) {
                 if (!localArgv[i]) {
                     throw std::runtime_error("Event argv contains nullptr (missing schedule args)");
                 }
             }
 
-            ffi_call(&cif, FFI_FN(fnPtr), nullptr, localArgv.data());
+            for (int i = 0; i < argCount; ++i) {
+                spdlog::debug("  arg[{}] storage={} (ptr) = {}", i, (void *)localArgv[i], *(int32_t *)localArgv[i]);
+            }
+
+            uint8_t dummy;
+            ffi_call(&cif, FFI_FN(fnPtr), &dummy, localArgv.data());
 
         } catch (const std::exception &e) {
             std::cerr << "Exception in event '" << id << "': " << e.what() << "\n";
@@ -101,8 +112,11 @@ void Event::execute() {
             std::cerr << "Unknown exception in event '" << id << "'\n";
         }
 
-        if (++execCounter == execLimit)
+        if (execLimit > 0 && ++execCounter >= execLimit)
             stopEvent();
+        else
+            ++execCounter;
+
         std::this_thread::sleep_for(ticks);
     }
 }

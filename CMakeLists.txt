@@ -54,25 +54,11 @@ target_link_libraries(compilerLib
 add_executable(TCompiler src/main.cpp) # Compiler executable main.cpp
 
 # Runtime compilation
-add_library(runtimeLib STATIC
-    src/runtime/Event.cpp
-    src/runtime/Runtime.cpp
-    src/runtime/TLib.cpp
-    src/runtime/main.cpp
-)
-
-# Runtime header files
-target_include_directories(runtimeLib
-    PUBLIC
-        ${PROJECT_SOURCE_DIR}/src/runtime
-)
-
-# Runtime needed libs
-target_link_libraries(runtimeLib
-    PUBLIC
-        spdlog::spdlog
-        fmt::fmt
-        pthread
+add_custom_target(runtime_objs ALL
+    COMMAND clang++ -c  ${PROJECT_SOURCE_DIR}/src/runtime/Event.cpp -o ${BUILD_DIR}/Event.o
+    COMMAND clang++ -c  ${PROJECT_SOURCE_DIR}/src/runtime/Runtime.cpp -o ${BUILD_DIR}/Runtime.o
+    COMMAND clang++ -c  ${PROJECT_SOURCE_DIR}/src/runtime/TLib.cpp -o ${BUILD_DIR}/TLib.o
+    COMMAND clang++ -c  ${PROJECT_SOURCE_DIR}/src/runtime/main.cpp -o ${BUILD_DIR}/main.o
 )
 
 # Linking with antlr4-runtime

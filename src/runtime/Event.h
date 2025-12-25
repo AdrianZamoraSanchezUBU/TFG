@@ -15,17 +15,23 @@
 
 /// This class represents a Event.
 class Event {
+    using EventFn = void (*)();
+
     std::string id;
     std::chrono::milliseconds ticks;
     int execLimit;
     int execCounter = 0;
 
-    void *fnPtr = nullptr;
+    EventFn fnPtr = nullptr;
 
     int argCount = 0;
     std::vector<int> argTypes; // codes: 1=int,2=float,3=ptr,...
     std::vector<void *> argv;  // set at schedule
-    std::vector<std::vector<uint8_t>> ownedArgs;
+
+    struct ArgSlot {
+        alignas(16) std::array<std::uint8_t, 16> bytes{};
+    };
+    std::vector<ArgSlot> ownedArgs;
 
     std::mutex argsMutex;
 
@@ -40,7 +46,7 @@ class Event {
      * @param t Ticks associated with the periodic execution.
      * @param execLimit Limit of executions.
      */
-    Event(std::string id, float t, void *fnPtr, int argCount, const int *argTypes, int limit);
+    Event(std::string id, float t, EventFn fnPtr, int argCount, const int *argTypes, int limit);
 
     /// Executes the event code.
     void execute();

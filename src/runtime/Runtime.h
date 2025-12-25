@@ -44,6 +44,7 @@ class Runtime {
      */
     int getEventCount() { return events.size(); };
 
+    using EventFn = void (*)();
     /**
      * @brief Saves the event data.
      * @param id Identifier of the new Event.
@@ -51,7 +52,7 @@ class Runtime {
      * @param sig Compilated event function signature.
      * @param limit Number of limit executions for this Event, if set to 0 it has no numeric limit.
      */
-    void registerEvent(std::string id, float period, void *fnPtr, int argCount, const int *argTypes, int limit);
+    void registerEvent(std::string id, float period, EventFn fnPtr, int argCount, const int *argTypes, int limit);
 
     /// Prints the event list data.
     void printEventList();
