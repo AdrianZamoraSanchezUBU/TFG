@@ -57,13 +57,13 @@ El proyecto sigue una estructura basada en capas, donde cada módulo corresponde
   Contiene el análisis semántico, incluyendo la tabla de símbolos, la gestión de ámbitos (\textit{scopes}) y la detección de errores semánticos.
 
   \item \textbf{\texttt{src/LLVM/}}:  
-  Implementa el generador de código intermedio LLVM IR mediante el patrón \textit{Visitor}, así como la integración con el backend de LLVM.
+  Implementa el generador de código intermedio LLVM IR mediante el patrón \textit{visitor}, así como la integración con el backend de LLVM.
 
   \item \textbf{\texttt{src/compiler/}}:  
   Orquesta el flujo completo del compilador, desde la lectura del archivo fuente hasta la generación del ejecutable final.
 
   \item \textbf{\texttt{src/runtime/}}:  
-  Contiene el sistema de ejecución en tiempo de ejecución (runtime), incluyendo la gestión de eventos, temporización y funciones auxiliares.
+  Contiene el sistema de ejecución en tiempo de ejecución (\eng{runtime}), incluyendo la gestión de eventos, temporización y funciones auxiliares.
 
   \item \textbf{\texttt{tests/}}:  
   Incluye los tests unitarios implementados con GoogleTest.
@@ -91,15 +91,25 @@ cmake ..
 make
 \end{verbatim}
 
-Este proceso genera el ejecutable del compilador, así como los objetos necesarios del runtime.
+Este proceso genera el ejecutable del compilador, así como los objetos necesarios del \eng{runtime}.
 
 \subsection{Instalación}
-El proyecto no requiere un proceso de instalación formal. Una vez compilado, el ejecutable puede copiarse a cualquier directorio del sistema.
+El proyecto no requiere un proceso de instalación formal. Una vez compilado mediante el \eng{script} \code{./build.sh} o el proceso de \eng{make}, el ejecutable puede copiarse a cualquier directorio del sistema.
 
 De forma opcional, el desarrollador puede añadir la ruta del ejecutable a las variables de entorno o definir un alias para facilitar su uso durante el desarrollo.
 
 \subsection{Ejecución}
-El compilador se ejecuta desde línea de comandos indicando como argumento el archivo fuente a compilar. Opcionalmente, se pueden añadir distintas banderas para depuración, visualización del AST o generación de LLVM IR.
+El compilador se ejecuta desde línea de comandos indicando como argumento el archivo fuente a compilar. Opcionalmente, se pueden añadir distintas banderas para depuración, visualización del AST o generación de LLVM IR. Estas vienen indicadas en la ayuda del programa de la siguiente forma:
+
+\begin{verbatim}
+  -h, --help      shows help message and exits
+  -v, --version   prints version information and exits
+  -o, --output    Output object file [nargs=0..1] [default: "out"]
+  --visualizeAST  Generates a AST visualization -pdf file
+  --debug         Shows debug data about all the compiler phases.
+  --basic         Skips the optimization phase over the LLVM IR module.
+  -IR             Generates a LLVM IR file. [nargs=0..1] [default: ""]
+\end{verbatim}
 
 Durante el desarrollo, se recomienda ejecutar el compilador en modo \texttt{--debug} para facilitar el análisis del flujo interno del sistema.
 

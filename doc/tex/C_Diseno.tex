@@ -13,7 +13,7 @@ El compilador se apoya en dos estructuras de datos principales: el Árbol de Sin
 \subsubsection{Árbol de Sintaxis Abstracta (AST)}
 El AST representa la estructura semántica del programa fuente, eliminando detalles sintácticos innecesarios y conservando únicamente la información relevante para el análisis y la generación de código.
 
-Cada nodo del AST representa una construcción del lenguaje (expresiones, declaraciones, sentencias, funciones, eventos, etc.). Todos los nodos heredan de una clase base común, lo que permite recorrer el árbol mediante el patrón \textit{Visitor} sin acoplar la lógica de procesamiento a la estructura concreta de los nodos.
+Cada nodo del AST representa una construcción del lenguaje (expresiones, declaraciones, sentencias, funciones, eventos, etc.). Todos los nodos heredan de una clase base común, lo que permite recorrer el árbol mediante el patrón \textit{visitor} sin acoplar la lógica de procesamiento a la estructura concreta de los nodos.
 
 Esta representación intermedia facilita:
 \begin{itemize}
@@ -73,10 +73,10 @@ A continuación se describen los principales algoritmos y procedimientos emplead
 \subsection{Algoritmo del analizador léxico}
 El analizador léxico se basa en autómatas finitos, siguiendo el esquema clásico de transformación de una expresión regular en un autómata no determinista (NFA), y posteriormente en un autómata determinista (DFA).
 
-Este proceso permite reconocer de forma eficiente los tokens del lenguaje, que serán consumidos por el analizador sintáctico.
+Este proceso permite reconocer de forma eficiente los tókenes del lenguaje, que serán consumidos por el analizador sintáctico.
 
 \subsection{Algoritmo del analizador sintáctico}
-El analizador sintáctico utiliza el algoritmo \textit{Adaptive LL(*)} proporcionado por ANTLR. Este enfoque combina dos modos de análisis:
+El analizador sintáctico utiliza el algoritmo \textit{Adaptive LL(*)}\cite{parr2014adaptive} proporcionado por ANTLR. Este enfoque combina dos modos de análisis:
 \begin{itemize}
     \item Modo SLL, con bajo \textit{lookahead} para un análisis rápido.
     \item Modo LL completo, que utiliza contexto completo cuando el modo SLL falla.
@@ -85,12 +85,12 @@ El analizador sintáctico utiliza el algoritmo \textit{Adaptive LL(*)} proporcio
 Este mecanismo permite obtener un equilibrio entre eficiencia y expresividad gramatical.
 
 \subsection{Generación del AST}
-La construcción del AST se realiza mediante el patrón \textit{Visitor}, recorriendo los contextos generados por ANTLR y creando los nodos correspondientes del árbol abstracto.
+La construcción del AST se realiza mediante el patrón \textit{visitor}, recorriendo los contextos generados por ANTLR y creando los nodos correspondientes del árbol abstracto.
 
 Este diseño desacopla completamente la gramática del lenguaje de la representación interna del programa.
 
 \subsection{Análisis semántico y generación de código}
-Tanto el análisis semántico como la generación de código LLVM IR utilizan el patrón \textit{Visitor} para recorrer el AST.
+Tanto el análisis semántico como la generación de código LLVM IR utilizan el patrón \textit{visitor} para recorrer el AST.
 
 Durante el análisis semántico se validan los tipos, la correcta declaración de identificadores y el uso de ámbitos. En la fase de generación de código, el AST se traduce a instrucciones LLVM IR de forma progresiva y estructurada.
 
