@@ -9,6 +9,14 @@ Event::Event(std::string id, float t, EventFn fnPtr, int argCount, const int *ar
     : id(std::move(id)), ticks(static_cast<int>(std::ceil(t))), execLimit(limit), fnPtr(fnPtr), argCount(argCount),
       argTypes(argTypesIn, argTypesIn + argCount), argv(argCount, nullptr) {}
 
+Event::~Event() {
+    running.store(false);
+
+    // Detach to prevent abortion
+    if (worker.joinable())
+        worker.join();
+}
+
 void Event::setArgs(void **newArgv) {
     std::lock_guard<std::mutex> lock(argsMutex);
     for (int i = 0; i < argCount; ++i) {
@@ -26,6 +34,19 @@ static size_t typeSize(int code) {
         return sizeof(void *); // TYPE_STRING / PTR
     default:
         return sizeof(void *);
+    }
+}
+
+static ffi_type *codeToFFI(int code) {
+    switch (code) {
+    case 1:
+        return &ffi_type_sint32;
+    case 2:
+        return &ffi_type_float;
+    case 3:
+        return &ffi_type_pointer;
+    default:
+        return &ffi_type_pointer;
     }
 }
 
@@ -54,23 +75,12 @@ void Event::setArgsCopy(void **incoming) {
     }
 }
 
-static ffi_type *codeToFFI(int code) {
-    switch (code) {
-    case 1:
-        return &ffi_type_sint32;
-    case 2:
-        return &ffi_type_float;
-    case 3:
-        return &ffi_type_pointer;
-    default:
-        return &ffi_type_pointer;
-    }
-}
-
 void Event::execute() {
     // libffi preparation
     ffi_cif cif;
-    std::vector<ffi_type *> ffiTypes(argCount);
+    std::vector<ffi_type *> ffiTypes;
+    ffiTypes.reserve(argCount);
+
     for (int i = 0; i < argCount; ++i) {
         ffiTypes[i] = codeToFFI(argTypes[i]);
     }
@@ -85,7 +95,6 @@ void Event::execute() {
         try {
             // Copy argvb under mutex
             std::vector<void *> localArgv;
-            localArgv.resize(argCount);
 
             {
                 std::lock_guard<std::mutex> lock(argsMutex);
@@ -93,18 +102,29 @@ void Event::execute() {
             }
 
             // Check for nullptr
-            for (int i = 0; i < argCount; ++i) {
-                if (!localArgv[i]) {
-                    throw std::runtime_error("Event argv contains nullptr (missing schedule args)");
+            if (argCount == 0) {
+                if (!localArgv.empty()) {
+                    throw std::runtime_error("Event has argCount=0 but argv is not empty");
                 }
-            }
 
-            for (int i = 0; i < argCount; ++i) {
-                spdlog::debug("  arg[{}] storage={} (ptr) = {}", i, (void *)localArgv[i], *(int32_t *)localArgv[i]);
-            }
+                // Calling with no argv
+                ffi_call(&cif, FFI_FN(fnPtr), nullptr, nullptr);
 
-            uint8_t dummy;
-            ffi_call(&cif, FFI_FN(fnPtr), &dummy, localArgv.data());
+            } else {
+                // Call with argv
+                if ((int)localArgv.size() != argCount) {
+                    throw std::runtime_error("Event argv size mismatch (expected " + std::to_string(argCount) +
+                                             ", got " + std::to_string(localArgv.size()) + ")");
+                }
+
+                for (int i = 0; i < argCount; ++i) {
+                    if (!localArgv[i]) {
+                        throw std::runtime_error("Event argv contains nullptr (missing schedule args)");
+                    }
+                }
+
+                ffi_call(&cif, FFI_FN(fnPtr), nullptr, localArgv.data());
+            }
 
         } catch (const std::exception &e) {
             std::cerr << "Exception in event '" << id << "': " << e.what() << "\n";

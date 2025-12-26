@@ -25,7 +25,7 @@ class Event {
     EventFn fnPtr = nullptr;
 
     int argCount = 0;
-    std::vector<int> argTypes; // codes: 1=int,2=float,3=ptr,...
+    std::vector<int> argTypes; // type codes at Event.cpp
     std::vector<void *> argv;  // set at schedule
 
     struct ArgSlot {
@@ -47,6 +47,9 @@ class Event {
      * @param execLimit Limit of executions.
      */
     Event(std::string id, float t, EventFn fnPtr, int argCount, const int *argTypes, int limit);
+
+    /// @brief  Default Event destructor, important in thread termination management
+    ~Event();
 
     /// Executes the event code.
     void execute();
