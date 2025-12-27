@@ -16,9 +16,9 @@ Esta metodología fomenta un desarrollo incremental y una mejora continua del c�
 El desarrollo del compilador y de las herramientas asociadas se ha abordado desde el paradigma de la \textbf{programación orientada a objetos} (OOP, por sus siglas en inglés), reflejándose directamente en la estructura del código y en la organización de los distintos módulos del compilador. De forma más concreta, esta metodología permite la incorporación del patrón \textbf{visitor}, el cual puede encontrar detallado en el anexo de diseño.
 
 
-La OOP favorece la reutilización, extensibilidad y mantenibilidad del software, permitiendo aislar los distintos módulos del compilador y facilitar su evolución futura. Además, este paradigma se integra de forma natural con las herramientas empleadas, como \textbf{ANTLR} \cite{parr2013definitive} y \textbf{LLVM} \cite{lattner2004llvm}, ambas diseñadas con arquitecturas orientadas a objetos.
+La OOP favorece la reutilización, extensibilidad y mantenibilidad del software, permitiendo aislar los distintos módulos del compilador y facilitar su evolución futura. Además, este paradigma se integra de forma natural con las herramientas empleadas, como \textbf{ANTLR}~\cite{parr2013definitive} y \textbf{LLVM}~\cite{lattner2004llvm}, ambas diseñadas con arquitecturas orientadas a objetos.
 
-Otro motivo determinante en la elección de este enfoque es el uso de \textbf{C++} \cite{stroustrup2013cpp} como lenguaje de implementación. C++ ofrece un control preciso sobre el uso de memoria y las abstracciones de bajo nivel, aspectos especialmente relevantes en la implementación de compiladores y runtimes personalizados. La compatibilidad de la metodología OOP entre C++ y las herramientas ANTLR y LLVM refuerza aún más la idoneidad de esta metodología para el proyecto.
+Otro motivo determinante en la elección de este enfoque es el uso de \textbf{C++}~\cite{stroustrup2013cpp} como lenguaje de implementación. C++ ofrece un control preciso sobre el uso de memoria y las abstracciones de bajo nivel, aspectos especialmente relevantes en la implementación de compiladores y runtimes personalizados. La compatibilidad de la metodología OOP entre C++ y las herramientas ANTLR y LLVM refuerza aún más la idoneidad de esta metodología para el proyecto.
 
 La trazabilidad y el control de versiones del código se han gestionado mediante la herramienta \textbf{Git} y el repositorio remoto ya mencionado en \textbf{GitHub}, lo que permite registrar de forma precisa la evolución del proyecto y consultar en todo momento los cambios realizados desde su inicio.
 
@@ -32,16 +32,16 @@ ANTLR (\eng{Another Tool for Language Recognition}) es una herramienta ampliamen
 
 Entre sus características más destacables se encuentran:
 \begin{itemize}
-    \item Soporte nativo para gramáticas LL(*) \cite{parr2011ll} que permiten manejar ambigüedades complejas.
+    \item Soporte nativo para gramáticas LL(*)~\cite{parr2011ll} que permiten manejar ambigüedades complejas.
     \item Generación automática de analizadores léxicos y sintácticos a partir de un único archivo de gramática.
     \item Aunque fue diseñado para usarse principalmente en el entorno Java, actualmente cuenta con compatibilidad para muchos lenguajes de destino, entre ellos C++.
 \end{itemize}
 
 \textbf{Alternativas consideradas:}
 \begin{itemize}
-    \item \textbf{Bison \cite{donnelly1988bison} y Flex \cite{paxson1995flex}:} Son las herramientas clásicas en la generación de analizadores. Sin embargo, en el contexto elegido ANTLR cuenta con una estructura orientada a objetos más integrable con otras herramientas.
-    \item \textbf{PEG (\eng{Parsing Expression Grammar}) \cite{ford2004parsing}:} Ofrecen gran expresividad y flexibilidad, pero carecen del soporte multiplataforma y de la madurez de ANTLR, además de no integrarse de forma fácil con C++.
-    \item \textbf{JavaCC \cite{javacc}:} Alternativas orientadas a Java, no adecuadas para este proyecto al estar centrado en C++.
+    \item \textbf{Bison~\cite{donnelly1988bison} y Flex~\cite{paxson1995flex}:} Son las herramientas clásicas en la generación de analizadores. Sin embargo, en el contexto elegido ANTLR cuenta con una estructura orientada a objetos más integrable con otras herramientas.
+    \item \textbf{PEG (\eng{Parsing Expression Grammar})~\cite{ford2004parsing}:} Ofrecen gran expresividad y flexibilidad, pero carecen del soporte multiplataforma y de la madurez de ANTLR, además de no integrarse de forma fácil con C++.
+    \item \textbf{JavaCC~\cite{javacc}:} Alternativas orientadas a Java, no adecuadas para este proyecto al estar centrado en C++.
 \end{itemize}
 
 \textbf{Justificación de la elección:}  

@@ -76,7 +76,7 @@ El analizador léxico se basa en autómatas finitos, siguiendo el esquema clási
 Este proceso permite reconocer de forma eficiente los tókenes del lenguaje, que serán consumidos por el analizador sintáctico.
 
 \subsection{Algoritmo del analizador sintáctico}
-El analizador sintáctico utiliza el algoritmo \textit{Adaptive LL(*)}\cite{parr2014adaptive} proporcionado por ANTLR. Este enfoque combina dos modos de análisis:
+El analizador sintáctico utiliza el algoritmo \textit{Adaptive LL(*)}~\cite{parr2014adaptive} proporcionado por ANTLR. Este enfoque combina dos modos de análisis:
 \begin{itemize}
     \item Modo SLL, con bajo \textit{lookahead} para un análisis rápido.
     \item Modo LL completo, que utiliza contexto completo cuando el modo SLL falla.
