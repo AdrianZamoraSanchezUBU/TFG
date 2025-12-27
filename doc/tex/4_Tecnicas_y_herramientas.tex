@@ -13,12 +13,12 @@ Esta metodología fomenta un desarrollo incremental y una mejora continua del c�
 \imagen{zenhub_kanban}{Imagen con la visualización del tablero Kanban en ZenHub}{1.1}
 
 \section{Metodología de programación}
-El desarrollo del compilador y de las herramientas asociadas se ha abordado desde el paradigma de la \textbf{programación orientada a objetos} (OOP, por sus siglas en inglés), reflejándose directamente en la estructura del código y en la organización de los distintos módulos del compilador. De forma más concreta, esta metodología permite la incorporación del patrón \textbf{Visitor}, el cual puede encontrar detallado en el anexo de diseño.
+El desarrollo del compilador y de las herramientas asociadas se ha abordado desde el paradigma de la \textbf{programación orientada a objetos} (OOP, por sus siglas en inglés), reflejándose directamente en la estructura del código y en la organización de los distintos módulos del compilador. De forma más concreta, esta metodología permite la incorporación del patrón \textbf{visitor}, el cual puede encontrar detallado en el anexo de diseño.
 
 
-La OOP favorece la reutilización, extensibilidad y mantenibilidad del software, permitiendo aislar los distintos módulos del compilador y facilitar su evolución futura. Además, este paradigma se integra de forma natural con las herramientas empleadas, como \textbf{ANTLR} y \textbf{LLVM}, ambas diseñadas con arquitecturas orientadas a objetos.
+La OOP favorece la reutilización, extensibilidad y mantenibilidad del software, permitiendo aislar los distintos módulos del compilador y facilitar su evolución futura. Además, este paradigma se integra de forma natural con las herramientas empleadas, como \textbf{ANTLR} \cite{parr2013definitive} y \textbf{LLVM} \cite{lattner2004llvm}, ambas diseñadas con arquitecturas orientadas a objetos.
 
-Otro motivo determinante en la elección de este enfoque es el uso de \textbf{C++} como lenguaje de implementación. C++ ofrece un control preciso sobre el uso de memoria y las abstracciones de bajo nivel, aspectos especialmente relevantes en la implementación de compiladores y runtimes personalizados. La compatibilidad de la metodología OOP entre C++ y las herramientas ANTLR y LLVM refuerza aún más la idoneidad de esta metodología para el proyecto.
+Otro motivo determinante en la elección de este enfoque es el uso de \textbf{C++} \cite{stroustrup2013cpp} como lenguaje de implementación. C++ ofrece un control preciso sobre el uso de memoria y las abstracciones de bajo nivel, aspectos especialmente relevantes en la implementación de compiladores y runtimes personalizados. La compatibilidad de la metodología OOP entre C++ y las herramientas ANTLR y LLVM refuerza aún más la idoneidad de esta metodología para el proyecto.
 
 La trazabilidad y el control de versiones del código se han gestionado mediante la herramienta \textbf{Git} y el repositorio remoto ya mencionado en \textbf{GitHub}, lo que permite registrar de forma precisa la evolución del proyecto y consultar en todo momento los cambios realizados desde su inicio.
 
@@ -28,27 +28,27 @@ Dado que el desarrollo del proyecto ha sido llevado a cabo de forma individual y
 A continuación se presentan las principales herramientas empleadas en el desarrollo del proyecto, así como la justificación de su elección frente a otras alternativas disponibles. Las herramientas seleccionadas se han escogido teniendo en cuenta su madurez, soporte, documentación, integración con C++ y adecuación a los objetivos técnicos del proyecto.
 
 \subsection{ANTLR}
-ANTLR (Another Tool for Language Recognition) es una herramienta ampliamente utilizada para la generación automática de analizadores léxicos y sintácticos a partir de gramáticas formales. Su principal fortaleza radica en la facilidad con la que permite definir y mantener gramáticas complejas mediante una sintaxis clara y expresiva, generando código eficiente y legible para distintos lenguajes de programación, incluido C++.
+ANTLR (\eng{Another Tool for Language Recognition}) es una herramienta ampliamente utilizada para la generación automática de analizadores léxicos y sintácticos a partir de gramáticas formales. Su principal fortaleza radica en la facilidad con la que permite definir y mantener gramáticas complejas mediante una sintaxis clara y expresiva, generando código eficiente y legible para distintos lenguajes de programación, incluido C++.
 
 Entre sus características más destacables se encuentran:
 \begin{itemize}
-    \item Soporte nativo para gramáticas LL(*) que permiten manejar ambigüedades complejas.
+    \item Soporte nativo para gramáticas LL(*) \cite{parr2011ll} que permiten manejar ambigüedades complejas.
     \item Generación automática de analizadores léxicos y sintácticos a partir de un único archivo de gramática.
     \item Aunque fue diseñado para usarse principalmente en el entorno Java, actualmente cuenta con compatibilidad para muchos lenguajes de destino, entre ellos C++.
 \end{itemize}
 
 \textbf{Alternativas consideradas:}
 \begin{itemize}
-    \item \textbf{Bison y Flex:} Son las herramientas clásicas en la generación de analizadores. Sin embargo, en el contexto elegido ANTLR cuenta con una estructura orientada a objetos más integrable con otras herramientas.
-    \item \textbf{PEG (Parsing Expression Grammar):} Ofrecen gran expresividad y flexibilidad, pero carecen del soporte multiplataforma y de la madurez de ANTLR, además de no integrarse de forma fácil con C++.
-    \item \textbf{JavaCC:} Alternativas orientadas a Java, no adecuadas para este proyecto al estar centrado en C++.
+    \item \textbf{Bison \cite{donnelly1988bison} y Flex \cite{paxson1995flex}:} Son las herramientas clásicas en la generación de analizadores. Sin embargo, en el contexto elegido ANTLR cuenta con una estructura orientada a objetos más integrable con otras herramientas.
+    \item \textbf{PEG (\eng{Parsing Expression Grammar}) \cite{ford2004parsing}:} Ofrecen gran expresividad y flexibilidad, pero carecen del soporte multiplataforma y de la madurez de ANTLR, además de no integrarse de forma fácil con C++.
+    \item \textbf{JavaCC \cite{javacc}:} Alternativas orientadas a Java, no adecuadas para este proyecto al estar centrado en C++.
 \end{itemize}
 
 \textbf{Justificación de la elección:}  
 ANTLR se considera la opción más equilibrada entre facilidad de uso, potencia y soporte técnico. Permite definir la gramática del lenguaje de manera declarativa y coherente, integrándose perfectamente con el entorno C++ mediante un runtime específico para este lenguaje. Además, ANTLR permite generar automáticamente componentes como los contextos, \textit{visitors} y \textit{listeners}, lo que facilita enormemente la construcción del AST.
 
 \subsection{LLVM}
-LLVM (Low Level Virtual Machine) es una infraestructura modular y extensible para el desarrollo de compiladores, enlazadores y optimizadores de código. En este proyecto, LLVM se utiliza principalmente como una frontera intermedia estable entre las primeras fases de análisis y la generación de código máquina. El uso de LLVM IR permite validar la corrección del código generado, aplicar optimizaciones estándar y delegar la generación de código específico de arquitectura a la infraestructura de LLVM, reduciendo la complejidad de implementación y aportando soporte multiplataforma.
+LLVM (\eng{Low Level Virtual Machine})~\cite{lattner2004llvm,llvmproject,lattner2008llvm} es una infraestructura modular y extensible para el desarrollo de compiladores, enlazadores y optimizadores de código. En este proyecto, LLVM se utiliza principalmente como una frontera intermedia estable entre las primeras fases de análisis y la generación de código máquina. El uso de LLVM IR permite validar la corrección del código generado, aplicar optimizaciones estándar y delegar la generación de código específico de arquitectura a la infraestructura de LLVM, reduciendo la complejidad de implementación y aportando soporte multiplataforma.
 
 Entre sus principales ventajas destacan:
 \begin{itemize}
@@ -60,9 +60,9 @@ Entre sus principales ventajas destacan:
 
 \textbf{Alternativas consideradas:}
 \begin{itemize}
-    \item \textbf{GCC (GNU Compiler Collection):} Ofrece una infraestructura madura, pero su API interna no está diseñada para un uso externo, lo que dificulta su integración en proyectos ajenos al entorno GNU.
-    \item \textbf{QBE Compiler Infrastructure:} Es más ligera que LLVM, pero carece del ecosistema, documentación y soporte de comunidad que caracterizan a LLVM.
-    \item \textbf{Cranelift:} Un backend moderno y rápido, pero enfocado en compilación JIT (just-in-time) y no tan versátil para la generación de IR o compiladores tradicionales.
+    \item \textbf{GCC (\eng{GNU Compiler Collection})~\cite{gcc_project}:} Ofrece una infraestructura madura, pero su API interna no está diseñada para un uso externo, lo que dificulta su integración en proyectos ajenos al entorno GNU.
+    \item \textbf{QBE Compiler Infrastructure~\cite{qbe}:} Es más ligera que LLVM, pero carece del ecosistema, documentación y soporte de comunidad que caracterizan a LLVM.
+    \item \textbf{Cranelift~\cite{cranelift}:} Un \eng{backend} moderno y rápido, pero enfocado en compilación JIT (\eng{just-in-time}) y no tan versátil para la generación de IR o compiladores tradicionales.
 \end{itemize}
 
 \textbf{Justificación de la elección:}  
@@ -70,12 +70,12 @@ LLVM ofrece el equilibrio ideal entre potencial, documentación y flexibilidad, 
 
 \subsection{Entorno WSL}
 \textbf{Justificación de la elección:}  
-El entorno Linux (conseguido mediante WSL) es especialmente sencillo para trabajar con las dependencias de este proyecto sin requerir capas de compatibilización adicionales requeridas por Windows (como MSYS2 o MinGW). 
+El entorno Linux (conseguido mediante WSL) es especialmente sencillo para trabajar con las dependencias de este proyecto sin requerir capas de compatibilización adicionales requeridas por Windows (como MSYS2~\cite{msys2} o MinGW~\cite{mingw}). 
 
 Sus principales ventajas frente a Windows:
 \begin{itemize}
     \item \textbf{Simplicidad:} Con un entono únicamente de CLI permite un gran rendimiento y mantiene un entorno coherente con el desarrollo de un compilador, evitando elementos innecesarios que puedan interferir con el desarrollo del proyecto.
-    \item \textbf{Shell scripting:} Permite crear rutinas de ejecución sencillas que ahorran repetir trabajo a la hora de compilar y probar código.
+    \item \textbf{\eng{Shell scripting}:} Permite crear rutinas de ejecución sencillas que ahorran repetir trabajo a la hora de compilar y probar código.
     \item \textbf{Integración:} Todos los paquetes están preparados para su uso en Unix-like, no se requiere ningún parche para compatibilizar las herramientas entre si. Gran parte del software viene preinstalado en muchas distribuciones de Linux.
 \end{itemize}
 
@@ -87,7 +87,7 @@ En mi caso lo he personalizado con las siguientes extensiones:
 \begin{itemize}
     \item \textbf{WSL:} Permite la integración con WSL como si se tratase del sistema host.
     \item \textbf{CMake y CMake Tools:} Permite ejecutar las rutinas de CMake creadas en el proyecto.
-    \item \textbf{LaTex Workshop:} Integración con LaTex y comodidad de compilación al guardar los archivos para ver los cambios inmediatamente.
+    \item \textbf{\LaTeX{} Workshop:} Integración con \LaTeX{} y comodidad de compilación al guardar los archivos para ver los cambios inmediatamente.
     \item \textbf{C/C++ Extension pack:} Agrega IntelliSense, linting, herramientas de debugging y code browsing para C y C++. 
     \item \textbf{Clang-Format:} Herramienta configurable que permite establecer reglas de estilo consistentes en todos los archivos de código, en mi caso utilizo el estándar de LLVM.  
 \end{itemize}

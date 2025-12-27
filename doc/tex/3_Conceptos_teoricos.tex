@@ -1,5 +1,63 @@
 \capitulo{3}{Conceptos teóricos}
 
+\section{Introducción}
+
+Para comprender adecuadamente el proceso de compilación y las decisiones de diseño tomadas en este proyecto, es necesario introducir una serie de conceptos teóricos relacionados con la construcción de compiladores. Dado que los miembros del tribunal no tienen por qué estar familiarizados con la implementación interna de estos sistemas, en este capítulo se describen de forma general las distintas fases que componen un compilador moderno, así como las infraestructuras y técnicas empleadas habitualmente en su desarrollo.
+
+El objetivo de esta sección no es presentar un glosario de definiciones aisladas, sino ofrecer una visión global del compilador como sistema, explicando cómo fluye la información entre las distintas etapas y cómo estas colaboran para transformar un programa escrito en un lenguaje de alto nivel en código ejecutable.
+
+A lo largo del capítulo se describen las fases del proceso de compilación, el uso de representaciones intermedias y el papel de la infraestructura LLVM en el proyecto. En el capítulo 5 se presentan ejemplos concretos de este proceso, ilustrados mediante fragmentos de código del lenguaje desarrollado y las estructuras internas generadas durante la compilación.
+
+\section{El proceso de compilación}
+
+Un compilador es un sistema software cuya función principal es traducir un programa escrito en un lenguaje fuente a una forma equivalente que pueda ser ejecutada por un computador. Para facilitar su diseño, mantenimiento y extensión, la mayoría de compiladores modernos se estructuran como una secuencia de fases bien definidas, donde cada una cumple una responsabilidad concreta.
+
+\subsection{Análisis léxico}
+
+La primera etapa del proceso de compilación es el análisis léxico. En esta fase, el código fuente se procesa como una secuencia de caracteres que se agrupan en unidades significativas llamadas \emph{tokens} o \emph{lexemas}. Cada token representa elementos básicos del lenguaje, como identificadores, palabras clave, literales u operadores.
+
+El resultado del análisis léxico es una secuencia estructurada de tokens que será utilizada por la fase de análisis sintáctico. Separar esta fase del resto permite simplificar el diseño del compilador y detectar errores léxicos de forma temprana.
+
+\subsection{Análisis sintáctico}
+
+A partir de la secuencia de tokens generada por el análisis léxico, el análisis sintáctico se encarga de verificar que el programa cumple las reglas gramaticales del lenguaje. Para ello, los tokens se agrupan siguiendo una gramática formal, produciendo una representación jerárquica del programa.
+
+Como resultado de esta fase se genera un Árbol de Sintaxis Abstracta o \emph{Abstract Syntax Tree} (AST). Esta estructura representa la organización lógica del programa, eliminando detalles sintácticos innecesarios y facilitando su posterior análisis y transformación.
+
+\subsection{Análisis semántico}
+
+Una vez construido el AST, el compilador realiza el análisis semántico, cuya función es comprobar que el programa tiene sentido desde el punto de vista del lenguaje, más allá de su corrección sintáctica. En esta fase se verifican aspectos como el uso correcto de tipos, la declaración previa de identificadores o la coherencia de las expresiones.
+
+Durante el análisis semántico se construye y mantiene la tabla de símbolos, una estructura de datos que asocia cada identificador del programa con información relevante como su tipo, categoría y ámbito de validez. Esta información será esencial en las fases posteriores de generación de código.
+
+\subsection{Generación de código intermedio}
+
+Tras validar el programa, el compilador transforma el AST en una representación intermedia (IR). Esta forma intermedia actúa como puente entre el lenguaje fuente y el código máquina, permitiendo aplicar optimizaciones y desacoplar el frontend del backend del compilador.
+
+En este proyecto se utiliza LLVM IR como representación intermedia, lo que facilita tanto la aplicación de optimizaciones automáticas como la generación de código para distintas arquitecturas. El uso de una IR bien definida permite que el compilador sea extensible y reutilizable.
+
+\subsection{Optimización}
+
+La fase de optimización tiene como objetivo mejorar el código generado sin alterar su comportamiento observable. Estas mejoras pueden centrarse en reducir el número de instrucciones, eliminar código innecesario o mejorar el uso de recursos.
+
+Gracias a la infraestructura LLVM, este proyecto puede beneficiarse de un amplio conjunto de optimizaciones ya implementadas, como la propagación de constantes, la eliminación de código muerto o la simplificación de expresiones. En el capítulo 5 se muestran ejemplos concretos de estas optimizaciones aplicadas al código generado.
+
+\subsection{Generación de código final y runtime}
+
+La última fase del proceso consiste en transformar la representación intermedia optimizada en código máquina ejecutable. Para ello, LLVM se encarga de generar código específico para la arquitectura destino.
+
+El código generado se apoya en un \emph{runtime}, encargado de proporcionar funcionalidades de soporte necesarias para la ejecución del programa, como la inicialización del entorno, la gestión de eventos o la interacción con bibliotecas externas.
+
+\section{Infraestructura LLVM y modelo de compilación}
+
+LLVM es una infraestructura de compilación moderna basada en un enfoque modular y por fases. A diferencia de compiladores monolíticos como GCC, donde las distintas etapas están fuertemente acopladas, LLVM separa claramente el frontend, la representación intermedia y el backend.
+
+Este enfoque permite reutilizar componentes, aplicar optimizaciones independientes del lenguaje fuente y facilitar la extensión del compilador. Estas características han sido determinantes para la elección de LLVM como base del compilador desarrollado en este proyecto.
+
+\section{Glosario de términos}
+
+En esta sección se recogen algunas definiciones básicas utilizadas a lo largo del capítulo, con el objetivo de facilitar la lectura y servir como referencia rápida.
+
 \subsection{Sobre lenguajes de programación}
 \begin{description}
     \item [Lenguaje de programación]: Lenguaje que permite escribir instrucciones que, tras ser compiladas, pueden ejecutarse en un sistema informático.

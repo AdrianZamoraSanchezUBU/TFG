@@ -5,7 +5,7 @@
     Definir nuevo lenguaje de programación, estableciendo sus estructuras básicas, tipos de datos, operadores y reglas gramaticales.
 
     \item \textbf{Desarrollar un compilador capaz de reconocer el lenguaje}: 
-    Implementar un compilador con un diseño modular y moderno, capaz de analizar y procesar el código fuente del lenguaje, abarcando las fases de análisis léxico, sintáctico, semántico, generación de IR, optimización y finalmente generación de un ejecutable.
+    Implementar un compilador con un diseño modular y moderno, capaz de analizar y procesar el código fuente del lenguaje, abarcando las fases de análisis léxico, sintáctico, semántico, generación de una representación intermedia (IR por sus siglas en inglés), optimización y finalmente generación de un ejecutable.
 
     \item \textbf{Estructurar de forma modular el proceso de compilación}: 
     Separar las diferentes fases de compilación manteniendo las responsabilidades bien definidas dentro de cada una de las fases, evitando así una sobrecarga de responsabilidades que dificulte realizar ampliaciones o modificaciones.
@@ -16,8 +16,8 @@
     \item \textbf{Herramienta de análisis y depuración visual}: 
     Desarrollar una utilidad visual que permita representar y explorar estructuras internas del compilador, como el árbol de sintaxis abstracta o la tabla de símbolos, facilitando la comprensión y depuración del lenguaje.
 
-    \item \textbf{Generación de una representación intermedia (IR) basada en el ecosistema LLVM}: 
-    Implementar la traducción del lenguaje diseñado a una representación intermedia basada en LLVM IR, permitiendo la optimización y posterior generación de código máquina para distintas arquitecturas.
+    \item \textbf{Generación de IR basada en el ecosistema LLVM}: 
+    Implementar la traducción del lenguaje diseñado a una representación intermedia basada en LLVM IR \cite{lattner2004llvm}, permitiendo la optimización y posterior generación de código máquina para distintas arquitecturas.
 
     \item \textbf{Implementación de una biblioteca estándar}: 
     Desarrollar una pequeña librería estándar, es decir, un conjunto de funciones básicas que proporcionen utilidades estándar dentro del lenguaje diseñado.

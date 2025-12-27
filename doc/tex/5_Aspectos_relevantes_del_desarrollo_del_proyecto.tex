@@ -4,20 +4,22 @@
 \newcommand{\fn}[1]{\texttt{#1}}
 \newcommand{\code}[1]{\texttt{#1}}
 
-El comienzo del proyecto parte del objetivo de conseguir una versión MVP \emph{Minimal Viable Product} que pudiese aportar una base sólida y fácil de ampliar. En este caso el MVP se enfocó en la creación de un micro compilador capaz de procesar expresiones aritméticas y lógicas, puesto que esta estructura es básica que está presente en todos los lenguajes de programación.
+El comienzo del proyecto parte del objetivo de conseguir una versión MVP (\emph{Minimal Viable Product}) que pudiese aportar una base sólida y fácil de ampliar. En este caso el MVP se enfocó en la creación de un micro compilador capaz de procesar expresiones aritméticas y lógicas, puesto que esta estructura es básica que está presente en todos los lenguajes de programación.
+
+En fases posteriores del proyecto se trabaja tomando como base este MVP para añadir características adicionales al lenguaje, como las estructuras de control condicionales, bucles, funciones y eventos.
 
 \subsection{Antes de compilar} 
 El compilador antes de comenzar el proceso de compilación debe recibir en su ejecución datos que hagan referencia al archivo que se debe compilar, que archivo de salida se quiere generar y de que forma se debe realizar el proceso, permitiendo así al programador ajustar este proceso a sus necesidades.
 
 Dentro del compilador se esperan algunos argumentos de llamada como:
 \begin{itemize}
-    \item \textbf{<nombre de la entrada>}: argumento obligatorio, indica el nombre del fichero .T de entrada.
-    \item \textbf{-o <nombre archivo>}: argumento obligatorio que especificar el fichero ejecutable de salida.
-    \item \textbf{--debug}: permite ver información de la salida de cada una de las fases del compilador. Este argumento también activa el efecto del argumento \emph{--visualizeAST};
-    \item \textbf{--visualizeAST}: genera un fichero \fn{AST.pfd} con una visualización del AST en el directorio donde se ha ejecutado el compilador.
-    \item \textbf{--IR <nombre archivo>}: genera un fichero .ll con el LLVM IR generado por el compilador.
-    \item \textbf{--help / -h}: genera un fichero .ll con el LLVM IR generado por el compilador.
-    \item \textbf{--version / -v}: muestra la versión actual del compilador.
+    \item \texttt{\textbf{<nombre de la entrada>}}: argumento obligatorio, indica el nombre del fichero .T de entrada.
+    \item \texttt{\textbf{-o <nombre archivo>}}: argumento obligatorio que especificar el fichero ejecutable de salida.
+    \item \texttt{\textbf{--debug}}: permite ver información de la salida de cada una de las fases del compilador. Este argumento también activa el efecto del argumento \emph{--visualizeAST};
+    \item \texttt{\textbf{--visualizeAST}}: genera un fichero \fn{AST.pfd} con una visualización del AST en el directorio donde se ha ejecutado el compilador.
+    \item \texttt{\textbf{--IR <nombre archivo>}}: genera un fichero \texttt{.ll} con el LLVM IR generado por el compilador.
+    \item \texttt{\textbf{--help / -h}}: muestra la ayuda del compilador, indicando como debe ser utilizado y sus diferentes argumentos.
+    \item \texttt{\textbf{--version / -v}}: muestra la versión actual del compilador.
 \end{itemize}
 
 Para conocer los datos necesarios para ejecutar los comandos anteriores en el compilador se almacenan flags de compilado que permiten modificar el comportamiento de cada fase.
@@ -26,7 +28,7 @@ Para conocer los datos necesarios para ejecutar los comandos anteriores en el co
 Como el compilador se ha planificado de forma modular, a continuación se recorrerá el proceso de compilación completo, valiéndonos del contenido del MVP, es decir, un compilador capaz de reconocer expresiones aritméticas y lógicas. 
 
 \subsubsection{Análisis léxico}
-La primera fase de este desarrollo comienza con la creación de un lexer donde se definen algunas estructuras básicas como los literales de números enteros, números con decimales o las cadenas de caracteres, así como los operadores que se van a emplear para estas expresiones. 
+La primera fase de este desarrollo comienza con la creación de un \eng{lexer} donde se definen algunas estructuras básicas como los literales de números enteros, números con decimales o las cadenas de caracteres, así como los operadores que se van a emplear para estas expresiones. 
 
 En este momento se definen las palabras clave asociadas a los tipos básicos del lenguaje:
 \begin{verbatim}
@@ -87,25 +89,25 @@ Cabe destacar el uso de etiquetas (como \kw{\# parenExpr}) que facilitan posteri
 
 A continuación se debe implementar una estructura de datos que sea capaz de representar cualquier tipo de estructura sintáctica bien formada de este lenguaje, la estructura del árbol de sintaxis abstracta (AST por sus siglas en inglés) será la encargada de crear este representacion en tiempo de ejecución del compilador, almacenando los datos relevantes de cada estructura para su posterior análisis en las siguientes fases.
 
-Para formar este AST se empleará un visitor patterns (patrón de visita), objeto que recibe el nombre de \kw{ASTBuilder}, el cual se encarga de visitar cada contexto generado de forma automática por el parser de ANTLR, dando por resultado unos nodos enlazados, el AST.
+Para formar este AST se empleará un \eng{visitor pattern} (patrón de visita), objeto que recibe el nombre de \kw{ASTBuilder}, el cual se encarga de visitar cada contexto generado de forma automática por el parser de ANTLR, dando por resultado unos nodos enlazados, el AST.
 
 
-Adicionalmente, si la flag \kw{--visualizeAST} está activada, el compilador puede generar una representación visual del árbol tras su construcción, para conseguir esto se escriben cada nodo en el formato de la biblioteca `forest` de \LaTeX, permitiendo el análisis de la estructura del programa así como datos relacionados con los componentes, como los tipos u operadores.
+Adicionalmente, si la flag \kw{---visualizeAST} está activada, el compilador puede generar una representación visual del árbol tras su construcción, para conseguir esto se escriben cada nodo en el formato de la biblioteca `forest` de \LaTeX, permitiendo el análisis de la estructura del programa así como datos relacionados con los componentes, como los tipos u operadores.
 
-\imagen{AST_ejemplo_expr}{Ejemplo de visualización de la expresión 2 + 3 * 5 con la flag \emph{--visualizeAST}}{0.55}
+\imagen{AST_ejemplo_expr}{Ejemplo de visualización de la expresión 2 + 3 * 5 con la flag \emph{{---}visualizeAST}}{0.55}
 
 \subsubsection{Análisis semántico}
 Durante la fase de análisis semántico se examina principalmente el uso de los identificadores, como los nombres de variables y funciones. Entre las comprobaciones más relevantes se incluyen:
 \begin{itemize}
-    \item La creación de un scope para cada bloque de código.
-    \item La inserción de los identificadores en su scope correspondiente.
+    \item La creación de un \eng{scope} para cada bloque de código.
+    \item La inserción de los identificadores en su \eng{scope} correspondiente.
     \item La verificación del alcance en cada acceso a un identificador.
     \item Las comprobaciones de tipos en asignaciones, operaciones y sentencias de retorno.
 \end{itemize}
 
-La tabla de símbolos está estructurada como una lista de scopes. Para los distintos bloques anidados se establecen referencias entre cada scope hijo y su scope padre, lo que permite verificar fácilmente los alcances y resolver identificadores de forma correcta.
+La tabla de símbolos está estructurada como una lista de \eng{scopes}. Para los distintos bloques anidados se establecen referencias entre cada \eng{scope} hijo y su correspondiente \eng{scope} padre, lo que permite verificar fácilmente los alcances y resolver nombres de forma correcta.
 
-\imagen{symbol_table}{Ejemplo de la visualización de una tabla de símbolos \emph{--visualizeAST}}{0.55}
+\imagen{symbol_table}{Ejemplo de la visualización de una tabla de símbolos \emph{---visualizeAST}}{0.55}
 
 Para poder comprobar la corrección del uso de tipos, el análisis semántico debe ser capaz de entender los tipos, tanto de los literales como de las variables y funciones, para ello se implementa un sistema de representación de tipos en una enumeración llamada \kw{SupportedTypes} que da soporte a los tipos:
 \begin{itemize}
@@ -185,37 +187,38 @@ Para asegurar la calidad del código final, se aplican sobre el LLVM IR algunas 
 
 Algunas de las más importantes son:
 \begin{itemize}
-    \item \textbf{Propagación y plegado de constantes (Constant propagation \& Constant folding):}  
+    \item \textbf{Propagación y plegado de constantes (\eng{Constant propagation \& Constant folding}):}  
     Evalúa expresiones cuyos operandos son constantes en tiempo de compilación, sustituyéndolas por su valor resultante y eliminando cálculos innecesarios en tiempo de ejecución.
 
-    \item \textbf{Eliminación de código muerto (Dead code elimination):}  
+    \item \textbf{Eliminación de código muerto (\eng{Dead code elimination}):}  
     Suprime instrucciones, variables y bloques de código que no producen efectos observables sobre el programa, reduciendo el tamaño del código generado y mejorando su eficiencia.
 
-    \item \textbf{Simplificación del flujo de control (Control flow graph simplification):}  
+    \item \textbf{Simplificación del flujo de control (\eng{Control flow graph simplification}):}  
     Simplifica la estructura del grafo de control eliminando ramas inalcanzables, saltos redundantes y bloques básicos innecesarios.
 
-    \item \textbf{Optimización de bucles (Loop optimizations):}  
+    \item \textbf{Optimización de bucles (\eng{Loop optimizations}):}  
     Incluye transformaciones como la extracción de código invariante fuera de los bucles y la simplificación de bucles con límites conocidos para reducir el coste de iteraciones repetidas.
 
     \item \textbf{Optimización interprocedural (IPO):}  
     Analiza las relaciones entre funciones para aplicar optimizaciones como la eliminación de funciones no utilizadas y la propagación de información entre llamadas.
 
-    \item \textbf{Inlining de funciones:}  
+    \item \textbf{\eng{Inlining} de funciones:}  
     Sustituye llamadas a funciones pequeñas por el cuerpo de la función llamada cuando resulta beneficioso, reduciendo el coste de llamada y habilitando nuevas optimizaciones posteriores.
 
     \item \textbf{Optimización de accesos a memoria:}  
     Reduce cargas y almacenamientos redundantes mediante análisis de alias y de flujo de datos, mejorando el uso de registros y la localidad de memoria.
 
-    \item \textbf{Optimización de expresiones comunes (Common subexpression elimination):}  
+    \item \textbf{Optimización de expresiones comunes (\eng{Common subexpression elimination}):}  
     Detecta cálculos idénticos que se repiten dentro de una función o bloque y los reutiliza, evitando evaluaciones duplicadas.
 \end{itemize}
 
-En el ejemplo anterior, podemos observar un ejemplo de \emph{constant folding}, donde la expresión original \emph{return 2+3*5;} puede ser traducida a \emph{return 2+15;} y finalmente \emph{return 17;}, obteniendo de esta manera un \emph{return statement} exento de cálculos.
+En el ejemplo anterior, podemos observar un ejemplo de \eng{constant folding}, donde la expresión original \texttt{return 2+3*5;} puede ser traducida a \texttt{return 2+15;} y finalmente \texttt{return 17;}, obteniendo de esta manera un único \emph{return statement} exento de cálculos.
 
 El uso de estas combinaciones junto a las comprobaciones de calidad mínimas para compilar sin errores, generan un código de una calidad similar al código optimizado con \code{-O2} de compiladores como Clang, Rustc o Swiftc.
 
 Este ejemplo ilustra cómo las optimizaciones permiten simplificar significativamente el código generado, reduciendo tanto el número de instrucciones como la complejidad del flujo de control, sin alterar el comportamiento del programa.
-\textbf{Código fuente original:}
+
+\subsubsection{Código fuente original:}
 \begin{verbatim}
 if (2 < 3) {
     return 1;
@@ -224,7 +227,7 @@ if (2 < 3) {
 return 2;
 \end{verbatim}
 
-\textbf{LLVM IR generado sin optimizaciones:}
+\subsubsection{LLVM IR generado sin optimizaciones:}
 
 En una primera fase, el generador de IR traduce directamente la estructura del programa fuente, manteniendo el flujo de control explícito mediante saltos condicionales.
 
@@ -241,7 +244,7 @@ endif:
 
 Puede observarse que la condición \texttt{2 < 3} se evalúa en tiempo de compilación mediante una optimización de \emph{constant folding}, sustituyendo la condición por un valor constante (\texttt{true}).
 
-\textbf{LLVM IR tras la fase de optimización:}
+\subsubsection{LLVM IR tras la fase de optimización:}
 
 Durante la fase de optimización, el compilador analiza el flujo de control del programa y detecta que todas las rutas de ejecución alcanzables conducen al mismo valor de retorno. Como consecuencia, el bloque condicional completo puede eliminarse, reduciendo la función a una única instrucción de retorno.
 
@@ -252,8 +255,8 @@ entry:
 }
 \end{verbatim}
 
-\subsubsection{Generación del ejecutable}
-La generación de un programa requiere conocer el "target triplet", es decir, la familia de CPU en la que se ejecuta el sistema. La API del sistema \code{llvm::sys} de LLVM contiene funciones que nos permiten conocer el triplet y así poder establecer un data layout correcto para el sistema en el que estamos trabajando.   
+\subsection{Generación del ejecutable}
+La generación de un programa requiere conocer el «\eng{target triplet}», es decir, la familia de CPU en la que se ejecuta el sistema. La API del sistema \code{llvm::sys} de LLVM contiene funciones que nos permiten conocer el triplet y así poder establecer un data layout correcto para el sistema en el que estamos trabajando.   
 
 Una vez hemos generado el código objeto del programa, el compilador ejecuta un enlace utilizando la herramienta clang++, de forma que el archivo generado se enlaza con la librería estándar del compilador, la librería estándar de C y el \emph{runtime}. 
 
