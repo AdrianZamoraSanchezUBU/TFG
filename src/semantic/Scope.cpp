@@ -79,10 +79,8 @@ void Scope::print() const {
 
     // Symbols info
     for (const auto &[key, symbol] : symbols) {
-        for (const auto &[key, symbol] : symbols) {
-            spdlog::debug("| {:<12} | {:<10} | {:<15} |", key, categoryToString(symbol.getCategory()),
-                          typeToString(symbol.getType()));
-        }
+        spdlog::debug("| {:<12} | {:<10} | {:<15} |", key, categoryToString(symbol.getCategory()),
+                      typeToString(symbol.getType()));
     }
 
     spdlog::debug("{}", line); // Footer of the table

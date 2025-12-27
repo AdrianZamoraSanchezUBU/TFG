@@ -25,7 +25,7 @@ llvm::Type *IRGenerator::getLlvmType(Type type) {
     case SupportedTypes::TYPE_FLOAT:
         return llvm::Type::getFP128Ty(ctx.IRContext);
     case SupportedTypes::TYPE_CHAR:
-        return llvm::Type::getInt32Ty(ctx.IRContext);
+        return llvm::Type::getInt8Ty(ctx.IRContext);
     case SupportedTypes::TYPE_STRING:
         return llvm::PointerType::get(llvm::Type::getInt8Ty(ctx.IRContext), 0);
     case SupportedTypes::TYPE_BOOL:

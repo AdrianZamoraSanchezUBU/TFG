@@ -12,20 +12,19 @@ void *SemanticVisitor::visit(CodeBlockNode &node) {
         errorList.push_back(
             CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
 
+        symtab.exitScope();
         return nullptr;
     }
 
     // Visits all the statements inside the block
     for (int i = 0; i < node.getStmtCount(); i++) {
         node.getStmt(i)->accept(*this);
-        if (auto returnBlock = dynamic_cast<CodeBlockNode *>(node.getStmt(i))) {
+        if (dynamic_cast<ReturnNode *>(node.getStmt(i)))
             break;
-        }
     }
 
     // Exists the scope at the end of the code block
     symtab.exitScope();
-
     return nullptr;
 }
 

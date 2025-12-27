@@ -127,7 +127,7 @@ TEST(variableTest, variableShadowing) {
     /* Expected IR */
     std::vector<std::string> regexpr;
     regexpr.push_back(R"(ptr %a_val, ptr null)");
-    regexpr.push_back(R"(ptr %a_val2, ptr null)");
+    regexpr.push_back(R"(ptr %a_val1, ptr null)"); // This a_val1 shadows a_val
     regexpr.push_back(R"(ptr %a_val, ptr null)");
 
     test(fileName, regexpr);

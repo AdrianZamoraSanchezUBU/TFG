@@ -11,9 +11,13 @@ std::shared_ptr<Scope> SymbolTable::enterScope(bool block) {
 void SymbolTable::exitScope() {
     if (auto parent = currentScope->getParent()) {
         currentScope = parent;
-    } else {
-        std::runtime_error("There is no parent scope");
     }
+
+    /*
+        In case there is no parent scope, this means the symbol table points to the global scope
+        so the currentScope should be kept as the actual scope. A pop in the stack would mean the symbol table
+        could be in a unsafe state, pointing to a null scope.
+    */
 }
 
 std::shared_ptr<Scope> SymbolTable::getScopeByID(int id) {
