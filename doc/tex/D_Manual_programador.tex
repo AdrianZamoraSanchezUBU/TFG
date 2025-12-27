@@ -5,13 +5,6 @@ Este anexo tiene como objetivo servir de guía técnica para desarrolladores que
 
 La documentación está orientada a programadores con conocimientos previos de C++ y compiladores, y pretende facilitar la continuidad del proyecto sin necesidad de conocer en profundidad su desarrollo original.
 
-\section{Estructura de directorios}
-A continuación se muestra un diagrama con los principales directorios y ficheros presentes en el proyecto.
-
-\imagen{diagramaDirectorios}{Diagrama de directorios del proyecto}
-
-De forma resumida, el proyecto se organiza siguiendo una separación clara por responsabilidades, alineada con las distintas fases del compilador.
-
 \section{Manual del programador}
 El objetivo de este manual es ofrecer una visión técnica del código fuente, de manera que cualquier desarrollador que necesite mantener, extender o comprender el sistema pueda hacerlo de forma progresiva y estructurada.
 
@@ -23,8 +16,8 @@ Para poder compilar y trabajar con el proyecto es necesario disponer de los sigu
     \item LLVM instalado en el sistema (Versión 18).
     \item ANTLR4:
     \begin{itemize}
-        \item Java Runtime Environment (JRE) para la herramienta ANTLR.
-        \item Runtime de ANTLR4 para C++ instalado en el sistema.
+        \item \eng{Java Runtime Environment} (JRE) para la herramienta ANTLR.
+        \item \eng{Runtime} de ANTLR4 para C++ instalado en el sistema.
     \end{itemize}
     \item CMake (versión mínima 3.10).
     \item GoogleTest para la ejecución de las pruebas unitarias.
@@ -38,7 +31,7 @@ Se siguen las siguientes convenciones de estilo:
     \item \textit{PascalCase} para nombres de clases.
     \item \textit{camelCase} para métodos y variables.
     \item Uso explícito de \texttt{const} siempre que es posible.
-    \item Preferencia por \texttt{std::unique\_ptr} y \texttt{std::shared\_ptr} para la gestión de memoria.
+    \item Preferencia por \texttt{std::unique\_ptr} y \texttt{std::shared\_ptr} para la gestión segura de memoria.
 \end{itemize}
 
 El código está documentado mediante comentarios en formato \textbf{Doxygen}, lo que permite generar documentación automática a partir del código fuente.
@@ -74,6 +67,8 @@ El proyecto sigue una estructura basada en capas, donde cada módulo corresponde
   \item \textbf{\texttt{doc/}}:  
   Contiene la documentación del proyecto, incluida la memoria del TFG y sus anexos.
 \end{itemize}
+
+\imagen{diagramaDirectorios}{Diagrama de directorios del proyecto}%TODO rehacer
 
 Esta organización permite que un desarrollador pueda trabajar en una fase concreta del compilador sin necesidad de modificar el resto del sistema.
 

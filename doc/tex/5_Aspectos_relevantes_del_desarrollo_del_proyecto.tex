@@ -31,7 +31,7 @@ Como el compilador se ha planificado de forma modular, a continuación se recorr
 La primera fase de este desarrollo comienza con la creación de un \eng{lexer} donde se definen algunas estructuras básicas como los literales de números enteros, números con decimales o las cadenas de caracteres, así como los operadores que se van a emplear para estas expresiones. 
 
 En este momento se definen las palabras clave asociadas a los tipos básicos del lenguaje:
-\begin{verbatim}
+\begin{minted}{ANTLR}
     TYPE_INT     : 'int'    ;
     TYPE_FLOAT   : 'float'  ;
     TYPE_CHAR    : 'char'   ;
@@ -39,10 +39,10 @@ En este momento se definen las palabras clave asociadas a los tipos básicos del
     TYPE_BOOLEAN : 'bool'   ;
     TYPE_VOID    : 'void'   ;
     TYPE_PTR     : 'ptr'    ;
-\end{verbatim}
+\end{minted}
 
 Se definen los operadores aritméticos y lógicos:
-\begin{verbatim}
+\begin{minted}{ANTLR}
     PLUS  : '+' ;
     MINUS : '-' ;
     MUL   : '*' ;
@@ -57,13 +57,13 @@ Se definen los operadores aritméticos y lógicos:
     LE : '<=' ;
     GT : '>'  ;
     GE : '>=' ;
-\end{verbatim}
+\end{minted}
 
 \subsubsection{Análisis sintáctico}
 Una vez obtenido el lexer el siguiente paso es construir un parser capaz de reconocer estructuras gramaticales más complejas donde se conectan el uso de los operadores y los literales definidos anteriormente.
 
 Los operadores y las operaciones sobre estas estructuras de definen en el lenguaje ANTLR4 de la siguiente forma:
-\begin{verbatim}
+\begin{minted}{ANTLR}
 expr
     : expr op=(MUL|DIV) expr        # arithmeticExpr
     | expr op=(PLUS|MINUS) expr     # arithmeticExpr
@@ -84,7 +84,7 @@ comparisonOperator
 operand
     : literal
     ;
-\end{verbatim}
+\end{minted}
 Cabe destacar el uso de etiquetas (como \kw{\# parenExpr}) que facilitan posteriormente acceder a cada tipo de expresión gracias a la separación en contextos que realiza ANTLR4.
 
 A continuación se debe implementar una estructura de datos que sea capaz de representar cualquier tipo de estructura sintáctica bien formada de este lenguaje, la estructura del árbol de sintaxis abstracta (AST por sus siglas en inglés) será la encargada de crear este representacion en tiempo de ejecución del compilador, almacenando los datos relevantes de cada estructura para su posterior análisis en las siguientes fases.
@@ -124,8 +124,8 @@ Para poder comprobar la corrección del uso de tipos, el análisis semántico de
 Para permitir mayor flexibilidad al programador, todas las funciones de la librería estándar de C son enlazadas con el programa final generado. Adicionalmente, se agregan o adaptan algunas funciones para crear una pequeña librería propia, que demuestra la capacidad del compilador de incluir funciones preinstaladas o \emph{built-in functions}.
 
 \begin{itemize}
-    \item \code{char *toString(int x)}
-    \item \code{void print(const char *first, ...)}
+    \item \mint{c}|char *toString(int x)|
+    \item \mint{c}|void print(const char *first, ...)|
 \end{itemize}
 
 La función antes mencionada, \code{char* toString(int x)}, aprovecha internamente funciones estándar de C como \code{sprintf} para devolver un buffer de tipo \code{char *} sin tener que reinventar este mecanismo y a su vez abstrayendo al programador del uso de estas funciones y el manejo de memoria. 
@@ -161,7 +161,8 @@ Algunas de las consideraciones necesarias para compatibilizar el AST y el genera
 \end{table}
 
 Una vez completado el proceso obtendremos un programa equivalente en formato LLVM IR, el cual para este ejemplo concreto es:
-\begin{verbatim}
+\begin{minted}{LLVM}
+; ModuleID = 'program'
 source_filename = "program"
 
 declare ptr @toString(i32)
@@ -178,7 +179,7 @@ define i32 @mainLLVM() {
 entry:
   ret i32 17
 }
-\end{verbatim}
+\end{minted}
 
 En este caso vemos una optimización automática de LLVM que se explicará en el siguiente apartado.
 
@@ -219,19 +220,19 @@ El uso de estas combinaciones junto a las comprobaciones de calidad mínimas par
 Este ejemplo ilustra cómo las optimizaciones permiten simplificar significativamente el código generado, reduciendo tanto el número de instrucciones como la complejidad del flujo de control, sin alterar el comportamiento del programa.
 
 \subsubsection{Código fuente original:}
-\begin{verbatim}
+\begin{minted}{c}
 if (2 < 3) {
     return 1;
 }
 
 return 2;
-\end{verbatim}
+\end{minted}
 
 \subsubsection{LLVM IR generado sin optimizaciones:}
 
 En una primera fase, el generador de IR traduce directamente la estructura del programa fuente, manteniendo el flujo de control explícito mediante saltos condicionales.
 
-\begin{verbatim}
+\begin{minted}{LLVM}
 define i32 @mainLLVM() {
 entry:
   br i1 true, label %then, label %endif
@@ -240,7 +241,7 @@ then:
 endif:
   ret i32 2
 }
-\end{verbatim}
+\end{minted}
 
 Puede observarse que la condición \texttt{2 < 3} se evalúa en tiempo de compilación mediante una optimización de \emph{constant folding}, sustituyendo la condición por un valor constante (\texttt{true}).
 
@@ -248,12 +249,12 @@ Puede observarse que la condición \texttt{2 < 3} se evalúa en tiempo de compil
 
 Durante la fase de optimización, el compilador analiza el flujo de control del programa y detecta que todas las rutas de ejecución alcanzables conducen al mismo valor de retorno. Como consecuencia, el bloque condicional completo puede eliminarse, reduciendo la función a una única instrucción de retorno.
 
-\begin{verbatim}
+\begin{minted}{LLVM}
 define noundef i32 @mainLLVM() local_unnamed_addr #0 {
 entry:
   ret i32 1
 }
-\end{verbatim}
+\end{minted}
 
 \subsection{Generación del ejecutable}
 La generación de un programa requiere conocer el «\eng{target triplet}», es decir, la familia de CPU en la que se ejecuta el sistema. La API del sistema \code{llvm::sys} de LLVM contiene funciones que nos permiten conocer el triplet y así poder establecer un data layout correcto para el sistema en el que estamos trabajando.   

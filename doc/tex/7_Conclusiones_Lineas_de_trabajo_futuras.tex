@@ -13,30 +13,32 @@ Puesto que el proyecto está extremadamente acotado por su complejidad y el tiem
     \item Un \eng{runtime} más sofisticado, con mayor precisión en el control del tiempo y rutinas más optimizadas hechas directamente en ensamblador.
     \item Implementar captura de variables para mejorar las funciones, esta característica que implementan la mayoría de compiladores modernos, permiten el uso de variables de alcances superiores dentro de la propia función sin pasar explícitamente los valores a la función.
     Por ejemplo, el siguiente pseudo código sería incorrecto si los compiladores modernos no implementaran captura de variables:
-    \begin{verbatim}
-        function makeCounter():
-        a = 0
-
-        function counter():
-            a = a + 1 // Ocurre captura de la variable a
-            return a
-
-        return counter
-    \end{verbatim} 
-    En el ejemplo anterior, a no existen el alcance de counter(), tampoco se pasa como un parámetro, sino que a accesible porque es capturada. Para ello el compilador tomaría toda la información del entorno donde se define la función counter()
     
-    \begin{verbatim}
-        struct Env_makeCounter {
-            a
-        }
-    \end{verbatim} 
+\begin{minted}{javascript}
+    function makeCounter():
+    a = 0
 
-    Y posteriormente sustituye la llamada por la misma función reescrita con el entorno siendo accesible mediante paso por parámetro:
-    \begin{verbatim}
-        function counter(env):
-            env.a = env.a + 1 // Se reescribe el uso de la variable a
-            return env.a
-    \end{verbatim} 
+    function counter():
+        a = a + 1 // Ocurre captura de la variable a
+        return a
+
+    return counter
+\end{minted}
+
+En el ejemplo anterior, a no existen el alcance de \mintinline{c}|counter()|, tampoco se pasa como un parámetro, sino que a accesible porque es capturada. Para ello el compilador tomaría toda la información del entorno donde se define la función \mintinline{c}|counter()|.
+
+\begin{minted}{c}
+    struct Env_makeCounter {
+        a
+    }
+\end{minted} 
+
+Y posteriormente sustituye la llamada por la misma función reescrita con el entorno siendo accesible mediante paso por parámetro:
+\begin{minted}{javascript}
+    function counter(env):
+        env.a = env.a + 1 // Se reescribe el uso de la variable a
+        return env.a
+\end{minted} 
 
     \item Más pruebas y tiempo de depuración para poder detectar errores complejos en casos de uso muy específicos, para poder poder analizarlos y subsanarlos.
     \item Inclusión de bibliotecas/módulos, que permitan a los usuarios escribir sus propios códigos en archivos que posteriormente puedan importar y utilizar, permitiendo una mejor organización del código fuente, así como la reutilización del código fuente y la colaboración entre proyectos. 
