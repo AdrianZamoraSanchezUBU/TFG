@@ -32,19 +32,28 @@ Cada ámbito contiene un conjunto de símbolos y mantiene una referencia a su á
     \item Diferenciación entre bloques y ámbitos de función.
 \end{itemize}
 
-\subsection{Diagramas UML de los objetos del sistema}
-El sistema se modela mediante un conjunto de clases que representan los distintos componentes del compilador. Destacan especialmente las clases asociadas al AST, la tabla de símbolos y el generador de código.
+\subsection{Diagramas del sistema}
+Debido a la complejidad y tamaño del sistema desarrollado, los diagramas de clases, dependencias, espacios de nombres y relaciones de llamada resultan demasiado extensos para su inclusión directa en el presente documento. No obstante, dichos diagramas pueden ser generados automáticamente a partir del código fuente mediante la herramienta \textbf{Doxygen}.
 
-Los diagramas UML permiten visualizar las relaciones de herencia entre nodos del AST, la composición de la tabla de símbolos y la interacción entre los visitantes y las estructuras de datos principales.
-% TODO DIAGRAMAS UML
+Los comandos necesarios para generar dicha documentación son los siguientes:
+\begin{minted}{bash}
+doxygen Doxyfile
+
+# Generación de la documentación en formato PDF (LaTeX)
+cd doc/doxygen/latex
+make
+# El documento resultante se genera como refman.pdf
+\end{minted}
+
+Esta aproximación garantiza que los diagramas reflejan fielmente la implementación real del sistema, evitando inconsistencias entre la documentación y el código fuente. Además permiten la posterior ampliación de la documentación mediante la adaptación a diferentes idiomas como se menciona en el anexo \ref{apx:sostenibilidad:glocalizacion}
 
 \subsection{Tipos de datos del lenguaje}
 El lenguaje implementado soporta un conjunto reducido pero expresivo de tipos de datos, entre los que se incluyen:
 \begin{itemize}
-    \item Tipos primitivos: enteros, booleanos, caracteres y valores en coma flotante.
+    \item Tipos primitivos: enteros, booleanos, caracteres y valores numéricos en coma flotante.
     \item Tipo cadena, representado internamente mediante punteros.
     \item Tipo temporal, utilizado para la gestión de eventos basados en tiempo.
-    \item Tipos puntero, que permiten el paso por referencia y la manipulación indirecta de valores.
+    \item Tipos referencia, que permiten el paso por referencia y la manipulación indirecta de valores.
 \end{itemize}
 
 Cada tipo del lenguaje se mapea de forma explícita a su correspondiente tipo en LLVM IR, garantizando una generación de código coherente y segura.
@@ -52,12 +61,14 @@ Cada tipo del lenguaje se mapea de forma explícita a su correspondiente tipo en
 \section{Diseño arquitectónico}
 El compilador sigue una arquitectura por capas, donde cada módulo corresponde a una fase concreta del proceso de compilación. Esta separación permite aislar responsabilidades y facilita la extensibilidad del sistema.
 
-Los módulos principales son:
+Los módulos principales del compilador son:
 \begin{itemize}
     \item Analizador léxico (\textit{lexer}).
     \item Analizador sintáctico (\textit{parser}).
     \item Analizador semántico.
-    \item Generador de código intermedio (LLVM IR).
+    \item Generador de código intermedio.
+    \item Optimizador de código intermedio.
+    \item Generador de código ejecutable.
     \item Sistema de ejecución en tiempo de ejecución (\textit{runtime}).
 \end{itemize}
 
@@ -100,8 +111,9 @@ El sistema de eventos se gestiona en tiempo de ejecución mediante un mecanismo 
 El \textit{runtime} se encarga de:
 \begin{itemize}
     \item Registrar los eventos definidos en el programa.
+    \item Registrar y gestionar los parámetros que se le pasan al evento (en caso de que los haya).
     \item Programar su ejecución periódica.
-    \item Gestionar la sincronización y el ciclo de vida de los eventos.
+    \item Gestionar el ciclo de vida de los eventos, así como su correcta terminación.
 \end{itemize}
 
 Este enfoque permite implementar un modelo de ejecución reactivo y temporal, integrando de forma transparente la semántica de eventos dentro del lenguaje.
