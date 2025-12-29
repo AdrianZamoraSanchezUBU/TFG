@@ -10,74 +10,63 @@ A lo largo del capítulo se describen las fases del proceso de compilación, el 
 
 \section{El proceso de compilación}
 
-Un compilador es un sistema software cuya función principal es traducir un programa escrito en un lenguaje fuente a una forma equivalente que pueda ser ejecutada por un computador. Para facilitar su diseño, mantenimiento y extensión, la mayoría de compiladores modernos se estructuran como una secuencia de fases bien definidas, donde cada una cumple una responsabilidad concreta.
+Un compilador es un sistema software cuya función principal es traducir un programa escrito en un lenguaje fuente a una forma equivalente que pueda ser ejecutada por un computador. Para facilitar su diseño, mantenimiento y extensión, la mayoría de compiladores modernos se estructuran como una secuencia de \textbf{fases} bien definidas, donde cada una cumple una responsabilidad concreta.
 
 \subsection{Análisis léxico}
 
-La primera etapa del proceso de compilación es el análisis léxico. En esta fase, el código fuente se procesa como una secuencia de caracteres que se agrupan en unidades significativas llamadas \emph{tokens} o \emph{lexemas}. Cada token representa elementos básicos del lenguaje, como identificadores, palabras clave, literales u operadores.
+La primera etapa del proceso de compilación es el análisis léxico. En esta fase, el código fuente se procesa como una secuencia de caracteres que se agrupan en unidades significativas llamadas \emph{tókenes} o \emph{lexemas}. Cada token representa elementos básicos del lenguaje, como identificadores, palabras clave, literales u operadores.
 
-El resultado del análisis léxico es una secuencia estructurada de tokens que será utilizada por la fase de análisis sintáctico. Separar esta fase del resto permite simplificar el diseño del compilador y detectar errores léxicos de forma temprana.
+El resultado del análisis léxico es una secuencia estructurada de tókenes que será utilizada por la fase de análisis sintáctico. Separar esta fase del resto permite simplificar el diseño del compilador y detectar errores léxicos de forma temprana.
 
 \subsection{Análisis sintáctico}
 
-A partir de la secuencia de tokens generada por el análisis léxico, el análisis sintáctico se encarga de verificar que el programa cumple las reglas gramaticales del lenguaje. Para ello, los tokens se agrupan siguiendo una gramática formal, produciendo una representación jerárquica del programa.
+A partir de la secuencia de tókenes generada por el análisis léxico, el análisis sintáctico se encarga de verificar que el programa cumple las reglas gramaticales del lenguaje. Para ello, los tókenes se agrupan siguiendo una gramática formal, produciendo una representación jerárquica del programa.
 
-Como resultado de esta fase se genera un Árbol de Sintaxis Abstracta o \emph{Abstract Syntax Tree} (AST). Esta estructura representa la organización lógica del programa, eliminando detalles sintácticos innecesarios y facilitando su posterior análisis y transformación.
+\subsection{Construcción del AST}
+
+El Árbol de sintaxis abstracta o \emph{Abstract Syntax Tree} (AST), es una estructura de datos arbórea donde cada nodo representa un lexema, además, almacena información importante sobre este contexto sintáctico, eliminando detalles sintácticos innecesarios y facilitando su posterior análisis y transformación. El resultado final de este proceso representa la estructura lógica completa del programa, en el capítulo 5 se puede encontrar un ejemplo visual~\ref{capitulo5:AST} de un AST.
 
 \subsection{Análisis semántico}
 
 Una vez construido el AST, el compilador realiza el análisis semántico, cuya función es comprobar que el programa tiene sentido desde el punto de vista del lenguaje, más allá de su corrección sintáctica. En esta fase se verifican aspectos como el uso correcto de tipos, la declaración previa de identificadores o la coherencia de las expresiones.
 
-Durante el análisis semántico se construye y mantiene la tabla de símbolos, una estructura de datos que asocia cada identificador del programa con información relevante como su tipo, categoría y ámbito de validez. Esta información será esencial en las fases posteriores de generación de código.
+Durante el análisis semántico se construye y mantiene la \textbf{tabla de símbolos}, una estructura de datos que asocia cada identificador del programa con información relevante como su tipo, categoría y ámbito de validez. Esta información será esencial en las fases posteriores de generación de código.
+
+\subsubsection{Tipado}
+El «tipado» en un lenguaje de programación se refiere a los tipos de datos soportados por el lenguaje. Los lenguajes se diferencian entre lenguajes de tipado dinámico y de tipado estático, los primeros permiten mayor libertad con respecto al uso de tipos, implementando un sistema de resolución de tipos en tiempo de ejecución, mientras que los segundos requieren conocer el uso de tipos en tiempo de compilación.
+
+Para este proyecto se ha utilizado un sistema de tipos estático, apostando por la seguridad que ofrece esta arquitectura y evitando el gran tiempo que consume la creación de un sistema de tipos dinámico y seguro.
+
+\subsubsection{Alcance o \eng{scope}}
+En el ámbito de los compiladores los alcances se refieren a la posibilidad de acceder a un dato o hacer uso de una función desde un bloque de código concreto. Por ejemplo, si una variable es declarada dentro del bloque de código de una función, esta misma variable no puede ser utilizada fuera de dicho bloque de código.
+
+El control de los alcances es fundamental para que la lógica del lenguaje sea correcta, el correcto uso de los alcances debe ser registrado por una estructura de datos, normalmente una tabla de símbolos. La fase responsable de orquestar este sistema es la fase de análisis semántico, sin embargo, los datos de alcance son utilizados durante todas las fases posteriores al análisis semántico.
+
+\subsubsection{\eng{Shadowing} u ocultación}
+La ocultación de identificador es una técnica de control de alcances que permite redefinir identificadores en diferentes \eng{scopes}, utilizando los alcances como única medida de control de acceso para identificadores con el mismo nombre.
+
 
 \subsection{Generación de código intermedio}
 
-Tras validar el programa, el compilador transforma el AST en una representación intermedia (IR). Esta forma intermedia actúa como puente entre el lenguaje fuente y el código máquina, permitiendo aplicar optimizaciones y desacoplar el frontend del backend del compilador.
+Tras validar el programa, el compilador transforma el AST en una representación intermedia (IR). Esta forma intermedia actúa como puente entre el lenguaje fuente y el código máquina, permitiendo aplicar optimizaciones y desacoplar el las fases de análisis de la generación de código máquina en el compilador.
 
-En este proyecto se utiliza LLVM IR como representación intermedia, lo que facilita tanto la aplicación de optimizaciones automáticas como la generación de código para distintas arquitecturas. El uso de una IR bien definida permite que el compilador sea extensible y reutilizable.
+\subsubsection{LLVM IR}
+En este proyecto se utiliza LLVM IR~\cite{llvm-ir-quick-reference} como representación intermedia, en el capítulo 5~\ref{capitulo5:LLVMIR:ejemplo} se pueden apreciar ejemplos concretos de programas y su IR. El uso de este IR junto con otros módulos de LLVM facilita tanto la aplicación de optimizaciones automáticas como la generación de código para distintas arquitecturas. 
 
 \subsection{Optimización}
 
 La fase de optimización tiene como objetivo mejorar el código generado sin alterar su comportamiento observable. Estas mejoras pueden centrarse en reducir el número de instrucciones, eliminar código innecesario o mejorar el uso de recursos.
 
-Gracias a la infraestructura LLVM, este proyecto puede beneficiarse de un amplio conjunto de optimizaciones ya implementadas, como la propagación de constantes, la eliminación de código muerto o la simplificación de expresiones. En el capítulo 5 se muestran ejemplos concretos de estas optimizaciones aplicadas al código generado.
+Gracias a la infraestructura LLVM, este proyecto puede beneficiarse de un amplio conjunto de optimizaciones ya implementadas, como la propagación de constantes, la eliminación de código muerto o la simplificación de expresiones. En el capítulo 5~\ref{capitulo5:optimizaciones} se muestran ejemplos concretos de estas optimizaciones aplicadas al código generado.
 
-\subsection{Generación de código final y runtime}
+\subsection{Generación de código final y \eng{runtime}}
 
 La última fase del proceso consiste en transformar la representación intermedia optimizada en código máquina ejecutable. Para ello, LLVM se encarga de generar código específico para la arquitectura destino.
 
-El código generado se apoya en un \emph{runtime}, encargado de proporcionar funcionalidades de soporte necesarias para la ejecución del programa, como la inicialización del entorno, la gestión de eventos o la interacción con bibliotecas externas.
+El código generado se apoya en un \eng{runtime}, encargado de proporcionar funcionalidades de soporte necesarias para la ejecución del programa, como la inicialización del entorno, la gestión de eventos o la interacción con bibliotecas externas.
 
 \section{Infraestructura LLVM y modelo de compilación}
 
-LLVM es una infraestructura de compilación moderna basada en un enfoque modular y por fases. A diferencia de compiladores monolíticos como GCC, donde las distintas etapas están fuertemente acopladas, LLVM separa claramente el frontend, la representación intermedia y el backend.
+LLVM es una infraestructura de compilación moderna basada en un enfoque modular y por fases. A diferencia de compiladores monolíticos como GCC, donde las distintas etapas están fuertemente acopladas, LLVM permite separar la responsabilidad de las primeras fases de análisis de la representación y la generación de código ejecutable.  
 
-Este enfoque permite reutilizar componentes, aplicar optimizaciones independientes del lenguaje fuente y facilitar la extensión del compilador. Estas características han sido determinantes para la elección de LLVM como base del compilador desarrollado en este proyecto.
-
-\section{Glosario de términos}
-
-En esta sección se recogen algunas definiciones básicas utilizadas a lo largo del capítulo, con el objetivo de facilitar la lectura y servir como referencia rápida.
-
-\subsection{Sobre lenguajes de programación}
-\begin{description}
-    \item [Lenguaje de programación]: Lenguaje que permite escribir instrucciones que, tras ser compiladas, pueden ejecutarse en un sistema informático.
-    \item [Compilación]: Proceso mediante el cual un lenguaje de programación se transforma en un programa ejecutable por un computador.
-    \item [Clasificación de lenguajes]: Los lenguajes pueden clasificarse según su nivel de abstracción, paradigma (imperativo, declarativo, OOP, funcional), propósito (general o específico del dominio) y forma de ejecución (compilados o interpretados).
-    \item [Tipado]: Se refiere a cómo se gestionan los tipos de datos. En lenguajes de tipado estático los tipos se especifican en las declaraciones y se comprueban durante la compilación, mientras que en los de tipado dinámico estas comprobaciones y conversiones se realizan en tiempo de ejecución.
-    \item [Lenguaje máquina]: Lenguaje directamente ejecutable por el ordenador, normalmente generado por un compilador debido a su alta complejidad para ser escrito manualmente.
-    \item [Scope]: El alcance define la accesibilidad de variables o funciones desde distintas partes del código. Por ejemplo, una variable declarada dentro de una función solo es accesible desde su bloque interno.
-\end{description}
-
-\subsection{Sobre compiladores}
-\begin{description}
-    \item [Compilador por fases]: Técnica de construcción basada en módulos bien definidos, donde cada fase tiene una única responsabilidad, facilitando su modificación y ampliación.
-    \item [Análisis léxico]: Fase en la que el texto fuente se descompone en tokens o lexemas. La herramienta encargada de este proceso se denomina \emph{lexer} o \emph{scanner}.
-    \item [Análisis sintáctico]: Agrupa los tokens obtenidos según reglas gramaticales, generando estructuras como el AST a partir de la secuencia de tokens.
-    \item [AST]: El \emph{Abstract Syntax Tree} es una estructura jerárquica que representa el programa y facilita su posterior análisis y transformación.
-    \item [Tabla de símbolos]: Estructura que asocia cada identificador del programa con información como su tipo, alcance y ubicación, siendo clave en la comunicación entre el fases.
-    \item [Análisis semántico]: Fase encargada de comprobar la corrección semántica del programa, como la verificación de tipos o asignaciones, y de recopilar la información necesaria para la tabla de símbolos.
-    \item [Generación de código intermedio]: Producción de una representación intermedia (IR) situada entre el código fuente y el código máquina. En este proyecto se emplea LLVM IR, lo que facilita optimizaciones y la generación de código para distintas arquitecturas.
-    \item [Optimización]: Consiste en mejorar el código generado sin modificar su significado, aplicando técnicas como eliminación de código no alcanzable o uso más eficiente de memoria.
-    \item [Generación de código final]: Fase en la que el IR se transforma en código máquina listo para su ejecución.
-    \item [Runtime]: Código de soporte que acompaña al programa compilado y se encarga de su inicialización, gestión de recursos y ejecución.
-\end{description}
+Este enfoque permite reutilizar componentes, aplicar optimizaciones independientes del lenguaje fuente y generar código ejecutable independiente de la arquitectura \eng{host}. Estas características han sido determinantes para la elección de LLVM como un elemento central del desarrollo del compilador en este proyecto.

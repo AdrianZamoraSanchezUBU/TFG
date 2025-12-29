@@ -143,12 +143,12 @@ Los casos de uso se describen siguiendo un formato estructurado, basado en la pr
 		\textbf{Actor:}     & Usuario.\\
 		\textbf{Requisitos asociados} & RF-5.\\
 		\textbf{Descripción}          & El usuario requiere de instrucciones para utilizar el compilador.\\
-		\textbf{Precondición}         & El usuario conoce el formato de ayuda mediante argumentos \code{-h} o \code{--help}.\\
+		\textbf{Precondición}         & El usuario conoce el formato de ayuda mediante argumentos \code{-h} o \code{-{}-help}.\\
 		\textbf{Acciones}             &
 		\begin{enumerate}
 			\def\labelenumi{\arabic{enumi}.}
 			\tightlist
-			\item Ejecutar el compilador con el argumento \code{-h} o \code{--help}.
+			\item Ejecutar el compilador con el argumento \code{-h} o \code{-{}-help}.
 			\item Recibir un texto en pantalla con las instrucciones de uso del compilador.
 			\item Utilizar esta información para el resto de casos de uso.
 		\end{enumerate}\\
@@ -178,7 +178,7 @@ Los casos de uso se describen siguiendo un formato estructurado, basado en la pr
 			\tightlist
 			\item Escribir un código fuente.
 			\item Ejecutar el compilador.
-			\item Utilizar el argumento \code{--basic}.
+			\item Utilizar el argumento \code{-{}-basic}.
 			\item Recibir errores (en este caso hay que volver al paso nº1) o una salida no optimizada.
 		\end{enumerate}\\
 		\textbf{Postcondición}        & El compilador realiza sus funciones habituales con o sin optimizaciones, según la configuración seleccionada.\\
@@ -207,8 +207,8 @@ Los casos de uso se describen siguiendo un formato estructurado, basado en la pr
 			\tightlist
 			\item Escribir un código fuente.
 			\item Ejecutar el compilador.
-			\item Utilizar el argumento \code{--visualizeAST}
-			\item Recibir errores (en este caso hay que volver al paso nº1) o un archivo llamado \emph{AST.pdf}.
+			\item Utilizar el argumento \code{-{}-visualizeAST}
+			\item Recibir errores (en este caso hay que volver al paso nº1) o un archivo llamado \texttt{AST.pdf}.
 		\end{enumerate}\\
 		\textbf{Postcondición}        & Un programa ejecutable y un archivo con la visualización del AST asociado al programa.\\
 		\textbf{Excepciones}          & El fichero con el código de entrada no existe o contiene errores.\\

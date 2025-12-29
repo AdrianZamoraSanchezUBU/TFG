@@ -38,15 +38,15 @@ A continuación se citan los \eng{sprints} realizados y una breve descripción d
 
 \textbf{\eng{Sprint} 9 (29/11/2025 - 05/12/2025):} Se realizan importantes mejoras de calidad del software. Se añade \eng{shadowing} de variables y se comienza a hacer pruebas sobre la integración del runtime.
 
-\textbf{\eng{Sprint} 10 (06/12/2025 - 12/12/2025):} Se completa una primera versión funcional del \eng{runtime}, se añaden operadores unitarios \texttt{++} y \texttt{--}. Se añade una función print propia del lenguaje.
+\textbf{\eng{Sprint} 10 (06/12/2025 - 12/12/2025):} Se completa una primera versión funcional del \eng{runtime}, se añaden operadores unarios \texttt{++} y \texttt{--}. Se añade una función print propia del lenguaje.
 
 \textbf{\eng{Sprint} 11 (13/12/2025 - 19/12/2025):} Se mejora la gestión de argumentos con la librería  y de errores del compilador mediante registro de información adicional y el uso de una estructura de datos específica para los errores.
 
-\textbf{\eng{Sprint} 12 (20/12/2025 - 26/12/2025):} Se completa el paso de parámetros mediante \texttt{libffi} entre \eng{runtime} y código compilado. Se añade la fase de compilación. 
+\textbf{\eng{Sprint} 12 (20/12/2025 - 26/12/2025):} Se completa el paso de parámetros mediante \texttt{libffi} entre \eng{runtime} y código compilado. Se añade la fase de optimización del compilador. 
 
 \textbf{\eng{Sprint} 13 (27/12/2025 - 03/01/2025):} Refactorizaciones para mejorar la calidad del código. Redacción exhaustiva y revisiones de la memoria y anexos. 
 
-\textbf{\eng{Sprint} 14 (04/01/2025 - 15/01/2025):} El \eng{sprints} final.
+\textbf{\eng{Sprint} 14 (04/01/2025 - 15/01/2025):} Realización de otros materiales como diapositivas de presentación, video de demostración y video defensa del proyecto.
 
 \section{Estudio de viabilidad}
 En este apartado analizaremos la viabilidad desde el punto de vista de recursos económicos y requisitos para llevarlo a cabo dentro del marco legal. Este análisis puede parecer poco necesario en un proyecto académico, sin embargo, sería vital en un proyecto privado real.
@@ -56,7 +56,7 @@ A continuación analizaremos que costes deben ser tenidos en cuenta para el desa
 
 \begin{itemize}
   \item \textbf{Coste humano:} Es el coste del salario que se requiere para el equipo que programara durante el proyecto. Puesto que es un proyecto con un único desarrollador, se estima un sueldo mensual de unos 1500€ brutos.
-  \item \textbf{Coste hardware:} Este coste representa todo el material que requiere el equipo para funcionar correctamente, este comprende materiales como ordenadores, teclados, ratones, etc. Dando por hecho que en los 5 meses de proyecto solo se alquila el material necesario, podría estimarse un alquiler mensual de 200€ por hardware.
+  \item \textbf{Coste hardware:} Este coste representa todo el material que requiere el equipo para funcionar correctamente, este comprende materiales como ordenadores, teclados, ratones, etc. Dando por hecho que en los 5 meses de proyecto solo se alquila el material necesario, podría estimarse un alquiler mensual de 200€~\cite{alquilerpc} por hardware.
   \item \textbf{Coste software:} Estos son costos asociados comúnmente a desarrollos software, sin embargo, con la elección de software libre vamos a evitar este gasto tan común.
 \end{itemize}
 
@@ -76,15 +76,17 @@ A continuación se citan todos las herramientas y bibliotecas utilizadas junto c
 
 \tablaSmallSinColores{Licencias.}{lcr}{Licencias}{Herramienta & Licencia \\}{
   Ubuntu & GPL \\
-  ANTLR & BDS  \\
+  ANTLR & BSD  \\
   LLVM & UIUC \\
   GCC & GPLv3 \\
   CMake & BSD \\
   LaTex & LPPL \\
   Doxygen & GPL \\
-  Gtest & BDS \\
+  Gtest & BSD \\
   argparse lib & MIT \\
   spdlog lib & MIT \\
 }
 
-Como podemos observar, todas las licencias de estas herramientas permiten el uso \textbf{gratuito} de las mismas, sin restricciones adicionales que afecten a este proyecto.
+Como podemos observar, todas las licencias de estas herramientas permiten el uso \textbf{gratuito} de las mismas, sin restricciones adicionales que afecten a este proyecto. 
+
+Para este proyecto, se ha elegido una licencia \textbf{GPL}, para garantizar que el código se mantenga accesible, sin posibilidad de privatizarse. Esta decisión se hace siguiendo la filosofía~\cite{gcclicense} de grandes compiladores como \emph{GNU GCC} que han crecido y mejorado gracias al esfuerzo comunitario que permiten estas licencias.
