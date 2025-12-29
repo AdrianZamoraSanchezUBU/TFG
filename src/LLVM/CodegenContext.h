@@ -30,24 +30,25 @@ struct CodegenContext {
         llvm::Type *i8PtrTy = llvm::PointerType::get(llvm::Type::getInt8Ty(C), 0);
         llvm::Type *i32Ty = llvm::Type::getInt32Ty(C);
         llvm::Type *voidTy = llvm::Type::getVoidTy(C);
-        llvm::Type *float64Ty = llvm::Type::getFloatTy(C);
+        llvm::Type *floatTy = llvm::Type::getFloatTy(C);
 
         llvm::FunctionType *callbackTy = llvm::FunctionType::get(voidTy, false);
         llvm::PointerType *callbackPtrTy = llvm::PointerType::getUnqual(callbackTy);
 
         // Inserta la función C si no existe
-        IRModule->getOrInsertFunction("toString", llvm::FunctionType::get(i8PtrTy, {i32Ty}, false));
+        IRModule->getOrInsertFunction("intToString", llvm::FunctionType::get(i8PtrTy, {i32Ty}, false));
+        IRModule->getOrInsertFunction("floatToString", llvm::FunctionType::get(i8PtrTy, {floatTy}, false));
         IRModule->getOrInsertFunction("print", llvm::FunctionType::get(voidTy, {i8PtrTy}, true));
         IRModule->getOrInsertFunction("strlen", llvm::FunctionType::get(i32Ty, {i8PtrTy}, false));
         IRModule->getOrInsertFunction("registerEventData",
                                       llvm::FunctionType::get(voidTy,
                                                               {
-                                                                  i8PtrTy,                   // id
-                                                                  llvm::Type::getFloatTy(C), // time
-                                                                  i8PtrTy,                   // fn pointer
-                                                                  i32Ty,                     // argCount
-                                                                  i32Ty->getPointerTo(),     // int* argTypes
-                                                                  i32Ty                      // limit
+                                                                  i8PtrTy,               // id
+                                                                  floatTy,               // time
+                                                                  i8PtrTy,               // fn pointer
+                                                                  i32Ty,                 // argCount
+                                                                  i32Ty->getPointerTo(), // int* argTypes
+                                                                  i32Ty                  // limit
                                                               },
                                                               false));
         IRModule->getOrInsertFunction("scheduleEvent",

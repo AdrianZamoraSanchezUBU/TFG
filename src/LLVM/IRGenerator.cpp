@@ -23,7 +23,7 @@ llvm::Type *IRGenerator::getLlvmType(Type type) {
     case SupportedTypes::TYPE_INT:
         return llvm::Type::getInt32Ty(ctx.IRContext);
     case SupportedTypes::TYPE_FLOAT:
-        return llvm::Type::getFP128Ty(ctx.IRContext);
+        return llvm::Type::getFloatTy(ctx.IRContext);
     case SupportedTypes::TYPE_CHAR:
         return llvm::Type::getInt8Ty(ctx.IRContext);
     case SupportedTypes::TYPE_STRING:
@@ -33,7 +33,7 @@ llvm::Type *IRGenerator::getLlvmType(Type type) {
     case SupportedTypes::TYPE_VOID:
         return llvm::Type::getVoidTy(ctx.IRContext);
     case SupportedTypes::TYPE_TIME:
-        return llvm::Type::getFP128Ty(ctx.IRContext);
+        return llvm::Type::getFloatTy(ctx.IRContext);
     default:
         throw std::runtime_error("Unsupported type in IR generation");
     }

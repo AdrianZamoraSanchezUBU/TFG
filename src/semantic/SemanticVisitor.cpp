@@ -302,7 +302,8 @@ void *SemanticVisitor::visit(FunctionCallNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
     int expectedParams = currentScope->getSymbol(node.getValue())->getNumParams();
 
-    if (node.getValue() == "printf" || node.getValue() == "strlen" || node.getValue() == "toString")
+    if (node.getValue() == "print" || node.getValue() == "strlen" || node.getValue() == "intToString" ||
+        node.getValue() == "floatToString")
         return nullptr;
 
     if (node.getParamsCount() != expectedParams) {

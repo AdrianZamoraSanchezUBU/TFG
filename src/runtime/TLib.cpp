@@ -9,9 +9,26 @@
  * @param x Int to convert
  * @return string buffer
  */
-extern "C" char *toString(int x) {
+extern "C" char *intToString(int x) {
     char *buf = (char *)malloc(12);
+    if (!buf)
+        return nullptr;
+
     sprintf(buf, "%d", x);
+    return buf;
+}
+
+/**
+ * @brief Transforms a float to its string value.
+ * @param x Float to convert
+ * @return string buffer
+ */
+extern "C" char *floatToString(float x) {
+    char *buf = (char *)malloc(32);
+    if (!buf)
+        return nullptr;
+
+    snprintf(buf, 32, "%f", (double)x);
     return buf;
 }
 
