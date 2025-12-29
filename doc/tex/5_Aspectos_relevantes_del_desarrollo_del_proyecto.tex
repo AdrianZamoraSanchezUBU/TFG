@@ -109,7 +109,37 @@ Durante la fase de análisis semántico se examina principalmente el uso de los 
 
 La tabla de símbolos está estructurada como una lista de \eng{scopes}. Para los distintos bloques anidados se establecen referencias entre cada \eng{scope} hijo y su correspondiente \eng{scope} padre, lo que permite verificar fácilmente los alcances y resolver nombres de forma correcta.
 
-\imagen{symbol_table}{Ejemplo de la visualización de una tabla de símbolos \code{-{}-visualizeAST}}{0.55}
+\begin{figure}[htbp]
+\centering
+\begin{lstlisting}
+-----------------------------------------------
+| Scope #0 (level 0)                          |
+-----------------------------------------------
+| Key          | Category   | Type            |
+-----------------------------------------------
+| foo          | FUNCTION   | int             |
+| toString     | FUNCTION   | string          |
+| strlen       | FUNCTION   | int             |
+| print        | FUNCTION   | void            |
+-----------------------------------------------
+-----------------------------------------------
+| Scope #1 (level 1)                          |
+-----------------------------------------------
+| Key          | Category   | Type            |
+-----------------------------------------------
+| x            | PARAMETER  | int             |
+-----------------------------------------------
+-----------------------------------------------
+| Scope #2 (level 2)                          |
+-----------------------------------------------
+| Key          | Category   | Type            |
+-----------------------------------------------
+| b            | VARIABLE   | int             |
+-----------------------------------------------
+\end{lstlisting}
+\caption{Ejemplo de tabla de símbolos generada por el analizador semántico}
+\label{fig:tabla-scopes}
+\end{figure}
 
 Para poder comprobar la corrección del uso de tipos, el análisis semántico debe ser capaz de entender los tipos, tanto de los literales como de las variables y funciones, para ello se implementa un sistema de representación de tipos en una enumeración llamada \kw{SupportedTypes} que da soporte a los tipos:
 \begin{itemize}
