@@ -169,73 +169,70 @@ void *SemanticVisitor::visit(VariableAssignNode &node) {
                 CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
         }
 
-        // Error if the assign right side is a parameter
-        if (!sym->isPtr() && sym->getCategory() == SymbolCategory::PARAMETER) {
-            std::string errorMsg = "Can not use the value of a parameter as a left side assign";
-
-            errorList.push_back(
-                CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
-        }
-
         return nullptr;
     }
 
     /* Type check for variable dec + assign */
-    if (auto val = dynamic_cast<BinaryExprNode *>(node.getAssign())) {
-        if (val->getType() != node.getType().getSupportedType()) {
-            std::string errorMsg = "Variable assign with incompatible types, expr: " + typeToString(val->getType()) +
-                                   " and variable being assign has: " + typeToString(node.getType());
+    if (!currentScope->contains(node.getValue())) {
+        if (auto val = dynamic_cast<BinaryExprNode *>(node.getAssign())) {
+            if (val->getType() != node.getType().getSupportedType()) {
+                std::string errorMsg =
+                    "Variable assign with incompatible types, expr: " + typeToString(val->getType()) +
+                    " and variable being assign has: " + typeToString(node.getType());
 
-            errorList.push_back(
-                CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
+                errorList.push_back(
+                    CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
+            }
         }
-    }
-    if (auto val = dynamic_cast<LiteralNode *>(node.getAssign())) {
-        if (val->getType() != node.getType().getSupportedType()) {
-            std::string errorMsg =
-                "Variable assign with incompatible types for value: " + typeToString(val->getType()) +
-                ", to a variable declared as: " + typeToString(node.getType());
+        if (auto val = dynamic_cast<LiteralNode *>(node.getAssign())) {
+            if (val->getType() != node.getType().getSupportedType()) {
+                std::string errorMsg =
+                    "Variable assign with incompatible types for value: " + typeToString(val->getType()) +
+                    ", to a variable declared as: " + typeToString(node.getType());
 
-            errorList.push_back(
-                CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
+                errorList.push_back(
+                    CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
+            }
         }
-    }
-    if (auto val = dynamic_cast<TimeLiteralNode *>(node.getAssign())) {
-        if (node.getType().getSupportedType() != SupportedTypes::TYPE_TIME) {
-            std::string errorMsg =
-                "Variable assign with incompatible types for value: " + typeToString(Type(SupportedTypes::TYPE_TIME)) +
-                ", to a variable declared as: " + typeToString(node.getType());
+        if (auto val = dynamic_cast<TimeLiteralNode *>(node.getAssign())) {
+            if (node.getType().getSupportedType() != SupportedTypes::TYPE_TIME) {
+                std::string errorMsg = "Variable assign with incompatible types for value: " +
+                                       typeToString(Type(SupportedTypes::TYPE_TIME)) +
+                                       ", to a variable declared as: " + typeToString(node.getType());
 
-            errorList.push_back(
-                CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
+                errorList.push_back(
+                    CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
+            }
         }
-    }
-    if (auto val = dynamic_cast<VariableRefNode *>(node.getAssign())) {
-        Symbol sym = *currentScope->getSymbol(val->getValue());
+        if (auto val = dynamic_cast<VariableRefNode *>(node.getAssign())) {
+            Symbol sym = *currentScope->getSymbol(val->getValue());
 
-        if (sym.getType() != node.getType().getSupportedType()) {
-            std::string errorMsg = "Variable assign with incompatible types for value: " + typeToString(sym.getType()) +
-                                   ", to a variable declared as: " + typeToString(node.getType());
+            if (sym.getType() != node.getType().getSupportedType()) {
+                std::string errorMsg =
+                    "Variable assign with incompatible types for value: " + typeToString(sym.getType()) +
+                    ", to a variable declared as: " + typeToString(node.getType());
 
-            errorList.push_back(
-                CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
+                errorList.push_back(
+                    CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
+            }
         }
-    }
-    if (auto val = dynamic_cast<FunctionCallNode *>(node.getAssign())) {
-        Symbol sym = *currentScope->getSymbol(val->getValue());
+        if (auto val = dynamic_cast<FunctionCallNode *>(node.getAssign())) {
+            Symbol sym = *currentScope->getSymbol(val->getValue());
 
-        if (sym.getType() != node.getType().getSupportedType()) {
-            std::string errorMsg = "Variable assign with incompatible types for value: " + typeToString(sym.getType()) +
-                                   ", to a variable declared as: " + typeToString(node.getType());
+            if (sym.getType() != node.getType().getSupportedType()) {
+                std::string errorMsg =
+                    "Variable assign with incompatible types for value: " + typeToString(sym.getType()) +
+                    ", to a variable declared as: " + typeToString(node.getType());
 
-            errorList.push_back(
-                CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
+                errorList.push_back(
+                    CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
+            }
         }
-    }
 
-    // Inserting the variable in the Symbol Table
-    Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE, node.getType());
-    currentScope->insertSymbol(newSymbol);
+        // Inserting the variable in the Symbol Table
+        Symbol newSymbol(node.getValue(), &node, SymbolCategory::VARIABLE, node.getType());
+        currentScope->insertSymbol(newSymbol);
+    }
 
     return nullptr;
 }

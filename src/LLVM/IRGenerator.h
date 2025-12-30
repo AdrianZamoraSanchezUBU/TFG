@@ -224,4 +224,7 @@ class IRGenerator {
      * @return llvm::Value* Value obtained from the visit.
      */
     llvm::Value *visit(ExitNode &node);
+
+    llvm::Value *visitRValue(VariableRefNode &);
+    llvm::Value *visitLValue(VariableRefNode &);
 };
