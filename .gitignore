@@ -40,3 +40,6 @@ out
 
 # Ignores VScode config files
 .vscode/
+
+# Ignores the demo source code examples
+tests/input/demo

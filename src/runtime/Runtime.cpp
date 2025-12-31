@@ -33,7 +33,7 @@ void Runtime::printEventList() {
 void Runtime::scheduleEvent(std::string id, void **argv) {
     for (auto &e : events) {
         if (e->getID() == id) {
-            e->setArgsCopy(argv); // copia por valor
+            e->setArgsCopy(argv);
             e->startEvent();
             return;
         }

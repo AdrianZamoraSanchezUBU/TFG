@@ -125,7 +125,7 @@ void *SemanticVisitor::visit(BinaryExprNode &node) {
 }
 
 void *SemanticVisitor::visit(UnaryOperationNode &node) {
-    if (!symtab.getCurrentScope()->contains(node.getValue())) {
+    if (!symtab.getCurrentScope()->getSymbol(node.getValue())) {
         std::string errorMsg = "Unary operation over a undefined variable";
 
         errorList.push_back(

@@ -1,5 +1,7 @@
-event test(int x) every 2 sec {
-    print("execution: ", toString(x));
+time t = 2 sec;
+
+event test(int x) every t {
+    print("execution: ", intToString(x));
 }
 
 test(2);

@@ -111,7 +111,8 @@ class CodeBlockNode : public ASTNode {
      * @brief Constructor for the CodeBlock node.
      * @param stmt Nodes associated to the statement of this block.
      */
-    explicit CodeBlockNode(std::vector<std::unique_ptr<ASTNode>> stmt) : statements(std::move(stmt)) {}
+    explicit CodeBlockNode(std::vector<std::unique_ptr<ASTNode>> stmt, const SourceLocation &loc = SourceLocation{})
+        : statements(std::move(stmt)), ASTNode(loc) {}
 
     /**
      * @brief Returns the amount of statements in this block.

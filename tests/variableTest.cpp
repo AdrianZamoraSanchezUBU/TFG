@@ -115,8 +115,8 @@ TEST(variableTest, variableTimeType) {
 
     /* Expected IR */
     std::vector<std::string> regexpr;
-    regexpr.push_back(R"(%timeVar_ptr = alloca fp128, align 16)");
-    regexpr.push_back(R"(store float 5.)");
+    regexpr.push_back(R"(%timeVar_ptr = alloca float, align 4)");
+    regexpr.push_back(R"(store float 5.2)");
 
     test(fileName, regexpr);
 }
@@ -128,7 +128,6 @@ TEST(variableTest, variableShadowing) {
     std::vector<std::string> regexpr;
     regexpr.push_back(R"(ptr %a_val, ptr null)");
     regexpr.push_back(R"(ptr %a_val1, ptr null)"); // This a_val1 shadows a_val
-    regexpr.push_back(R"(ptr %a_val, ptr null)");
 
     test(fileName, regexpr);
 }

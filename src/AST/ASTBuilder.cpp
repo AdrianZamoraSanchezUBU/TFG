@@ -21,7 +21,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::ProgramMainBlockContext *ctx
         }
     }
 
-    return std::make_unique<CodeBlockNode>(std::move(stmt));
+    return std::make_unique<CodeBlockNode>(std::move(stmt), loc);
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::BlockContext *ctx) {
@@ -40,7 +40,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::BlockContext *ctx) {
         }
     }
 
-    return std::make_unique<CodeBlockNode>(std::move(stmt));
+    return std::make_unique<CodeBlockNode>(std::move(stmt), loc);
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::StmtContext *ctx) {
@@ -407,6 +407,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LoopControlStatementContext 
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventBlockContext *ctx) {
     std::vector<std::unique_ptr<ASTNode>> stmt;
+    SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
     // Visits all the stmts
     for (auto child : ctx->children) {
@@ -418,7 +419,7 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventBlockContext *ctx) {
         }
     }
 
-    return std::make_unique<CodeBlockNode>(std::move(stmt));
+    return std::make_unique<CodeBlockNode>(std::move(stmt), loc);
 }
 
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventDefContext *ctx) {

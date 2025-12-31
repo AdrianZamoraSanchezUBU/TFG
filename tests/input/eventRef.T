@@ -1,9 +1,9 @@
-int a = 1;
+string a = "ejemplo";
 
-event test(int x) every 2 sec {
-    print(toString(x));
+event test(ref string x) every 2 sec {
+    print(x);
 }
 
-test(2);
+test(ref a);
 
 return 0;

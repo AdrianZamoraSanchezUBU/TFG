@@ -53,7 +53,7 @@ static ffi_type *codeToFFI(int code) {
 void Event::setArgsCopy(void **incoming) {
     std::lock_guard<std::mutex> lock(argsMutex);
 
-    // Asegurar tamaños SIEMPRE
+    // Checking the sizes
     if ((int)argv.size() != argCount)
         argv.assign(argCount, nullptr);
 
@@ -132,10 +132,9 @@ void Event::execute() {
             std::cerr << "Unknown exception in event '" << id << "'\n";
         }
 
-        if (execLimit > 0 && ++execCounter >= execLimit)
+        // Event execution limit management
+        if (execLimit > 0 && ++execCounter > execLimit - 1)
             stopEvent();
-        else
-            ++execCounter;
 
         std::this_thread::sleep_for(ticks);
     }
