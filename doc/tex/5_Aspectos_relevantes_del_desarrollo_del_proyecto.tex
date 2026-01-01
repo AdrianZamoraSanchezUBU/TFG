@@ -313,5 +313,24 @@ Además aporta un entorno de ejecución correcto y personalizado para poder llev
 
 \subsubsection{Gestión de eventos}
 
+Dado que los eventos representan unidades de ejecución independientes que pueden activarse de forma diferida o periódica, su correcta gestión resulta clave para garantizar la estabilidad, el control y la robustez del sistema.
 
-% TODO AMPLIAR e incluir ejemplos
+Cada evento se ejecuta en un hilo independiente, separado del hilo principal del programa (la función \emph{main}). Esta decisión de diseño permite aislar la ejecución de los eventos del flujo principal, de modo que un fallo o comportamiento inesperado en un evento no compromete la ejecución global del programa. De esta forma, el sistema mejora su tolerancia a errores y evita que una excepción o bloqueo en un evento provoque la finalización del proceso principal.
+
+La creación, ejecución y finalización de los eventos se encuentra centralizada en el \emph{runtime}, que actúa como gestor de eventos. Aunque los eventos se ejecutan en hilos independientes, el hilo principal mantiene en todo momento el control sobre su estado, pudiendo conocer qué eventos se encuentran activos, cuáles han finalizado y cuáles están pendientes de ejecución. Este enfoque permite combinar concurrencia con supervisión centralizada, evitando la pérdida de control sobre los hilos lanzados dinámicamente.
+
+Los eventos son \emph{autogestionados} una vez lanzados, se encargan de ejecutar su lógica asociada, control de sus limitaciones de ejecución y periodicidad. Esto reduce el acoplamiento entre el código del usuario y la infraestructura interna del runtime, simplificando tanto el modelo de programación como el mantenimiento del sistema.
+
+Este modelo de ejecución concurrente controlada permite implementar mecanismos temporales y reactivos de forma segura, manteniendo un equilibrio entre flexibilidad, aislamiento y control. La gestión explícita de los eventos como entidades independientes refuerza la arquitectura del sistema y facilita futuras extensiones relacionadas con planificación, cancelación o monitorización avanzada de eventos.
+
+\subsubsection{Paso de parámetros}
+
+Uno de los aspectos más complejos del desarrollo del \emph{runtime} ha sido la implementación del paso de parámetros hacia las funciones asociadas a los eventos. Dado que los eventos se ejecutan dinámicamente y en hilos independientes, resulta necesario disponer de un mecanismo que permita invocar funciones con firmas conocidas únicamente en tiempo de ejecución.
+
+Para este propósito se exploró el uso de \emph{libffi}, una biblioteca que permite realizar llamadas a funciones de forma dinámica, especificando en tiempo de ejecución la firma correcta conforme al \eng{application binary interface} (ABI), tanto en la función a invocar como los tipos de sus parámetros. Aunque esta aproximación resulta adecuada para el paso de parámetros por valor, introduce una complejidad significativa cuando se trata de pasar punteros.
+
+El principal problema radica en la gestión de memoria asociada a los parámetros por referencia. El uso de punteros implica garantizar que los datos apuntados permanezcan válidos durante toda la ejecución del evento, lo que requiere una gestión explícita de memoria en el \emph{heap}, así como mecanismos claros de propiedad, ciclo de vida y liberación de recursos. Este tipo de gestión introduce riesgos adicionales, como accesos a memoria inválida, fugas de memoria o condiciones de carrera, especialmente en un entorno concurrente basado en múltiples hilos.
+
+Dado que el objetivo principal del proyecto es el diseño e implementación del compilador y su sistema de ejecución, y no la construcción de un gestor de memoria completo, se decidió acotar el alcance de esta funcionalidad. En la implementación actual, el sistema de paso de parámetros se limita a valores por copia, evitando el uso de punteros y referencias complejas en las llamadas dinámicas realizadas mediante \emph{libffi}.
+
+Esta limitación se considera aceptable dentro del contexto del proyecto y se deja abierta y documentada en la sección 7~\ref{capitulo7:lineas_de_trabajo:garbage_collector} como una línea de trabajo futura.

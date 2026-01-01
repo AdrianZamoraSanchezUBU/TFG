@@ -1,0 +1,308 @@
+\apendice{Manual del lenguaje T}
+
+\section{Introducción}
+
+El lenguaje T es un lenguaje de programación imperativo y de tipado estático, con una sintaxis inspirada en lenguajes de la familia C. Su principal rasgo distintivo es la incorporación de \emph{eventos temporales} y \emph{eventos condicionados}, que permiten programar comportamientos reactivos basados en el tiempo o en condiciones lógicas del programa.
+
+Un programa en T se compone de declaraciones de variables, expresiones, estructuras de control, definiciones de funciones y definiciones de eventos, los cuales pueden ejecutarse de forma automática según las reglas temporales o condicionales especificadas.
+
+Este capítulo describe el lenguaje desde el punto de vista del programador, detallando su sintaxis y semántica básica, sin entrar en aspectos internos del compilador.
+
+\section{Estructura de un programa}
+
+Un programa en T consiste en una secuencia de sentencias que se ejecutan en el orden en el que aparecen. No existe una función \texttt{main} explícita; el bloque principal del programa actúa como punto de entrada.
+
+\begin{minted}{c}
+int a;
+a = 10;
+
+print(a);
+return 0;
+\end{minted}
+
+La instrucción \texttt{return} puede aparecer en el bloque principal, indicando el valor de salida del programa.
+
+\section{Comentarios y formato}
+
+\subsection{Comentarios}
+
+T admite comentarios de una sola línea, iniciados por \texttt{//}. Todo el texto desde este símbolo hasta el final de la línea es ignorado por el compilador.
+
+\begin{minted}{c}
+// Esto es un comentario
+int a;
+\end{minted}
+
+\subsection{Espacios en blanco}
+
+Los espacios, tabuladores y saltos de línea no tienen significado semántico y se utilizan únicamente para mejorar la legibilidad del código.
+
+\subsection{Identificadores}
+
+Los identificadores representan nombres de variables, funciones y eventos. Deben comenzar por una letra y pueden contener letras y dígitos.
+
+Ejemplos válidos:
+\begin{itemize}
+    \item \texttt{a}
+    \item \texttt{contador1}
+    \item \texttt{miFuncion2}
+\end{itemize}
+
+\section{Tipos de datos}
+
+El lenguaje T define los siguientes tipos primitivos:
+
+\begin{itemize}
+    \item \texttt{int}
+    \item \texttt{float}
+    \item \texttt{char}
+    \item \texttt{string}
+    \item \texttt{bool}
+    \item \texttt{void}
+    \item \texttt{time}
+\end{itemize}
+
+Además, existe el modificador \texttt{ref}, utilizado exclusivamente para indicar paso de parámetros por referencia en funciones.
+
+\section{Literales}
+
+\subsection{Literales numéricos}
+
+Los literales enteros y reales se escriben de la forma habitual:
+
+\begin{minted}{c}
+10
+3.14
+\end{minted}
+
+\subsection{Literales de cadena}
+
+Las cadenas de texto se escriben entre comillas dobles:
+
+\begin{minted}{c}
+"Ejemplo de string"
+\end{minted}
+
+\subsection{Literales booleanos}
+
+El lenguaje define dos literales booleanos:
+
+\begin{minted}{c}
+true
+false
+\end{minted}
+
+\subsection{Literales temporales}
+
+El tipo \texttt{time} representa valores temporales expresados mediante una cantidad numérica seguida de una unidad. Las unidades disponibles son:
+
+\begin{itemize}
+    \item \texttt{tick}
+    \item \texttt{sec}
+    \item \texttt{min}
+    \item \texttt{hr}
+\end{itemize}
+
+Ejemplos:
+
+\begin{minted}{c}
+5 sec
+2.5 min
+10 tick
+1 hr
+\end{minted}
+
+Durante el proceso de compilación todos los valores son transformados a \emph{tick}, cada tick equivale a 100 ms
+
+\section{Variables}
+
+\subsection{Declaración de variables}
+
+Las variables se declaran especificando su tipo y su identificador:
+
+\begin{minted}{c}
+int a;
+char a;
+float x;
+string name;
+bool ok;
+time t;
+\end{minted}
+
+\subsection{Asignación}
+
+Una variable puede recibir un valor mediante el operador de asignación \texttt{=}:
+
+\begin{minted}{c}
+a = 10;
+x = 2.718;
+name = "Adrian";
+ok = true;
+\end{minted}
+
+También es posible declarar e inicializar una variable en una única sentencia:
+
+\begin{minted}{c}
+int a = 10;
+float x = 3.14;
+\end{minted}
+
+\section{Expresiones}
+
+\subsection{Expresiones aritméticas}
+
+T soporta los operadores aritméticos básicos: \texttt{+}, \texttt{-}, \texttt{*} y \texttt{/}.
+
+\begin{minted}{c}
+int a = 2 + 3 * 4;
+float b = (1.0 + 2.0) / 3.0;
+\end{minted}
+
+Los paréntesis permiten modificar la precedencia de evaluación.
+
+\subsection{Expresiones relacionales}
+
+Se admiten las comparaciones:
+
+\begin{center}
+\texttt{== \quad != \quad < \quad <= \quad > \quad >=}
+\end{center}
+
+\begin{minted}{c}
+if (a < 10) {
+    print(a);
+}
+\end{minted}
+
+\section{Operadores de incremento y decremento}
+
+El lenguaje admite operadores de incremento y decremento tanto en forma prefija como postfija:
+
+\begin{minted}{c}
+a++;
+--a;
+\end{minted}
+
+Estos operadores pueden formar parte de expresiones más complejas.
+
+\section{Estructuras de control}
+
+\subsection{Condicionales}
+
+La estructura condicional se define mediante \texttt{if} y \texttt{else}:
+
+\begin{minted}{c}
+if (a < 0) {
+    print("Negativo");
+} else if (a < 10) {
+    print("Pequeño");
+} else {
+    print("Grande");
+}
+\end{minted}
+
+\subsection{Bucles}
+
+\subsubsection{Bucle \texttt{while}}
+
+\begin{minted}{c}
+while (a < 10) {
+    a++;
+}
+\end{minted}
+
+\subsubsection{Bucle \texttt{for}}
+
+El bucle \texttt{for} tiene la forma:
+
+\begin{minted}{c}
+for (int i = 0; i < 10; i = i + 1) {
+    print(i);
+}
+\end{minted}
+
+\subsection{Control de bucle}
+
+Se permiten las sentencias:
+
+\begin{itemize}
+    \item \texttt{break;}
+    \item \texttt{continue;}
+\end{itemize}
+
+\section{Funciones}
+
+\subsection{Declaración y definición}
+
+Una función puede declararse sin cuerpo:
+
+\begin{minted}{c}
+int function suma(int a, int b);
+\end{minted}
+
+O definirse completamente:
+
+\begin{minted}{c}
+int function suma(int a, int b) {
+    return a + b;
+}
+\end{minted}
+
+\subsection{Parámetros por referencia}
+
+El modificador \texttt{ref} permite pasar parámetros por referencia:
+
+\begin{minted}{c}
+void function inc(ref int a) {
+    a = a + 1;
+}
+\end{minted}
+
+\section{Eventos}
+
+Los eventos constituyen la característica diferenciadora del lenguaje T. Un evento define un bloque de código que se ejecuta automáticamente según una condición temporal o lógica.
+
+\subsection{Eventos temporales}
+
+Los eventos temporales se definen mediante los comandos \texttt{every}, \texttt{after} y \texttt{at}.
+
+\begin{minted}{c}
+event tickLogger every 1 sec {
+    print("tick");
+}
+\end{minted}
+
+\begin{minted}{c}
+event bomba after 5 sec {
+    print("boom");
+}
+\end{minted}
+
+\subsection{Límite de ejecuciones}
+
+Un evento puede limitar su número de ejecuciones mediante \texttt{limit}:
+
+\begin{minted}{c}
+event hello every 1 sec limit 3 {
+    print("hola");
+}
+\end{minted}
+
+\subsection{Finalización de eventos}
+
+Dentro de un evento puede utilizarse la instrucción \texttt{exit} para finalizar un evento concreto:
+
+\begin{minted}{c}
+exit tickLogger;
+\end{minted}
+
+\section{Limitaciones actuales del lenguaje}
+
+En su estado actual, el lenguaje presenta las siguientes limitaciones:
+
+\begin{itemize}
+    \item No se soportan estructuras de datos complejas como arrays o \texttt{struct}.
+    \item El tipo \texttt{ref} solo está disponible en parámetros de funciones. Puesto que el paso en eventos requiere de gestión avanzada de memoria.
+    \item El bucle \texttt{for} restringe la inicialización y actualización a asignaciones.
+    \item Por cuestión de tiempo, los eventos no han podido enriquecerse con otros mecanismos de ejecución.
+\end{itemize}
