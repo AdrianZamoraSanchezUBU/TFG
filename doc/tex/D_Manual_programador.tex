@@ -26,6 +26,8 @@ Para poder compilar y trabajar con el proyecto es necesario disponer de los sigu
 \subsection{Lenguaje de programación y estilo}
 El compilador está desarrollado íntegramente en \textbf{C++17}, empleando un estilo de programación modular y orientado a objetos. Este enfoque permite una clara separación de responsabilidades entre los distintos componentes del sistema (análisis léxico, sintáctico, semántico y generación de código).
 
+Como se ha explicado en el capítulo 4 de la memoria, se ha utilizado el estándar de estilos propuesto por LLVM, siendo algunas de sus más apreciables reglas: 
+
 Se siguen las siguientes convenciones de estilo:
 \begin{itemize}
     \item \textit{PascalCase} para nombres de clases.
@@ -68,7 +70,7 @@ El proyecto sigue una estructura basada en capas, donde cada módulo corresponde
   Contiene la documentación del proyecto, incluida la memoria del TFG y sus anexos.
 \end{itemize}
 
-\imagen{diagramaDirectorios}{Diagrama de directorios del proyecto}%TODO rehacer
+\imagen{diagramaDirectorios}{Diagrama de directorios del proyecto}
 
 Esta organización permite que un desarrollador pueda trabajar en una fase concreta del compilador sin necesidad de modificar el resto del sistema.
 

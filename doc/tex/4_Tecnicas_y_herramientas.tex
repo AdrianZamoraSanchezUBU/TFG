@@ -15,7 +15,6 @@ Esta metodología fomenta un desarrollo incremental y una mejora continua del c�
 \section{Metodología de programación}
 El desarrollo del compilador y de las herramientas asociadas se ha abordado desde el paradigma de la \textbf{programación orientada a objetos} (OOP, por sus siglas en inglés), reflejándose directamente en la estructura del código y en la organización de los distintos módulos del compilador. De forma más concreta, esta metodología permite la incorporación del patrón \textbf{visitor}, el cual puede encontrar detallado en el anexo de diseño.
 
-
 La OOP favorece la reutilización, extensibilidad y mantenibilidad del software, permitiendo aislar los distintos módulos del compilador y facilitar su evolución futura. Además, este paradigma se integra de forma natural con las herramientas empleadas, como \textbf{ANTLR}~\cite{parr2013definitive} y \textbf{LLVM}~\cite{lattner2004llvm}, ambas diseñadas con arquitecturas orientadas a objetos.
 
 Otro motivo determinante en la elección de este enfoque es el uso de \textbf{C++}~\cite{stroustrup2013cpp} como lenguaje de implementación. C++ ofrece un control preciso sobre el uso de memoria y las abstracciones de bajo nivel, aspectos especialmente relevantes en la implementación de compiladores y runtimes personalizados. La compatibilidad de la metodología OOP entre C++ y las herramientas ANTLR y LLVM refuerza aún más la idoneidad de esta metodología para el proyecto.
@@ -23,6 +22,13 @@ Otro motivo determinante en la elección de este enfoque es el uso de \textbf{C+
 La trazabilidad y el control de versiones del código se han gestionado mediante la herramienta \textbf{Git} y el repositorio remoto ya mencionado en \textbf{GitHub}, lo que permite registrar de forma precisa la evolución del proyecto y consultar en todo momento los cambios realizados desde su inicio.
 
 Dado que el desarrollo del proyecto ha sido llevado a cabo de forma individual y siguiendo un flujo de trabajo mayoritariamente lineal, se ha optado por un modelo de trabajo simplificado basado en una única rama principal. Esta decisión permite mantener un historial de cambios claro y fácilmente interpretable, sin introducir la complejidad adicional asociada a la gestión de múltiples ramas, la cual resulta especialmente útil en entornos colaborativos pero menos relevante en un contexto de desarrollo individual y controlado como el presente.
+
+\section{Calidad del código}
+Para el análisis estático del código fuente escrito en C++, se ha utilizado la herramienta \textbf{Cppcheck}. Esta herramienta permite detectar errores comunes de programación, posibles accesos inválidos a memoria, usos indebidos de punteros, fugas de memoria, etc. 
+
+La elección de \textit{Cppcheck} frente a otras soluciones más completas, como SonarQube, responde principalmente a criterios de accesibilidad y adecuación al contexto del proyecto. Aunque otras plataformas ofrecen análisis avanzados, en la práctica el soporte completo para C++ suele estar restringido a versiones comerciales de pago. Dado el carácter académico del proyecto, se ha considerado poco razonable asumir estos costes adicionales únicamente para el análisis estático del código, optando por una herramienta libre, ampliamente utilizada y suficientemente robusta para los objetivos del proyecto.
+
+De forma complementaria, se ha seguido el estándar de estilos de C++ propuesto por el proyecto LLVM~\cite{llvmproject-style-guide}. Este estándar proporciona un conjunto de convenciones claras y coherentes sobre nomenclatura, organización del código, formato y buenas prácticas. La adopción de este estilo resulta especialmente apropiada dado que el proyecto hace uso intensivo de la infraestructura LLVM, alineando así tanto el diseño interno como las herramientas empleadas con los estándares del propio ecosistema.
 
 \section{Elección de herramientas}
 A continuación se presentan las principales herramientas empleadas en el desarrollo del proyecto, así como la justificación de su elección frente a otras alternativas disponibles. Las herramientas seleccionadas se han escogido teniendo en cuenta su madurez, soporte, documentación, integración con C++ y adecuación a los objetivos técnicos del proyecto.
@@ -91,3 +97,4 @@ En mi caso lo he personalizado con las siguientes extensiones:
     \item \textbf{C/C++ Extension pack:} Agrega IntelliSense, linting, herramientas de debugging y code browsing para C y C++. 
     \item \textbf{Clang-Format:} Herramienta configurable que permite establecer reglas de estilo consistentes en todos los archivos de código, en mi caso utilizo el estándar de LLVM.  
 \end{itemize}
+ 
