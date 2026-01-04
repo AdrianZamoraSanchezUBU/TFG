@@ -147,6 +147,8 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
             return ctx.IRBuilder.CreateFMul(L, R, "multmp");
         if (op == "/")
             return ctx.IRBuilder.CreateFDiv(L, R, "divtmp");
+        if (op == "%")
+            return ctx.IRBuilder.CreateFRem(L, R, "modtemp");
         if (op == "==")
             return ctx.IRBuilder.CreateFCmpOEQ(L, R, "eqtmp");
         if (op == "!=")
@@ -172,6 +174,8 @@ llvm::Value *IRGenerator::visit(BinaryExprNode &node) {
             return ctx.IRBuilder.CreateMul(L, R, "multmp");
         if (op == "/")
             return ctx.IRBuilder.CreateSDiv(L, R, "divtmp");
+        if (op == "%")
+            return ctx.IRBuilder.CreateSRem(L, R, "modtemp");
         if (op == "==")
             return ctx.IRBuilder.CreateICmpEQ(L, R, "eqtmp");
         if (op == "!=")

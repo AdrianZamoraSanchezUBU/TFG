@@ -302,7 +302,7 @@ void *SemanticVisitor::visit(FunctionCallNode &node) {
 
     // Skiping external functions
     if (node.getValue() == "print" || node.getValue() == "strlen" || node.getValue() == "intToString" ||
-        node.getValue() == "floatToString" || node.getValue() == "mod")
+        node.getValue() == "floatToString")
         return nullptr;
 
     if (node.getParamsCount() != expectedParams) {

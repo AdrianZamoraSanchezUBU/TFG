@@ -50,6 +50,7 @@ Se definen los operadores aritméticos y lógicos:
     MINUS : '-' ;
     MUL   : '*' ;
     DIV   : '/' ;
+    MOD   : '%' ;
 
     INC   : '++' ;
     DEC   : '--' ;
@@ -88,7 +89,7 @@ operand
     : literal
     ;
 \end{minted}
-Cabe destacar el uso de etiquetas (como \code{\# parenExpr}) que facilitan posteriormente acceder a cada tipo de expresión gracias a la separación en contextos que realiza ANTLR4.
+Cabe destacar el uso de etiquetas (como \code{\# parenExpr}) que facilitan posteriormente acceder a cada tipo de expresión gracias a la separación en contextos que realiza ANTLR4. En este ejemplo en concreto, la etiqueta \code{\# arithmeticExpr} sirve para separar la precedencia, permitiendo empaquetar en el mismo contexto ambas producciones, facilitando el análisis en fases posteriores.
 
 \subsubsection{Generación del AST}
 Para formar el AST se empleará un \eng{visitor pattern} (patrón de visita), objeto que recibe el nombre de \kw{ASTBuilder}, el cual se encarga de visitar cada contexto generado de forma automática por el parser de ANTLR, dando por resultado una estructura de nodos enlazados, el AST.

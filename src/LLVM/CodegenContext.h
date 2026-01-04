@@ -40,7 +40,6 @@ struct CodegenContext {
         IRModule->getOrInsertFunction("floatToString", llvm::FunctionType::get(i8PtrTy, {floatTy}, false));
         IRModule->getOrInsertFunction("print", llvm::FunctionType::get(voidTy, {i8PtrTy}, true));
         IRModule->getOrInsertFunction("strlen", llvm::FunctionType::get(i32Ty, {i8PtrTy}, false));
-        IRModule->getOrInsertFunction("mod", llvm::FunctionType::get(i32Ty, {i32Ty, i32Ty}, false));
         IRModule->getOrInsertFunction("registerEventData",
                                       llvm::FunctionType::get(voidTy,
                                                               {

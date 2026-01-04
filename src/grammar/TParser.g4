@@ -26,7 +26,7 @@ stmt
 	;
 
 expr
-	: expr op=(MUL|DIV) expr		# arithmeticExpr
+	: expr op=(MUL|DIV|MOD) expr	# arithmeticExpr
 	| expr op=(PLUS|MINUS) expr		# arithmeticExpr
 	| expr comparisonOperator expr	# logicalExpr
 	| operand						# operandExpr
