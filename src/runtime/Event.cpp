@@ -31,7 +31,7 @@ static size_t typeSize(int code) {
     case 2:
         return sizeof(float); // TYPE_FLOAT
     case 3:
-        return sizeof(void *); // TYPE_STRING / PTR
+        return sizeof(void *); // TYPE_STRING & PTR
     default:
         return sizeof(void *);
     }
@@ -93,7 +93,7 @@ void Event::execute() {
 
     while (running.load()) {
         try {
-            // Copy argvb under mutex
+            // Copy argv under mutex
             std::vector<void *> localArgv;
 
             {

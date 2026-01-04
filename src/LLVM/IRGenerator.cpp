@@ -575,19 +575,13 @@ llvm::Value *IRGenerator::visit(FunctionCallNode &node) {
             // Filling argv[i] with  &valor_real
             for (unsigned i = 0; i < argCount; ++i) {
                 llvm::Value *argValue = node.getParam(i)->accept(*this);
-                llvm::Value *argAddr = nullptr;
 
-                if (argValue->getType()->isPointerTy()) {
-                    argAddr = argValue;
-                } else {
-                    llvm::Value *tmp = ctx.IRBuilder.CreateAlloca(argValue->getType(), nullptr, "arg_tmp");
-                    ctx.IRBuilder.CreateStore(argValue, tmp);
-                    argAddr = tmp;
-                }
+                // Always materialize the value into memory so scheduleEventData can copy it safely.
+                llvm::Value *argAddr = ctx.IRBuilder.CreateAlloca(argValue->getType(), nullptr, "arg_tmp");
+                ctx.IRBuilder.CreateStore(argValue, argAddr);
 
                 llvm::Value *argVoidPtr = ctx.IRBuilder.CreateBitCast(argAddr, i8PtrTy);
 
-                // slot = &argv[i]
                 llvm::Value *iV = llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), i);
                 llvm::Value *slot = ctx.IRBuilder.CreateInBoundsGEP(i8PtrTy, argvAlloca, iV);
 
