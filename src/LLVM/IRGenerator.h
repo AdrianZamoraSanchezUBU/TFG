@@ -33,6 +33,7 @@ class IRGenerator {
     std::vector<int> scopeStack;           /// Scope stack
     int scopeRef = -1;                     /// The scope is -1 before the main program initialization
     std::vector<CompilerError> &errorList; /// List of language misuses
+    bool hasReturned = false;              /// Early and nested return control flag
 
     /**
      * @brief Matches the condition and end of a loop.

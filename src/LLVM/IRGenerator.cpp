@@ -2,11 +2,23 @@
 #include <llvm/IR/Verifier.h>
 #include <string.h>
 
+/**
+ * Returns the address of a variable reference
+ *
+ * @param node Variable reference node
+ * @return llvm::value with the address of the variable
+ */
 llvm::Value *IRGenerator::visitLValue(VariableRefNode &node) {
     Symbol *sym = symtab.getCurrentScope()->getSymbol(node.getValue());
-    return sym->getLlvmValue(); // SIEMPRE dirección
+    return sym->getLlvmValue();
 }
 
+/**
+ * Returns the loaded value of a variable reference
+ *
+ * @param node Variable reference node
+ * @return llvm::value of the variable
+ */
 llvm::Value *IRGenerator::visitRValue(VariableRefNode &node) {
     Symbol *sym = symtab.getCurrentScope()->getSymbol(node.getValue());
     llvm::Value *addr = sym->getLlvmValue();
@@ -24,6 +36,9 @@ llvm::Value *IRGenerator::visit(CodeBlockNode &node) {
 
     // Visit all the statement
     for (int i = 0; i < node.getStmtCount(); i++) {
+        // Early exit after a return
+        if (hasReturned)
+            break;
         node.getStmt(i)->accept(*this);
     }
 
@@ -376,6 +391,12 @@ llvm::Value *IRGenerator::visit(VariableRefNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(FunctionDefNode &node) {
+    // Previous state save
+    bool prevReturned = hasReturned;
+    llvm::BasicBlock *savedBB = ctx.IRBuilder.GetInsertBlock();
+
+    hasReturned = false;
+
     // Getting the param definition (only types)
     std::vector<llvm::Type *> paramTypes;
     for (int i = 0; i < node.getParamsCount(); i++) {
@@ -409,13 +430,30 @@ llvm::Value *IRGenerator::visit(FunctionDefNode &node) {
 
         symtab.getScopeByID(scopeRef + 1)->getSymbol(name)->setLlvmValue(&arg);
     }
-    llvm::verifyFunction(*function);
 
     // IR generation for all the function statements
+    hasReturned = false;
     node.getCodeBlock()->accept(*this);
-    popScope();
-    ctx.popFunction();
 
+    if (!hasReturned) {
+        if (node.getType().type == SupportedTypes::TYPE_VOID) {
+            ctx.IRBuilder.CreateRetVoid();
+        } else {
+            ctx.IRBuilder.CreateRet(llvm::Constant::getNullValue(getLlvmType(node.getType())));
+        }
+    }
+
+    ctx.popFunction();
+    popScope();
+
+    // Restored previous state
+    if (savedBB) {
+        ctx.IRBuilder.SetInsertPoint(savedBB);
+    }
+    hasReturned = prevReturned;
+
+    // DEBUG info
+    llvm::verifyFunction(*function);
     return function;
 };
 
@@ -566,10 +604,12 @@ llvm::Value *IRGenerator::visit(FunctionCallNode &node) {
 };
 
 llvm::Value *IRGenerator::visit(ReturnNode &node) {
+    llvm::Value *ret = nullptr;
+
     // Checks if the return is from a value or void
     if (node.getStmt()) {
         // Generates the return value
-        llvm::Value *ret = node.getStmt()->accept(*this);
+        ret = node.getStmt()->accept(*this);
 
         // Return IR statement
         ctx.IRBuilder.CreateRet(ret);
@@ -578,7 +618,8 @@ llvm::Value *IRGenerator::visit(ReturnNode &node) {
         ctx.IRBuilder.CreateRetVoid();
     }
 
-    return nullptr;
+    hasReturned = true;
+    return ret;
 }
 
 llvm::Value *IRGenerator::visit(IfNode &node) {
@@ -587,47 +628,72 @@ llvm::Value *IRGenerator::visit(IfNode &node) {
     // Blocks for each part
     llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(ctx.IRContext, "then", function);
 
-    llvm::BasicBlock *elseBB;
+    llvm::BasicBlock *elseBB = nullptr;
     if (node.getElseStmt()) {
         elseBB = llvm::BasicBlock::Create(ctx.IRContext, "else", function);
     }
 
     llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(ctx.IRContext, "endif", function);
 
+    // Condition
+    llvm::Value *condVal = node.getExpr()->accept(*this);
+
     // Creates the conditional break point
     if (node.getElseStmt()) {
         // If the else is present, a false condition jumps to the else block
-        ctx.IRBuilder.CreateCondBr(node.getExpr()->accept(*this), thenBB, elseBB);
+        ctx.IRBuilder.CreateCondBr(condVal, thenBB, elseBB);
     } else {
         // If the else is present, a false condition jumps to the endif block
-        ctx.IRBuilder.CreateCondBr(node.getExpr()->accept(*this), thenBB, mergeBB);
+        ctx.IRBuilder.CreateCondBr(condVal, thenBB, mergeBB);
     }
+
+    /* -------- THEN -------- */
+    bool thenReturned = false;
 
     // Generates the if block
     ctx.pushFunction(thenBB);
+    hasReturned = false;
+
     node.getCodeBlock()->accept(*this);
     popScope();
 
+    thenReturned = hasReturned;
+
     // Inserts the merge block if no terminator was found at the end of the if block
-    if (!ctx.IRBuilder.GetInsertBlock()->getTerminator()) {
+    if (!thenReturned && !ctx.IRBuilder.GetInsertBlock()->getTerminator()) {
         ctx.IRBuilder.CreateBr(mergeBB);
-        ctx.popFunction();
-    }
-
-    // Adds the else node if there is one present
-    if (node.getElseStmt()) {
-        ctx.pushFunction(elseBB);
-        node.getElseStmt()->accept(*this);
-
-        if (!ctx.IRBuilder.GetInsertBlock()->getTerminator()) {
-            ctx.IRBuilder.CreateBr(mergeBB);
-        }
     }
 
     ctx.popFunction();
 
+    /* -------- ELSE -------- */
+    bool elseReturned = false;
+
+    // Adds the else node if there is one present
+    if (node.getElseStmt()) {
+        ctx.pushFunction(elseBB);
+        hasReturned = false;
+
+        node.getElseStmt()->accept(*this);
+        elseReturned = hasReturned;
+
+        if (!elseReturned && !ctx.IRBuilder.GetInsertBlock()->getTerminator()) {
+            ctx.IRBuilder.CreateBr(mergeBB);
+        }
+
+        ctx.popFunction();
+    }
+
+    /* -------- MERGE -------- */
     // Adds the exit block
-    ctx.pushFunction(mergeBB);
+    if (thenReturned && node.getElseStmt() && elseReturned) {
+        hasReturned = true;
+        mergeBB->eraseFromParent();
+        return nullptr;
+    }
+
+    ctx.IRBuilder.SetInsertPoint(mergeBB);
+    hasReturned = false;
 
     return nullptr;
 }
@@ -640,12 +706,17 @@ llvm::Value *IRGenerator::visit(ElseNode &node) {
 }
 
 llvm::Value *IRGenerator::visit(WhileNode &node) {
+    // Saves previous state
+    bool prevReturned = hasReturned;
+
     llvm::Function *function = ctx.IRBuilder.GetInsertBlock()->getParent();
 
     // Blocks for each part
     llvm::BasicBlock *condBB = llvm::BasicBlock::Create(ctx.IRContext, "condition", function);
     llvm::BasicBlock *loopBB = llvm::BasicBlock::Create(ctx.IRContext, "loop", function);
     llvm::BasicBlock *endLoopBB = llvm::BasicBlock::Create(ctx.IRContext, "endLoop", function);
+
+    // Break / Continue control
     loopContext.condBB = condBB;
     loopContext.endLoopBB = endLoopBB;
 
@@ -658,29 +729,36 @@ llvm::Value *IRGenerator::visit(WhileNode &node) {
     ctx.popFunction();
 
     // Generates the while block
-    ctx.pushFunction(loopBB);
+    ctx.IRBuilder.SetInsertPoint(loopBB);
+    hasReturned = false;
     node.getCodeBlock()->accept(*this);
     popScope();
 
-    // Check if the block had a return
-    if (!ctx.IRBuilder.GetInsertBlock()->getTerminator()) {
+    // Check if the block had a return/break/terminator
+    if (!hasReturned && !ctx.IRBuilder.GetInsertBlock()->getTerminator()) {
         // At the end of the block jumps to the condition
         ctx.IRBuilder.CreateBr(condBB);
     }
 
-    // Exits the basic block
+    // Exits the loop body basic block
     ctx.popFunction();
 
     // The code after the loop must be in the end loop block
-    ctx.pushFunction(endLoopBB);
+    ctx.IRBuilder.SetInsertPoint(endLoopBB);
 
     loopContext.condBB = nullptr;
     loopContext.endLoopBB = nullptr;
+
+    // Restores previous return state
+    hasReturned = prevReturned;
 
     return nullptr;
 }
 
 llvm::Value *IRGenerator::visit(ForNode &node) {
+    // Saves previous state
+    bool prevReturned = hasReturned;
+
     llvm::Function *function = ctx.IRBuilder.GetInsertBlock()->getParent();
 
     // Blocks for each part
@@ -718,10 +796,13 @@ llvm::Value *IRGenerator::visit(ForNode &node) {
     ctx.popFunction();
 
     // The code after the loop must be in the end loop block
-    ctx.pushFunction(endLoopBB);
+    ctx.IRBuilder.SetInsertPoint(endLoopBB);
 
     loopContext.condBB = nullptr;
     loopContext.endLoopBB = nullptr;
+
+    // Restores previous return state
+    hasReturned = prevReturned;
 
     return nullptr;
 }

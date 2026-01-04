@@ -292,6 +292,7 @@ void *SemanticVisitor::visit(FunctionDefNode &node) {
 
     node.getCodeBlock()->accept(*this);
 
+    symtab.exitScope();
     return nullptr;
 }
 
@@ -299,8 +300,9 @@ void *SemanticVisitor::visit(FunctionCallNode &node) {
     std::shared_ptr<Scope> currentScope = symtab.getCurrentScope();
     int expectedParams = currentScope->getSymbol(node.getValue())->getNumParams();
 
+    // Skiping external functions
     if (node.getValue() == "print" || node.getValue() == "strlen" || node.getValue() == "intToString" ||
-        node.getValue() == "floatToString")
+        node.getValue() == "floatToString" || node.getValue() == "mod")
         return nullptr;
 
     if (node.getParamsCount() != expectedParams) {
@@ -318,7 +320,7 @@ void *SemanticVisitor::visit(FunctionCallNode &node) {
     // Checking for uses of undefined variable as params
     for (int i = 0; i < node.getParamsCount(); i++) {
         if (auto var = dynamic_cast<VariableRefNode *>(node.getParam(i))) {
-            if (!currentScope->contains(var->getValue())) {
+            if (!currentScope->getSymbol(var->getValue())) {
                 std::string errorMsg =
                     "Missing declaration for a identifier used in a function call: " + node.getParam(i)->getValue();
 
