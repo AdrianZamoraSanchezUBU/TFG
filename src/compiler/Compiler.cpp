@@ -344,7 +344,7 @@ void Compiler::generateObjectCode() {
 
     // Object file destination
     std::error_code EC;
-    llvm::raw_fd_ostream dest(std::string(BUILD_DIR) + "/" + flags.outputFile + ".o", EC, llvm::sys::fs::OF_None);
+    llvm::raw_fd_ostream dest((execPath / (flags.outputFile + ".o")).string(), EC, llvm::sys::fs::OF_None);
 
     // Object file emission
     llvm::legacy::PassManager emitPM;
@@ -356,22 +356,22 @@ void Compiler::generateObjectCode() {
 }
 
 void Compiler::linkObjectFile() {
-    std::string entryPoint = std::string(BUILD_DIR) + "/main.o ";
-    std::string runtimeCpp = std::string(BUILD_DIR) + "/Runtime.o ";
-    std::string eventCpp = std::string(BUILD_DIR) + "/Event.o ";
-    std::string basicLib = std::string(BUILD_DIR) + "/TLib.o ";
-    std::string programObjectFile = std::string(BUILD_DIR) + "/" + flags.outputFile + ".o";
+    // Path normalizer
+    auto q = [](const std::filesystem::path &p) { return "\"" + p.string() + "\""; };
 
-    // Links the object file with the runtime to have a executable entry point and with a standard lib
-    std::string command = "clang++ -no-pie " + entryPoint + basicLib + runtimeCpp + eventCpp + programObjectFile +
-                          " -o " + flags.outputFile + " -pthread -lffi -lspdlog -lfmt";
-    std::system(command.c_str());
+    // Runtime and program linkage
+    std::string command = "clang++ -no-pie " + q(execPath / "main.o") + " " + q(execPath / "TLib.o") + " " +
+                          q(execPath / "Runtime.o") + " " + q(execPath / "Event.o") + " " +
+                          q(execPath / (flags.outputFile + ".o")) + " -o " +
+                          q(std::filesystem::current_path() / flags.outputFile) + " -pthread -lffi -lspdlog -lfmt";
 
-    // Deleting the .o file
-    std::system(("rm " + programObjectFile).c_str());
+    // Link error report
+    int linkStatus = std::system(command.c_str());
+    if (linkStatus != 0) {
+        spdlog::error("{}", "Link failed");
+    }
 
     spdlog::debug("****** GENERATED EXECUTABLE ******");
-
     spdlog::info("Program generated successfully");
 }
 

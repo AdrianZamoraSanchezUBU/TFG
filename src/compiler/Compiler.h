@@ -78,7 +78,9 @@ class Compiler {
     std::shared_ptr<ParserErrorListener> parserErrorListener;
     std::shared_ptr<LexerErrorListener> lexerErrorListener;
 
-    std::ofstream texFile; /// File for AST visualization
+    std::ofstream texFile; ///< File for AST visualization
+
+    std::filesystem::path execPath; ///< Execution path of the compiler
 
   public:
     /**
@@ -86,16 +88,20 @@ class Compiler {
      * @param flagStruct Structure with the compiler flags data.
      */
     explicit Compiler(CompilerFlags flagsStruct) : flags(flagsStruct) {
+        // Setting the spdlog level
         if (flags.debug) {
             spdlog::set_level(spdlog::level::debug);
         } else {
             spdlog::set_level(spdlog::level::info);
         }
-
         spdlog::set_pattern("[%l] %v");
 
+        // Creating the analyzer and IRgenerators
         analyzer = std::make_unique<SemanticVisitor>(symTable, errorList);
         IRgen = std::make_unique<IRGenerator>(symTable, errorList);
+
+        // Setting the execution path
+        execPath = std::filesystem::canonical("/proc/self/exe").parent_path();
     };
 
     /// Lexical analysis phase of the compiler.

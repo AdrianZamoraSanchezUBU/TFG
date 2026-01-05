@@ -40,7 +40,6 @@ target_include_directories(compilerLib
 target_compile_definitions(compilerLib
     PRIVATE
         ${LLVM_DEFINITIONS}
-        BUILD_DIR="${BUILD_DIR}" # Passing the build folder location to the main.cpp
 )
 
 # Linking all the dependencies in one lib

@@ -42,4 +42,5 @@ out
 .vscode/
 
 # Ignores the demo source code examples
-tests/input/demo
+tests/input/demo/*
+!tests/input/demo/*.T
