@@ -31,11 +31,20 @@ class Runtime {
     void launchEventThread(std::shared_ptr<Event> ev);
 
     /**
+     * @brief Terminates a event.
+     * @param id Given event identifier.
+     */
+    void terminateEvent(std::string id);
+
+    /**
      * @brief Schredule a registered event.
      * @param id of the Event to schedule.
      */
     void scheduleEvent(std::string id, void **argv);
 
+    /**
+     * Checks the current Event status and manages the event list.
+     */
     void checkEvents();
 
     /**
@@ -48,8 +57,10 @@ class Runtime {
     /**
      * @brief Saves the event data.
      * @param id Identifier of the new Event.
-     * @param time Time period of the new Event.
-     * @param sig Compilated event function signature.
+     * @param period Time period of the new Event.
+     * @param fnPtr Compilated event function name.
+     * @param argCount Number of parameters of the function signature.
+     * @param argTypes Types of the function parameters.
      * @param limit Number of limit executions for this Event, if set to 0 it has no numeric limit.
      */
     void registerEvent(std::string id, float period, EventFn fnPtr, int argCount, const int *argTypes, int limit);

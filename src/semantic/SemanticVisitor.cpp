@@ -459,5 +459,15 @@ void *SemanticVisitor::visit(EventNode &node) {
 }
 
 void *SemanticVisitor::visit(ExitNode &node) {
+    if (!symtab.getCurrentScope()->getSymbol(node.getValue())) {
+        std::string errorMsg = "The exit keyword can not find the event: " + node.getValue() + " as it does not exist";
+        errorList.push_back(
+            CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
+    }
+    if (symtab.getCurrentScope()->getSymbol(node.getValue())->getCategory() != SymbolCategory::EVENT) {
+        std::string errorMsg = "The exit keyword exit can not be used on: " + node.getValue() + " as it is not a event";
+        errorList.push_back(
+            CompilerError(CompilerPhase::SEMANTIC, node.getSourceLocation(), node.getValue(), errorMsg));
+    }
     return nullptr;
 };

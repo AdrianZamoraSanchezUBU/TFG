@@ -1303,8 +1303,7 @@ class EventNode : public ASTNode {
             params.append(getParam(i)->print());
         }
 
-        return "\n[" + id + " " + timeCommandToString(command) + ", params: " + params + "," + timeStmt->print() +
-               codeBlock->print() + "]";
+        return "\n[" + id + ",functionCallNode" + params + codeBlock->print() + "]";
     }
 
     /// @copydoc ASTNode::equals
@@ -1347,7 +1346,7 @@ class ExitNode : public ASTNode {
     std::string getValue() const override { return id; }
 
     /// @copydoc ASTNode::print
-    std::string print() const override { return "\n[EXIT" + id + ",returnNode]"; }
+    std::string print() const override { return "\n[EXIT " + id + ",returnNode]"; }
 
     /// @copydoc ASTNode::equals
     bool equals(const ASTNode *other) const override {

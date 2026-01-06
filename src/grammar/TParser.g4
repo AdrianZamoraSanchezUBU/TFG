@@ -141,4 +141,4 @@ eventLimitCondition : LIMIT NUMBER_LITERAL ;
 
 eventBlock : LBRACE (stmt | exitStmt)* RBRACE ;
 
-exitStmt : EXIT IDENTIFIER ;
+exitStmt : EXIT IDENTIFIER SEMICOLON ;

@@ -413,9 +413,9 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::EventBlockContext *ctx) {
     for (auto child : ctx->children) {
         if (auto stmtCtx = dynamic_cast<TParser::StmtContext *>(child)) {
             stmt.push_back(visit(stmtCtx));
-        } else if (auto controlStmt = dynamic_cast<TParser::ExitStmtContext *>(child)) {
-            SourceLocation loc(controlStmt->getStart()->getLine(), controlStmt->getStart()->getCharPositionInLine());
-            stmt.push_back(std::make_unique<ExitNode>(child->getText(), loc));
+        } else if (auto exitStmt = dynamic_cast<TParser::ExitStmtContext *>(child)) {
+            SourceLocation loc(exitStmt->getStart()->getLine(), exitStmt->getStart()->getCharPositionInLine());
+            stmt.push_back(std::make_unique<ExitNode>(exitStmt->IDENTIFIER()->getText(), loc));
         }
     }
 

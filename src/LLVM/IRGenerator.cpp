@@ -562,13 +562,7 @@ llvm::Value *IRGenerator::visit(FunctionCallNode &node) {
             llvm::Value *eventID = ctx.IRBuilder.CreateGlobalStringPtr(node.getValue(), "event_id");
 
             // Getting the scheduleEventData function from the module
-            llvm::FunctionCallee scheduleFn = ctx.IRModule->getOrInsertFunction(
-                "scheduleEventData", llvm::FunctionType::get(voidTy,
-                                                             {
-                                                                 i8PtrTy,                // const char* id
-                                                                 i8PtrTy->getPointerTo() // void** argv
-                                                             },
-                                                             false));
+            llvm::FunctionCallee scheduleFn = ctx.IRModule->getFunction("scheduleEventData");
 
             // Creating argv in the stack as void* argv[N]
             unsigned argCount = node.getParamsCount();
@@ -882,22 +876,12 @@ llvm::Value *IRGenerator::visit(EventNode &node) {
         event = llvm::Function::Create(eventType, llvm::Function::ExternalLinkage, node.getValue(), ctx.IRModule.get());
     }
 
-    llvm::Value *eventID = ctx.IRBuilder.CreateGlobalStringPtr(node.getValue(), "str");
+    llvm::Value *eventID = ctx.IRBuilder.CreateGlobalStringPtr(node.getValue(), "event_id");
     llvm::Value *time = node.getTimeStmt()->accept(*this);
     llvm::Value *limit = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ctx.IRContext), node.getLimit());
 
     // Inserting the event register function right after the event
-    llvm::FunctionCallee fn = ctx.IRModule->getOrInsertFunction(
-        "registerEventData", llvm::FunctionType::get(llvm::Type::getVoidTy(C),
-                                                     {
-                                                         i8PtrTy,                   // id
-                                                         llvm::Type::getFloatTy(C), // time
-                                                         i8PtrTy,                   // fn pointer
-                                                         i32Ty,                     // argCount
-                                                         i32Ty->getPointerTo(),     // int* argTypes
-                                                         i32Ty                      // limit
-                                                     },
-                                                     false));
+    llvm::FunctionCallee fn = ctx.IRModule->getFunction("registerEventData");
 
     llvm::Value *fnPtr = ctx.IRBuilder.CreateBitCast(event, i8PtrTy);
 
@@ -932,5 +916,11 @@ llvm::Value *IRGenerator::visit(EventNode &node) {
 };
 
 llvm::Value *IRGenerator::visit(ExitNode &node) {
-    return nullptr;
+    llvm::Type *i8PtrTy = llvm::PointerType::getUnqual(llvm::Type::getInt8Ty(ctx.IRContext));
+    llvm::Value *eventID = ctx.IRBuilder.CreateGlobalStringPtr(node.getValue(), "event_id");
+    llvm::Type *voidTy = llvm::Type::getVoidTy(ctx.IRContext);
+
+    llvm::FunctionCallee fn = ctx.IRModule->getFunction("exitEvent");
+
+    return ctx.IRBuilder.CreateCall(fn, {eventID});
 };

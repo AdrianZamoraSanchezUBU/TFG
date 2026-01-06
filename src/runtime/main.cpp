@@ -13,7 +13,13 @@ extern "C" Runtime *getRuntime() {
 using EventFn = void (*)();
 
 /**
- * Function responsible of loading data from extern functions to the runtime
+ * Function responsible of loading event data in the runtime.
+ * @param id Identifier of the new Event.
+ * @param period Time period of the new Event.
+ * @param fnPtr Compilated event function name.
+ * @param argCount Number of parameters of the function signature.
+ * @param argTypes Types of the function parameters.
+ * @param limit Number of limit executions for this Event, if set to 0 it has no numeric limit.
  */
 extern "C" void
 registerEventData(const char *id, float period, void (*fnPtr)(), int argCount, const int *argTypes, int limit) {
@@ -21,10 +27,20 @@ registerEventData(const char *id, float period, void (*fnPtr)(), int argCount, c
 }
 
 /**
- * Function responsible of loading data from extern functions to the runtime
+ * Function responsible of executing a event in the runtime.
+ * @param id Event id to execute.
+ * @param argv Arguments for the event execution.
  */
 extern "C" void scheduleEventData(const char *id, void **argv) {
     getRuntime()->scheduleEvent(std::string(id), argv);
+}
+
+/**
+ * Function responsible of stopping a event.
+ * @param id Event id to terminate.
+ */
+extern "C" void exitEvent(const char *id) {
+    getRuntime()->terminateEvent(std::string(id));
 }
 
 /**
