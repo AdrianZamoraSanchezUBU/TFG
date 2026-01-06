@@ -98,3 +98,25 @@ En mi caso lo he personalizado con las siguientes extensiones:
     \item \textbf{Clang-Format:} Herramienta configurable que permite establecer reglas de estilo consistentes en todos los archivos de código, en mi caso utilizo el estándar de LLVM.  
 \end{itemize}
  
+\subsection{Despliegue con Docker}
+\textbf{Justificación de la elección:}  
+Con el objetivo de facilitar el acceso y la prueba del compilador desarrollado, se ha optado por proporcionar un entorno de ejecución reproducible mediante el uso de Docker. Esta decisión permite desacoplar el proceso de evaluación del proyecto de la configuración concreta del sistema anfitrión, evitando problemas derivados de dependencias, versiones de las herramientas o problemas derivados del sistemas operativo anfitrión.
+
+Docker se utiliza en este proyecto como un \textbf{entorno de despliegue y ejecución}, no como entorno de desarrollo. El contenedor incluye únicamente lo necesario para la ejecución del compilador (binario del compilador y objetos del \eng{runtime}), junto con las dependencias dinámicas requeridas, evitando la inclusión de herramientas de desarrollo o ficheros auxiliares generados durante la compilación.
+
+Las principales ventajas de Docker son:
+\begin{itemize}
+    \item \textbf{Reproducibilidad:} Cualquier usuario puede ejecutar el compilador en un entorno idéntico al utilizado durante el desarrollo, independientemente del sistema anfitrión.
+    \item \textbf{Aislamiento de dependencias:} Se evita la necesidad de instalar manualmente bibliotecas complejas como LLVM o ANTLR.
+    \item \textbf{Portabilidad:} El contenedor puede ejecutarse en sistemas anfitrión Linux, Windows o macOS mediante Docker, manteniendo un comportamiento consistente.
+    \item \textbf{Simplicidad de evaluación:} El evaluador puede acceder a un entorno interactivo desde el cual compilar y ejecutar programas escritos en el lenguaje desarrollado sin configurar nada.
+\end{itemize}
+
+\textbf{Alternativas consideradas:}
+\begin{itemize}
+    \item \textbf{Ejecución en el sistema anfitrión:}  
+    Esta opción requeriría la instalación manual de dependencias complejas como LLVM, ANTLR y el resto de bibliotecas de tiempo de ejecución, además de garantizar compatibilidad de versiones entre todas estas herramientas. Esta propuesta lleva con facilidad a problemas de reproducibilidad.
+
+    \item \textbf{Distribución mediante máquina virtual:}  
+    El uso de una máquina virtual permitiría encapsular completamente el entorno de ejecución, pero implica un mayor consumo de recursos y menor comodidad. Por otro lado, Docker ofrece un aislamiento equivalente con un coste significativamente menor.
+\end{itemize}

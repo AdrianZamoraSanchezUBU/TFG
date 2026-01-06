@@ -34,7 +34,11 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /opt/tlang
 
 # Copy build required object files to the compiler folder 
-COPY build/ /opt/tlang/
+COPY build/TCompiler  /opt/tlang/TCompiler
+COPY build/main.o     /opt/tlang/main.o
+COPY build/Runtime.o  /opt/tlang/Runtime.o
+COPY build/Event.o    /opt/tlang/Event.o
+COPY build/TLib.o     /opt/tlang/TLib.o
 
 # Copy the demo examples
 COPY tests/input/demo/ /opt/tlang/examples/

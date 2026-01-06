@@ -49,6 +49,12 @@ Utilizado para la generación de LLVM IR y código máquina.
 sudo apt install -y llvm llvm-dev
 ```
 
+## libfmt
+Librería de formateo de texto, dependencia de **libspdlog**.
+```bash
+sudo apt install -y libfmt-dev
+```
+
 ## libspdlog
 Librería de logging a consola utilizada por el compilador.
 ```bash
@@ -149,6 +155,14 @@ Si no se especifica un nombre de la salida con "-o  <nombre_salida>" la salida s
 ./out
 ```
 > **Nota:** para ver la salida del programa podemos ejecutar ```echo $?```
+
+#### Visualizar el AST
+Con el objetivo de evitar tiempos de build excesivos del contenedor, se ha decidido no incluir la herramienta "texlive-xetex".
+
+Para poder visualizar el diagrama del AST generado con los argumentos ```--debug``` y ```--visualizeAST``` se puede tomar el AST.tex generado en el contenedor y pasar su contenido a local. En local podremos compilar y abrir el PDF con normalidad utilizando:
+```bash
+xelatex -interaction=nonstopmode <archivo.tex>
+```
 
 ### Cerrar el contenedor
 ```bash
