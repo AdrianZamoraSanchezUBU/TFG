@@ -335,3 +335,76 @@ El principal problema radica en la gestión de memoria asociada a los parámetro
 Dado que el objetivo principal del proyecto es el diseño e implementación del compilador y su sistema de ejecución, y no la construcción de un gestor de memoria completo, se decidió acotar el alcance de esta funcionalidad. En la implementación actual, el sistema de paso de parámetros se limita a valores por copia, evitando el uso de punteros y referencias complejas en las llamadas dinámicas realizadas mediante \emph{libffi}.
 
 Esta limitación se considera aceptable dentro del contexto del proyecto y se deja abierta y documentada en la sección 7~\ref{capitulo7:lineas_de_trabajo:garbage_collector} como una línea de trabajo futura.
+
+\section{Evaluación del rendimiento}
+
+Con el objetivo de evaluar el rendimiento del compilador desarrollado, para esta tarea se han creado entre tres implementaciones equivalentes de un mismo algoritmo: una escrita en el lenguaje diseñado en este proyecto, su equivalente en lenguaje C compilado con optimizaciones \texttt{-O2}, y una versión implementada en \texttt{python3}.
+
+El algoritmo seleccionado consiste en el cálculo de números primos hasta un valor $n$, utilizando exclusivamente estructuras de control básicas (condicionales y bucles) y operaciones aritméticas. No se emplean estructuras de datos complejas ni bibliotecas externas, con el fin de centrar la comparación en el coste del flujo de control y del modelo de ejecución de cada lenguaje.
+
+Las mediciones se han realizado utilizando la herramienta \texttt{hyperfine}, una sencilla herramienta diseñada para medir el rendimiento de programas de consola. Para las pruebas se ha ejecutando cada programa de forma independiente y variando progresivamente el valor de $n$. 
+
+\begin{table}[h]
+\centering
+\begin{tabular}{c|c|c|c}
+\textbf{n} & \textbf{Lenguaje T (s)} & \textbf{C -O2 (s)} & \textbf{Python 3 (s)} \\
+\hline
+50\,000   & 0.059 & 0.046 & 1.388 \\
+100\,000  & 0.156 & 0.126 & 4.263 \\
+150\,000  & 0.279 & 0.218 & 8.332 \\
+300\,000  & 0.774 & 0.636 & 24.553 \\
+500\,000  & 1.579 & 1.509 & 55.395 \\
+1\,000\,000  & 4.464 & 4.168 & 152.328 \\
+\end{tabular}
+\caption{Tiempos de ejecución en el cálculo de números primos}
+\end{table}
+
+En la siguiente gráfica podemos observar una comparativa entre las tres implementaciones:
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    xlabel={n},
+    ylabel={Tiempo (s)},
+    legend pos=north west,
+    grid=major
+]
+\addplot coordinates {
+    (50000,0.046)
+    (100000,0.156)
+    (150000,0.279)
+    (300000,0.774)
+    (500000,1.579)
+    (1000000,4.464)
+};
+\addlegendentry{Lenguaje T}
+
+\addplot coordinates {
+    (50000,0.059)
+    (100000,0.126)
+    (150000,0.218)
+    (300000,0.636)
+    (500000,1.509)
+    (1000000,4.168)
+};
+\addlegendentry{C (-O2)}
+
+\addplot coordinates {
+    (50000,1.388)
+    (100000,4.263)
+    (150000,8.332)
+    (300000,24.553)
+    (500000,55.395)
+    (1000000,151.118)
+};
+\addlegendentry{Python 3}
+\end{axis}
+\end{tikzpicture}
+\caption{Gráfica comparativa del rendimiento en el cálculo de números primos}
+\end{figure}
+
+
+Los resultados obtenidos muestran que el código generado por el compilador desarrollado presenta un rendimiento muy cercano al del código C optimizado, con diferencias aproximadas de TODO. En contraste, tanto el programa en C como el generado por el compilador superan ampliamente a Python, siendo los ejecutables compilados alrededor de un TODO más rápidos que el interpretado.
+
+Estos resultados se explican por el hecho de que tanto el lenguaje desarrollado como C generan código nativo que se ejecuta directamente sobre la arquitectura subyacente, sin la sobrecarga propia de los lenguajes interpretados. Asimismo, el uso de una representación intermedia eficiente y la delegación de las optimizaciones de bajo nivel en la infraestructura LLVM permiten obtener un rendimiento competitivo pese a tratarse de un compilador desarrollado en el contexto de un Trabajo de Fin de Grado.

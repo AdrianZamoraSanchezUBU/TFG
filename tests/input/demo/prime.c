@@ -1,4 +1,7 @@
-bool function isPrime(int x) {
+#include <stdio.h>
+#include <stdbool.h>
+
+bool isPrime(int x) {
     if (x < 2) {
         return false;
     }
@@ -19,19 +22,20 @@ bool function isPrime(int x) {
     return true;
 }
 
-void function calcPrimes(int n){
+void calcPrimes(int n) {
     int i = 2;
     int c = 0;
 
     while (c <= n) {
         if (isPrime(i)) {
-            print(intToString(i));
+            printf("%d\n", i);
             c++;
         }
         i = i + 1;
     }
 }
 
-calcPrimes(1000000);
-
-return 0;
+int main() {
+    calcPrimes(1000000);
+    return 0;
+}
