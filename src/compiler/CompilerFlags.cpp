@@ -37,9 +37,9 @@ CompilerFlags argvToFlags(int argc, char **argv) {
         .default_value(true)
         .implicit_value(false);
 
-    program.add_argument("-IR").help("Generates a LLVM IR file.").default_value(std::string(""));
+    program.add_argument("-IR").help("Generates a LLVM IR file.").default_value(std::string("ir"));
 
-    // Is the arguments are invalid throws invalid_argument exception
+    // If the arguments are invalid throws std::invalid_argument exception
     try {
         program.parse_args(argc, argv);
     } catch (const std::exception &e) {

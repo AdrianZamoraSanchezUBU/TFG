@@ -1,13 +1,11 @@
 string a = "global scope";
 print(a);
 
-int function foo(){
-    // Esta "a" no es como la de afuera
+void function foo(){
+    // Esta "a" no es como la global
     string a = "foo scope";
 
     print(a);
-
-    return 1;
 }
 foo();
 

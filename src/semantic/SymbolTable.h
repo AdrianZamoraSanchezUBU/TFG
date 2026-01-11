@@ -37,6 +37,12 @@ class SymbolTable {
         Symbol toString("toString", SymbolCategory::FUNCTION, SupportedTypes::TYPE_STRING);
         currentScope->insertSymbol(toString);
 
+        Symbol intToString("intToString", SymbolCategory::FUNCTION, SupportedTypes::TYPE_STRING);
+        currentScope->insertSymbol(intToString);
+
+        Symbol floatToString("floatToString", SymbolCategory::FUNCTION, SupportedTypes::TYPE_STRING);
+        currentScope->insertSymbol(floatToString);
+
         scopes.emplace_back(currentScope);
     }
 
