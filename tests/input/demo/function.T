@@ -5,4 +5,6 @@ int function add(int x, int y){
     return x+y;
 }
 
-return add(2, 5);
+print("Resultado de la suma: ", intToString(add(5,5)), " 👍");
+
+return add(a, b);

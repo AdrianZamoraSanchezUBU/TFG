@@ -23,6 +23,11 @@ src/grammar/*
 
 # Ignore CMake and Doxugen generated files
 build/*
+!build/TCompiler
+!build/TLib.o
+!build/Runtime.o
+!build/main.o
+!build/Event.o
 Testing/*
 doc/doxygen
 

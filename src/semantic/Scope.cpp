@@ -63,7 +63,7 @@ bool Scope::insertSymbol(Symbol symbol) {
 };
 
 void Scope::print() const {
-    constexpr int WIDTH = 47;            ///< Max screen table width
+    constexpr int WIDTH = 49;            ///< Max screen table width
     auto line = std::string(WIDTH, '-'); ///< table width delimiter
 
     // Scope header
@@ -74,12 +74,12 @@ void Scope::print() const {
     spdlog::debug("{}", line);
 
     // Data fields
-    spdlog::debug("| {:<12} | {:<10} | {:<15} |", "Key", "Category", "Type");
+    spdlog::debug("| {:<14} | {:<10} | {:<15} |", "Key", "Category", "Type");
     spdlog::debug("{}", line);
 
     // Symbols info
     for (const auto &[key, symbol] : symbols) {
-        spdlog::debug("| {:<12} | {:<10} | {:<15} |", key, categoryToString(symbol.getCategory()),
+        spdlog::debug("| {:<14} | {:<10} | {:<15} |", key, categoryToString(symbol.getCategory()),
                       typeToString(symbol.getType()));
     }
 
