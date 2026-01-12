@@ -179,15 +179,15 @@ Algunas de las consideraciones necesarias para compatibilizar el AST y el genera
     \centering
     \begin{tabularx}{\linewidth}{ p{0.5\columnwidth} p{0.5\columnwidth} }
     \toprule
-    \textbf{Tipo AST} & \textbf{Tipo LLVM} \\
+    \textbf{Tipo AST} & \textbf{Tipo LLVM IR} \\
     \midrule
-    \kw{TYPE\_INT}    & \kw{i32} \\
+    \kw{TYPE\_INT}     & \kw{i32} \\
     \kw{TYPE\_FLOAT}   & \kw{float} \\
     \kw{TYPE\_CHAR}    & \kw{i8} \\
     \kw{TYPE\_STRING}  & \kw{i8*} \\
     \kw{TYPE\_BOOLEAN} & \kw{i1} \\
     \kw{TYPE\_VOID}    & \kw{void} \\
-    \kw{TYPE\_PTR}     & \kw{ptrType} \\
+    \kw{TYPE\_PTR}     & \kw{ptr} \\
     \bottomrule
     \end{tabularx}
     \caption{\texorpdfstring{Correspondencia entre tipos del AST y tipos de LLVM IR}{Correspondencia entre tipos del AST y tipos de LLVM IR}}
@@ -250,7 +250,7 @@ Algunas de las optimizaciones más importantes son:
 
 En el ejemplo anterior, podemos observar un ejemplo de \eng{constant folding}, donde la expresión original \texttt{return 2+3*5;} puede ser traducida a \texttt{return 2+15;} y finalmente \texttt{return 17;}, obteniendo de esta manera un único \emph{return statement} exento de cálculos.
 
-El uso de estas combinaciones junto a las comprobaciones de calidad mínimas para compilar sin errores, generan un código de una calidad similar al código optimizado con \code{-O2} de compiladores como GCC, Rustc o Swiftc.
+El uso de estas combinaciones junto a las comprobaciones de calidad mínimas para compilar sin errores, generan un código con un rendimiento similar al código en C optimizado con \code{-O2} de compiladores como GCC, Rustc o Swiftc.
 
 Este ejemplo ilustra cómo las optimizaciones permiten simplificar significativamente el código generado, reduciendo tanto el número de instrucciones como la complejidad del flujo de control, sin alterar el comportamiento del programa.
 
@@ -278,7 +278,7 @@ endif:
 }
 \end{minted}
 
-Puede observarse que la condición \texttt{2 < 3} se evalúa en tiempo de compilación mediante una optimización de \kw{constant folding}, sustituyendo la condición por un valor constante (\texttt{true}).
+Puede observarse que la condición \code{2 < 3} se evalúa en tiempo de compilación mediante una optimización de \kw{constant folding}, sustituyendo la condición por un valor constante (\mint{c}|true|).
 
 \subsubsection{LLVM IR tras la fase de optimización:}
 
@@ -328,7 +328,26 @@ Este modelo de ejecución concurrente controlada permite implementar mecanismos 
 
 Uno de los aspectos más complejos del desarrollo del \emph{runtime} ha sido la implementación del paso de parámetros hacia las funciones asociadas a los eventos. Dado que los eventos se ejecutan dinámicamente y en hilos independientes, resulta necesario disponer de un mecanismo que permita invocar funciones con firmas conocidas únicamente en tiempo de ejecución.
 
-Para este propósito se exploró el uso de \emph{libffi}, una biblioteca que permite realizar llamadas a funciones de forma dinámica, especificando en tiempo de ejecución la firma correcta conforme al \eng{application binary interface} (ABI), tanto en la función a invocar como los tipos de sus parámetros. Aunque esta aproximación resulta adecuada para el paso de parámetros por valor, introduce una complejidad significativa cuando se trata de pasar punteros.
+Para este propósito se exploró el uso de \textbf{libffi}, una biblioteca que permite realizar llamadas a funciones de forma dinámica, especificando en tiempo de ejecución la firma correcta conforme al \eng{application binary interface} (ABI), tanto en la función a invocar como en el retorno de esta y en los tipos de sus parámetros. Aunque esta aproximación resulta adecuada para el paso de parámetros por valor, introduce una complejidad significativa cuando se trata de pasar punteros.
+
+En esta capa nuevamente se definen tipos equivalente para el paso por libffi:
+\begin{table}[ht]
+    \centering
+    \begin{tabularx}{\linewidth}{ p{0.5\columnwidth} p{0.5\columnwidth} }
+    \toprule
+    \textbf{Tipo LLVM IR} & \textbf{Tipo Libffi} \\
+    \midrule
+    \kw{i32}   & \kw{ffi\_type\_sint32}  \\
+    \kw{float} & \kw{ffi\_type\_uint8}   \\
+    \kw{i8}    & \kw{ffi\_type\_sint8}   \\
+    \kw{i8*}   & \kw{ffi\_type\_float}   \\
+    \kw{i1}    & \kw{ffi\_type\_pointer} \\
+    \kw{void}  & \kw{ffi\_type\_void}    \\
+    \kw{ptr}   & \kw{ffi\_type\_pointer} \\
+    \bottomrule
+    \end{tabularx}
+    \caption{\texorpdfstring{Correspondencia entre tipos del AST y tipos de LLVM IR}{Correspondencia entre tipos del AST y tipos de LLVM IR}}
+\end{table}
 
 El principal problema radica en la gestión de memoria asociada a los parámetros por referencia. El uso de punteros implica garantizar que los datos apuntados permanezcan válidos durante toda la ejecución del evento, lo que requiere una gestión explícita de memoria en el \emph{heap}, así como mecanismos claros de propiedad, ciclo de vida y liberación de recursos. Este tipo de gestión introduce riesgos adicionales, como accesos a memoria inválida, fugas de memoria o condiciones de carrera, especialmente en un entorno concurrente basado en múltiples hilos.
 
@@ -338,9 +357,9 @@ Esta limitación se considera aceptable dentro del contexto del proyecto y se de
 
 \section{Evaluación del rendimiento}
 
-Con el objetivo de evaluar el rendimiento del compilador desarrollado, para esta tarea se han creado entre tres implementaciones equivalentes de un mismo algoritmo: una escrita en el lenguaje diseñado en este proyecto, su equivalente en lenguaje C compilado con optimizaciones \texttt{-O2}, y una versión implementada en \texttt{python3}.
+Con el objetivo de evaluar el rendimiento del compilador desarrollado, para esta tarea se han creado entre tres implementaciones equivalentes de un mismo algoritmo: una escrita en el lenguaje T diseñado en este proyecto, su equivalente en lenguaje C compilado con optimizaciones \texttt{-O2}, y una versión implementada en \texttt{python3}.
 
-El algoritmo seleccionado consiste en el cálculo de números primos hasta un valor $n$, utilizando exclusivamente estructuras de control básicas (condicionales y bucles) y operaciones aritméticas. No se emplean estructuras de datos complejas ni bibliotecas externas, con el fin de centrar la comparación en el coste del flujo de control y del modelo de ejecución de cada lenguaje.
+El algoritmo seleccionado consiste en el \textbf{cálculo de números primos}~\cite{algoritmoPrimos} hasta un valor $n$, utilizando exclusivamente \textbf{estructuras de control} básicas (condicionales y bucles) y \textbf{operaciones aritméticas}. No se emplean estructuras de datos complejas ni bibliotecas externas, con el fin de centrar la comparación en el coste del flujo de control y del modelo de ejecución de cada lenguaje.
 
 Las mediciones se han realizado utilizando la herramienta \texttt{hyperfine}, una sencilla herramienta diseñada para medir el rendimiento de programas de consola. Para las pruebas se ha ejecutando cada programa de forma independiente y variando progresivamente el valor de $n$. 
 
@@ -404,7 +423,6 @@ En la siguiente gráfica podemos observar una comparativa entre las tres impleme
 \caption{Gráfica comparativa del rendimiento en el cálculo de números primos}
 \end{figure}
 
+Los resultados obtenidos muestran que el código generado por el compilador desarrollado presenta un rendimiento muy cercano al del código C optimizado, con diferencias aproximadas de 7\% a medida que aumenta $n$. En contraste, tanto el programa en C como el generado por el compilador superan ampliamente a Python, siendo los ejecutables compilados un 20x \~ 30x más rápidos que el interpretado.
 
-Los resultados obtenidos muestran que el código generado por el compilador desarrollado presenta un rendimiento muy cercano al del código C optimizado, con diferencias aproximadas de TODO. En contraste, tanto el programa en C como el generado por el compilador superan ampliamente a Python, siendo los ejecutables compilados alrededor de un TODO más rápidos que el interpretado.
-
-Estos resultados se explican por el hecho de que tanto el lenguaje desarrollado como C generan código nativo que se ejecuta directamente sobre la arquitectura subyacente, sin la sobrecarga propia de los lenguajes interpretados. Asimismo, el uso de una representación intermedia eficiente y la delegación de las optimizaciones de bajo nivel en la infraestructura LLVM permiten obtener un rendimiento competitivo pese a tratarse de un compilador desarrollado en el contexto de un Trabajo de Fin de Grado.
+Estos resultados se explican por el hecho de que tanto el lenguaje desarrollado como C generan código nativo que se ejecuta directamente sobre la arquitectura subyacente, evitando la sobrecarga propia de los lenguajes interpretados. Asimismo, el uso de una representación intermedia eficiente y la delegación de las optimizaciones de bajo nivel en la infraestructura LLVM permiten obtener un rendimiento competitivo pese a tratarse de un compilador desarrollado en el contexto de un Trabajo de Fin de Grado.

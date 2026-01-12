@@ -11,7 +11,7 @@
     Separar las diferentes fases de compilación manteniendo las responsabilidades bien definidas dentro de cada una de las fases, evitando así una sobrecarga de responsabilidades que dificulte realizar ampliaciones o modificaciones.
 
     \item \textbf{Generación y gestión de errores}: 
-    Incorporar un sistema de detección y reporte de errores léxicos, sintácticos y semánticos, proporcionando mensajes claros y detallados que faciliten la depuración del código. 
+    Incorporar un sistema de detección y reporte de errores léxicos y sintácticos, con detección de algunos de los principales errores semánticos, proporcionando mensajes claros y detallados que faciliten la depuración del código. 
 
     \item \textbf{Herramienta de análisis y depuración visual}: 
     Desarrollar una utilidad visual que permita representar y explorar estructuras internas del compilador, como el árbol de sintaxis abstracta o la tabla de símbolos, facilitando la comprensión y depuración del lenguaje.
@@ -20,7 +20,7 @@
     Implementar la traducción del lenguaje diseñado a una representación intermedia basada en LLVM IR~\cite{lattner2004llvm}, permitiendo la optimización y posterior generación de código máquina para distintas arquitecturas.
 
     \item \textbf{Implementación de una biblioteca estándar}: 
-    Desarrollar una pequeña librería estándar, es decir, un conjunto de funciones básicas que proporcionen utilidades estándar dentro del lenguaje diseñado.
+    Desarrollar una pequeña biblioteca estándar, es decir, un conjunto de funciones básicas que proporcionen utilidades básicas dentro del lenguaje diseñado.
 
     \item \textbf{Proporcionar al menos una funcionalidad específica del lenguaje}: 
     Se trabajará en la implementación de un sistema de ejecución de código basado en eventos y tiempo. Este será un factor diferenciador y experimental frente a otros lenguajes de propósito general.

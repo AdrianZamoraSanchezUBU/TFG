@@ -1,8 +1,10 @@
 \capitulo{7}{Conclusiones y líneas de trabajo futuras}
 \subsection{Conclusiones}
-Tras realizar el proyecto, he conseguido una comprensión profunda sobre como funcionan los lenguajes de programación así como los procesos de compilación y en menor medida el proceso de interpretación. Este trabajo me ha hecho lanzar una mirada crítica a herramientas y lenguajes que llevo usando desde hace muchos años pero nunca me había preguntado realmente como operaban fuera de la mirada del programador. 
+En conjunto, el proyecto ha permitido cumplir plenamente los objetivos planteados, dando como resultado un compilador funcional, modular y extensible, apoyado en infraestructuras modernas como LLVM y acompañado de un sistema de ejecución propio. A pesar de las limitaciones inherentes al alcance de un Trabajo de Fin de Grado, el trabajo realizado demuestra la viabilidad técnica del enfoque adoptado y constituye una base sólida sobre la que continuar explorando, ampliando y profundizando en este campo.
 
-Estudiar, analizar y comprender el trabajo tan extenso y complejo que supone crear un compilador de la calidad de GCC o rustc, también me ha hecho que me sienta especialmente agradecido de disponer de acceso a tecnologías tan punteras y sofisticadas de forma totalmente gratuita, estas herramientas nos permiten desarrollar de forma cómoda nuestra labor en el desarrollo de software sin pedir nada a cambio.
+A nivel personal, he obtenido una valiosa comprensión sobre el funcionamiento los lenguajes de programación así como los procesos de compilación y en menor medida, el proceso de interpretación. Este trabajo me ha hecho lanzar una mirada crítica a herramientas y lenguajes que llevo utilizando desde hace muchos años pero nunca me había atrevido a preguntarme realmente como operaban fuera de la mirada del programador. 
+
+Estudiar, analizar y comprender el trabajo tan extenso y complejo que supone crear un compilador de la calidad de \texttt{GCC}, \texttt{Javac} o \texttt{Rustc}, también me ha hecho que me sienta agradecido de disponer de acceso a tecnologías tan punteras y sofisticadas de forma totalmente gratuita, puesto que sin estas herramientas no podríamos desarrollar de forma cómoda y eficiente nuestra labor en el desarrollo de software.
 
 \subsection{Líneas de trabajo futuras}
 Puesto que el proyecto está extremadamente acotado por su complejidad y el tiempo disponible, considero que hay numerosas lineas de trabajo con las que me gustaría continuar próximamente, algunas de las más destacables:
@@ -40,7 +42,8 @@ Y posteriormente sustituye la llamada por la misma función reescrita con el ent
         return env.a
 \end{minted} 
 
-    \item Más pruebas y tiempo de depuración para poder detectar errores complejos en casos de uso muy específicos, para poder poder analizarlos y subsanarlos.
+    \item Más casos de prueba y casos de prueba más específicos que permitan una depuración enfocada en errores límite y detectar errores complejos, para así poder poder analizarlos y subsanarlos.
     \item Inclusión de bibliotecas/módulos, que permitan a los usuarios escribir sus propios códigos en archivos que posteriormente puedan importar y utilizar, permitiendo una mejor organización del código fuente, así como la reutilización del código fuente y la colaboración entre proyectos. 
     \item \label{capitulo7:lineas_de_trabajo:garbage_collector} Sistema de gestión de memoria (\eng{garbage collector}) capaz de hacer reservas y liberaciones de memoria en \eng{heap}, permitiendo un control más amplio de punteros/referencias, especialmente en el contexto de los programas en ejecución.
+    \item Mejor reconocimiento y reporte de errores. Crear un módulo del compilador que se encargue únicamente de esto, permitiendo una mejor separación de responsabilidades y un código más robusto.
 \end{itemize}
