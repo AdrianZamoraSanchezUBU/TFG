@@ -20,10 +20,10 @@ CompilerFlags argvToFlags(int argc, char **argv) {
     // Defined arguments
     program.add_argument("input").help("Input source file.");
 
-    program.add_argument("-o", "--output").help("Output object file").default_value(std::string("out"));
+    program.add_argument("-o", "--output").help("Output executable file").default_value(std::string("out"));
 
     program.add_argument("--visualizeAST")
-        .help("Generates a AST visualization -pdf file")
+        .help("Generates a AST visualization in a PDF file")
         .default_value(false)
         .implicit_value(true);
 
@@ -37,7 +37,7 @@ CompilerFlags argvToFlags(int argc, char **argv) {
         .default_value(true)
         .implicit_value(false);
 
-    program.add_argument("-IR").help("Generates a LLVM IR file.").default_value(std::string("ir"));
+    program.add_argument("-IR").help("Generates a LLVM IR file given a file name.").default_value(std::string("ir.ll"));
 
     // If the arguments are invalid throws std::invalid_argument exception
     try {
@@ -53,7 +53,17 @@ CompilerFlags argvToFlags(int argc, char **argv) {
     flags.visualizeAST = program.get<bool>("--visualizeAST");
     flags.debug = program.get<bool>("--debug");
     flags.optimization = program.get<bool>("--basic");
-    flags.generateIRFile = program.get<std::string>("-IR");
+
+    if (program.is_used("-IR")) {
+        std::string irName = program.get<std::string>("-IR");
+
+        // Adds the .ll file type
+        if (irName.size() < 3 || irName.substr(irName.size() - 3) != ".ll") {
+            irName += ".ll";
+        }
+
+        flags.generateIRFile = irName;
+    }
 
     return flags;
 }
