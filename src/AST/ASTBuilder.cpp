@@ -160,9 +160,19 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::OperandExprContext *ctx) {
 std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
     SourceLocation loc(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
+    bool isNegative = false;
+    if (ctx->MINUS()) {
+        isNegative = true;
+    }
+
     // Checks for a number or float context
     if (ctx->NUMBER_LITERAL()) {
         int value = stoi(ctx->NUMBER_LITERAL()->getText());
+
+        if (isNegative) {
+            value = -value;
+        }
+
         return std::make_unique<LiteralNode>(value, Type(SupportedTypes::TYPE_INT), loc);
     }
 
@@ -178,6 +188,11 @@ std::unique_ptr<ASTNode> ASTBuilder::visit(TParser::LiteralContext *ctx) {
 
     if (ctx->FLOAT_LITERAL()) {
         float value = stof(ctx->FLOAT_LITERAL()->getText());
+
+        if (isNegative) {
+            value = -value;
+        }
+
         return std::make_unique<LiteralNode>(value, Type(SupportedTypes::TYPE_FLOAT), loc);
     }
 

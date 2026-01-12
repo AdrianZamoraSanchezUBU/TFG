@@ -1,0 +1,35 @@
+; ModuleID = 'program'
+source_filename = "program"
+
+@0 = private unnamed_addr constant [8 x i8] c"Adri\C3\A1n\00", align 1
+
+declare ptr @intToString(i32)
+
+declare ptr @floatToString(float)
+
+declare void @print(ptr, ...)
+
+declare i32 @strlen(ptr)
+
+declare void @registerEventData(ptr, float, ptr, i32, ptr, i32)
+
+declare void @scheduleEventData(ptr, ptr)
+
+declare void @exitEvent(ptr)
+
+define i32 @mainLLVM() {
+entry:
+  %duracionVideo_ptr = alloca float, align 4
+  %myName_ptr = alloca ptr, align 8
+  %TFG_ptr = alloca i1, align 1
+  %flotante_ptr = alloca float, align 4
+  %entero_ptr = alloca i32, align 4
+  store i32 -10, ptr %entero_ptr, align 4
+  store float 0x40091EB860000000, ptr %flotante_ptr, align 4
+  store i1 true, ptr %TFG_ptr, align 1
+  store ptr @0, ptr %myName_ptr, align 8
+  store float 3.000000e+05, ptr %duracionVideo_ptr, align 4
+  %entero_val = load i32, ptr %entero_ptr, align 4
+  %subtmp = sub i32 2, %entero_val
+  ret i32 %subtmp
+}

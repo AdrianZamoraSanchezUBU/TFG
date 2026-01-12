@@ -52,8 +52,10 @@ operand
 
 literal
 	: time_literal 
-	| NUMBER_LITERAL	
-	| FLOAT_LITERAL	
+	| NUMBER_LITERAL
+	| MINUS NUMBER_LITERAL	
+	| FLOAT_LITERAL
+	| MINUS FLOAT_LITERAL	
 	| STRING_LITERAL
 	| boolean_literal
    	;
