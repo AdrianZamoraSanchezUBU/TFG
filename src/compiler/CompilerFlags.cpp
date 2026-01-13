@@ -3,6 +3,16 @@
 std::string readFile(const std::string &fileName) {
     std::ifstream testFile(fileName);
 
+    // Check the file existence
+    if (!std::filesystem::exists(fileName)) {
+        throw std::runtime_error("File does not exist: " + fileName);
+    }
+
+    // Prevent using a directoy
+    if (std::filesystem::is_directory(fileName)) {
+        throw std::runtime_error("Expected a file but got a directory: " + fileName);
+    }
+
     // Opens the file
     if (!testFile.is_open()) {
         // Throw error if couldn't open the file
@@ -11,6 +21,12 @@ std::string readFile(const std::string &fileName) {
 
     std::ostringstream buffer;
     buffer << testFile.rdbuf(); // Reads the file content
+
+    // Check to prevent the compilation of empty content
+    if (buffer.str().empty()) {
+        std::runtime_error("The file: " + fileName + " is empty");
+    }
+
     return buffer.str();
 }
 
