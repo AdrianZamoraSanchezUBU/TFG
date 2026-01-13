@@ -1,6 +1,5 @@
 \capitulo{5}{Aspectos relevantes del proyecto} 
 \label{capitulo5}
-
 \newcommand{\kw}[1]{\texttt{#1}}
 \newcommand{\code}[1]{\texttt{#1}}
 
@@ -10,7 +9,7 @@ En fases posteriores del proyecto se trabaja tomando como base este MVP para añ
 
 Es importante como paso previo a la creación de un lenguaje, la elección de un nombre para el mismo. Puesto que el objetivo inicial del proyecto implicaba experimentar con estructuras lógicas dependientes del tiempo y teniendo en cuenta la presencia de un tipo temporal en el lenguaje, se ha elegido el nombre «T» para el lenguaje y «Tcompiler» para el compilador, la sencillez de este nombre viene inspirada por el lenguaje C.
 
-\subsection{Antes de compilar} 
+\section{Antes de compilar} 
 El compilador antes de comenzar el proceso de compilación debe recibir en su ejecución datos que hagan referencia al archivo que se debe compilar, que archivo de salida se quiere generar y de que forma se debe realizar el proceso, permitiendo así al programador ajustar este proceso a sus necesidades.
 
 Dentro del compilador se esperan algunos argumentos de llamada como:
@@ -27,13 +26,13 @@ Dentro del compilador se esperan algunos argumentos de llamada como:
 
 Para conocer los datos necesarios para ejecutar los comandos anteriores en el compilador se almacenan flags de compilado que permiten modificar el comportamiento de cada fase.
 
-\subsection{Proceso de compilación}
+\section{Proceso de compilación}
 Como el compilador se ha planificado de forma modular, a continuación se recorrerá el proceso de compilación completo, utilizando del contenido del MVP como ejemplo.
 
-\subsubsection{Análisis léxico}
-El analizador léxico lo generaremos mediante la herramienta ANTLR4, la cual nos permite definir los lexemas del lenguaje de forma independiente de la producciones gramaticales donde se van a utilizar. En este proyecto, el archivo que contiene esta información se encuentra en \texttt{src/grammar/Tlexer.g4}.
+\subsection{Análisis léxico}
+El analizador léxico es generado mediante la herramienta ANTLR4, la cual permite definir los lexemas del lenguaje de forma independiente de la producciones gramaticales donde se van a utilizar. En este proyecto, el archivo que contiene esta información se encuentra en \texttt{src/grammar/Tlexer.g4}.
 
-En este momento se definen las palabras clave asociadas a los tipos básicos del lenguaje:
+En este punto del desarrollo del compilador, por ejemplo, se pueden definir las palabras clave asociadas a los tipos básicos del lenguaje:
 \begin{minted}{ANTLR}
     TYPE_INT     : 'int'    ;
     TYPE_FLOAT   : 'float'  ;
@@ -63,10 +62,15 @@ Se definen los operadores aritméticos y lógicos:
     GE : '>=' ;
 \end{minted}
 
-\subsubsection{Análisis sintáctico}
+\subsubsection{Comentarios y otros caracteres}
+En esta fase se implementa la gestión de caracteres especiales como espacios en blanco, saltos de línea o tabulaciones. Estos elementos se consideran triviales desde el punto de vista sintáctico y, por tanto, son ignorados por el analizador léxico, permitiendo una mayor flexibilidad en el formato del código fuente sin afectar a su significado.
+
+De forma similar, se han de ignorar los comentarios, estructuras destinadas a la documentación del código que no deben alterar su comportamiento. En el lenguaje desarrollado se implementan únicamente comentarios de línea, los cuales comienzan con una doble barra inclinada (\texttt{//}) y se extienden hasta el final de la línea. Esta decisión simplifica el análisis léxico y resulta suficiente para cubrir las necesidades básicas de documentación del código en el contexto del proyecto.
+
+\subsection{Análisis sintáctico}
 Una vez obtenido el analizador léxico el siguiente paso es construir un analizador sintáctico capaz de reconocer producciones gramaticales, al igual que en la fase anterior, se realiza con ANTLR4 y se define el archivo \texttt{src/grammar/Tparser.g4}.
 
-Los operadores y las operaciones se definen en el lenguaje ANTLR4 de la siguiente forma:
+Siguiendo con el ejemplo anterior, se pueden definir las expresiones del lenguaje usando ANTLR4 de la siguiente forma:
 \begin{minted}{ANTLR}
 expr
     : expr op=(MUL|DIV) expr        # arithmeticExpr
@@ -89,60 +93,73 @@ operand
     : literal
     ;
 \end{minted}
+
 Cabe destacar el uso de etiquetas (como \code{\# parenExpr}) que facilitan posteriormente acceder a cada tipo de expresión gracias a la separación en contextos que realiza ANTLR4. En este ejemplo en concreto, la etiqueta \code{\# arithmeticExpr} sirve para separar la precedencia, permitiendo empaquetar en el mismo contexto ambas producciones, facilitando el análisis en fases posteriores.
 
-\subsubsection{Generación del AST}
+\subsection{Generación del AST}
 Para formar el AST se empleará un \eng{visitor pattern} (patrón de visita), objeto que recibe el nombre de \kw{ASTBuilder}, el cual se encarga de visitar cada contexto generado de forma automática por el parser de ANTLR, dando por resultado una estructura de nodos enlazados, el AST.
 
-Adicionalmente, si la flag \code{-{}-visualizeAST} está activada, el compilador puede generar una representación visual del árbol tras su construcción, para conseguir esto se escriben cada nodo en el formato de la biblioteca `forest` de \LaTeX, permitiendo el análisis de la estructura del programa así como datos relacionados con los componentes, como los tipos u operadores.
+Adicionalmente, si la flag \code{-{}-visualizeAST} o \code{-{}-debug} están activadas, el compilador generará una representación visual del árbol de sintaxis abstracta tras su construcción, para conseguir esto se escriben cada nodo en el formato de la biblioteca \eng{forest} de \LaTeX, permitiendo el análisis de la estructura del programa así como las relaciones de sus componentes, los tipos y operaciones.
 
 \label{capitulo5:AST}
 \imagen{AST_ejemplo_expr}{Ejemplo de visualización de la expresión 2 + 3 * 5 con la flag \code{{-{}-}visualizeAST}}{0.55}
 
-\subsubsection{Análisis semántico}
+\subsection{Análisis semántico}
+
 Durante la fase de análisis semántico se examina principalmente el uso de los identificadores, como los nombres de variables y funciones. Entre las principales tareas de esta fase se encuentran:
+
 \begin{itemize}
     \item La creación de un \eng{scope} para cada bloque de código.
     \item La inserción de los identificadores en su \eng{scope} correspondiente.
-    \item La verificación del alcance en cada acceso a un identificador.
+    \item La verificación del alcance en accesos a los identificadores.
     \item Las comprobaciones de tipos en asignaciones, operaciones y sentencias de retorno.
 \end{itemize}
 
 La tabla de símbolos está estructurada como una lista de \eng{scopes}. Para los distintos bloques anidados se establecen referencias entre cada \eng{scope} hijo y su correspondiente \eng{scope} padre, lo que permite verificar fácilmente los alcances y resolver nombres de forma correcta.
 
-\begin{figure}[htbp]
-\centering
+A continuación se muestra un ejemplo sencillo en el que la tabla de símbolos gestiona varios \eng{scopes} anidados:
+\begin{minted}{c}
+// Scope 0
+int a = 2;
+int b = 3;
+
+int function add(int x, int y){
+    // Scope 1
+    int resultado = x + y;
+    return resultado;
+}
+
+// Scope 0
+return add(a, b);
+\end{minted}
+
+Como resultado del análisis semántico, se genera la estructura de tabla de símbolos mostrada en la Figura~\ref{fig:tabla-scopes}:
+\begin{center}
 \begin{lstlisting}
------------------------------------------------
-| Scope #0 (level 0)                          |
------------------------------------------------
-| Key          | Category   | Type            |
------------------------------------------------
-| foo          | FUNCTION   | int             |
-| toString     | FUNCTION   | string          |
-| strlen       | FUNCTION   | int             |
-| print        | FUNCTION   | void            |
------------------------------------------------
------------------------------------------------
-| Scope #1 (level 1)                          |
------------------------------------------------
-| Key          | Category   | Type            |
------------------------------------------------
-| x            | PARAMETER  | int             |
------------------------------------------------
------------------------------------------------
-| Scope #2 (level 2)                          |
------------------------------------------------
-| Key          | Category   | Type            |
------------------------------------------------
-| b            | VARIABLE   | int             |
------------------------------------------------
+-------------------------------------------------
+| Scope #0 (level 0)                            |
+-------------------------------------------------
+| Key            | Category   | Type            |
+-------------------------------------------------
+| b              | VARIABLE   | int             |
+| a              | VARIABLE   | int             |
+| add            | FUNCTION   | int             |
+-------------------------------------------------
+-------------------------------------------------
+| Scope #1 (level 1)                            |
+-------------------------------------------------
+| Key            | Category   | Type            |
+-------------------------------------------------
+| y              | PARAMETER  | int             |
+| x              | PARAMETER  | int             |
+-------------------------------------------------
 \end{lstlisting}
-\caption{Ejemplo de tabla de símbolos generada por el analizador semántico}
+\captionof{figure}{Ejemplo de tabla de símbolos y alcances generada por el analizador semántico}
 \label{fig:tabla-scopes}
-\end{figure}
+\end{center}
 
 Para poder comprobar la corrección del uso de tipos, el análisis semántico debe ser capaz de entender los tipos, tanto de los literales como de las variables y funciones, para ello se implementa un sistema de representación de tipos en una enumeración llamada \kw{SupportedTypes} que da soporte a los tipos:
+
 \begin{itemize}
     \item \kw{TYPE\_INT}
     \item \kw{TYPE\_FLOAT}
@@ -153,17 +170,17 @@ Para poder comprobar la corrección del uso de tipos, el análisis semántico de
     \item \kw{TYPE\_PTR}
 \end{itemize}
 
-\subsubsection{Librería estándar}
+\subsection{Librería estándar}
 Para permitir mayor flexibilidad al programador, todas las funciones de la librería estándar de C son enlazadas con el programa final generado. Adicionalmente, se agregan o adaptan algunas funciones para crear una pequeña librería propia, que demuestra la capacidad del compilador de incluir funciones preinstaladas o \emph{built-in functions}.
 
 \begin{itemize}
-    \item \mint{c}|char *toString(int x)|
-    \item \mint{c}|void print(const char *first, ...)|
+    \item \mintinline{c}|char *toString(int x)|
+    \item \mintinline{c}|void print(const char *first, ...)|
 \end{itemize}
 
-La función antes mencionada, \mint{c}|char *toString(int x)|, aprovecha internamente funciones estándar de C como \mint{c}|int sprintf(char *str, const char *format, ...)| para devolver un \eng{buffer} de tipo \mint{c}|char *| sin tener que reinventar este mecanismo y a su vez abstrayendo al programador del uso de estas funciones y el manejo de memoria. 
+La función antes mencionada, \mintinline{c}|char *toString(int x)|, aprovecha internamente funciones estándar de C como \mintinline{c}|int sprintf(char *str, const char *format, ...)| para devolver un \eng{buffer} de tipo \mintinline{c}|char *| sin tener que reinventar este mecanismo y a su vez abstrayendo al programador del uso de estas funciones y el manejo de memoria. 
 
-\subsubsection{Generación de LLVM IR}
+\subsection{Generación de LLVM IR}
 Para la generación de IR es emplea un \eng{struct} que almacena los datos necesarios para que LLVM pueda generar el IR de forma automática, para ello se inicializan dentro del \kw{CodegenContext} los siguientes tres elementos:
 
 \begin{itemize}
@@ -217,7 +234,7 @@ entry:
 
 En este caso vemos una optimización automática de LLVM que se explicará en el siguiente apartado.
 
-\subsubsection{Optimizaciones}
+\subsection{Optimizaciones}
 \label{capitulo5:optimizaciones}
 Para asegurar la calidad del código final, se aplican sobre el LLVM IR algunas optimizaciones incluidas en la API\cite{llvmproject-optimization-doc} de LLVM, las cuales aplican transformaciones de código o eliminaciones mediante pasadas que recorren todo el IR generado.
 
@@ -252,9 +269,10 @@ En el ejemplo anterior, podemos observar un ejemplo de \eng{constant folding}, d
 
 El uso de estas combinaciones junto a las comprobaciones de calidad mínimas para compilar sin errores, generan un código con un rendimiento similar al código en C optimizado con \code{-O2} de compiladores como GCC, Rustc o Swiftc.
 
-Este ejemplo ilustra cómo las optimizaciones permiten simplificar significativamente el código generado, reduciendo tanto el número de instrucciones como la complejidad del flujo de control, sin alterar el comportamiento del programa.
+\subsection{Ejemplo con optimizaciones}
+En el siguiente ejemplo se puede apreciar cómo las optimizaciones permiten simplificar significativamente el código generado, reduciendo tanto el número de instrucciones como la complejidad del flujo de control, sin alterar el comportamiento del programa.
 
-\subsubsection{Código fuente original:}
+Código utilizado para el ejemplo:
 \begin{minted}{c}
 if (2 < 3) {
     return 1;
@@ -263,7 +281,7 @@ if (2 < 3) {
 return 2;
 \end{minted}
 
-\subsubsection{LLVM IR generado sin optimizaciones:}
+\subsubsection{LLVM IR generado sin optimizaciones}
 
 En una primera fase, el generador de IR traduce directamente la estructura del programa fuente, manteniendo el flujo de control explícito mediante saltos condicionales.
 
@@ -278,10 +296,9 @@ endif:
 }
 \end{minted}
 
-Puede observarse que la condición \code{2 < 3} se evalúa en tiempo de compilación mediante una optimización de \kw{constant folding}, sustituyendo la condición por un valor constante (\mint{c}|true|).
+Puede observarse que la condición \code{2 < 3} se evalúa en tiempo de compilación mediante una optimización de \kw{constant folding}, sustituyendo la condición por un valor constante (\mintinline{c}|true|).
 
-\subsubsection{LLVM IR tras la fase de optimización:}
-
+\subsubsection{LLVM IR tras la fase de optimización}
 Durante la fase de optimización, el compilador analiza el flujo de control del programa y detecta que todas las rutas de ejecución alcanzables conducen al mismo valor de retorno. Como consecuencia, el bloque condicional completo puede eliminarse, reduciendo la función a una única instrucción de retorno.
 
 \begin{minted}{LLVM}
@@ -324,7 +341,7 @@ Los eventos son \emph{autogestionados} una vez lanzados, se encargan de ejecutar
 
 Este modelo de ejecución concurrente controlada permite implementar mecanismos temporales y reactivos de forma segura, manteniendo un equilibrio entre flexibilidad, aislamiento y control. La gestión explícita de los eventos como entidades independientes refuerza la arquitectura del sistema y facilita futuras extensiones relacionadas con planificación, cancelación o monitorización avanzada de eventos.
 
-\subsubsection{Paso de parámetros}
+\paragraph{Paso de parámetros}
 
 Uno de los aspectos más complejos del desarrollo del \emph{runtime} ha sido la implementación del paso de parámetros hacia las funciones asociadas a los eventos. Dado que los eventos se ejecutan dinámicamente y en hilos independientes, resulta necesario disponer de un mecanismo que permita invocar funciones con firmas conocidas únicamente en tiempo de ejecución.
 

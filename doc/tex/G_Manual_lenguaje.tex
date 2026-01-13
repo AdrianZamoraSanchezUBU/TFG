@@ -151,7 +151,7 @@ float x = 3.14;
 
 \subsection{Expresiones aritméticas}
 
-T soporta los operadores aritméticos básicos: \texttt{+}, \texttt{-}, \texttt{*} y \texttt{/}.
+T soporta los operadores aritméticos básicos: suma \texttt{+}, resta \texttt{-}, multiplicación \texttt{*}, división \texttt{/} y módulo \texttt{\%}.
 
 \begin{minted}{c}
 int a = 2 + 3 * 4;
@@ -223,11 +223,11 @@ for (int i = 0; i < 10; i = i + 1) {
 
 \subsection{Control de bucle}
 
-Se permiten las sentencias:
+Se permiten las sentencias de control en bucles:
 
 \begin{itemize}
-    \item \texttt{break;}
-    \item \texttt{continue;}
+    \item \texttt{break}: Termina el bucle
+    \item \texttt{continue}: Vuelve a evaluar la condición
 \end{itemize}
 
 \section{Funciones}
@@ -278,6 +278,8 @@ event bomba after 5 sec {
 }
 \end{minted}
 
+En el estado actual del proyecto, \texttt{every} se encuentra plenamente implementado y soportado por el compilador y el \emph{runtime}. Por otro lado, las construcciones \texttt{after} y \texttt{at} han sido definidas y reconocidas por el lenguaje, pero su implementación completa no ha sido abordada debido a limitaciones de tiempo. No obstante, se han reservado como parte de la sintaxis del lenguaje con el objetivo de facilitar su incorporación en futuras ampliaciones.
+
 \subsection{Límite de ejecuciones}
 
 Un evento puede limitar su número de ejecuciones mediante \texttt{limit}:
@@ -290,7 +292,7 @@ event hello every 1 sec limit 3 {
 
 \subsection{Finalización de eventos}
 
-Dentro de un evento puede utilizarse la instrucción \texttt{exit} para finalizar un evento concreto:
+Dentro de un evento puede utilizarse la instrucción \texttt{exit} seguido del identificador de un evento, finalizando asi este evento en concreto:
 
 \begin{minted}{c}
 exit tickLogger;
@@ -303,6 +305,6 @@ En su estado actual, el lenguaje presenta las siguientes limitaciones:
 \begin{itemize}
     \item No se soportan estructuras de datos complejas como arrays o \texttt{struct}.
     \item El tipo \texttt{ref} solo está disponible en parámetros de funciones. Puesto que el paso en eventos requiere de gestión avanzada de memoria.
-    \item El bucle \texttt{for} restringe la inicialización y actualización a asignaciones.
+    \item No existe mecanismos para la definición o inclusión de bibliotecas. 
     \item Por cuestión de tiempo, los eventos no han podido enriquecerse con otros mecanismos de ejecución.
 \end{itemize}
