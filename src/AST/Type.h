@@ -14,8 +14,8 @@ enum SupportedTypes { TYPE_INT, TYPE_FLOAT, TYPE_CHAR, TYPE_STRING, TYPE_BOOL, T
 
 /// Type structure for the basic types or pointed types.
 struct Type {
-    SupportedTypes type; /// Type
-    Type *base;          /// Pointing to a type
+    SupportedTypes type; ///< Type
+    Type *base;          ///< Pointing to a type
 
   public:
     /// Empty type constructor
@@ -27,9 +27,7 @@ struct Type {
     /// Pointer type constructor
     Type(Type *b) : type(SupportedTypes::TYPE_PTR), base(b) {}
 
-    /**
-     * @brief Getter for the type or pointed type.
-     */
+    /// Getter for the type or pointed type.
     SupportedTypes getSupportedType() const {
         if (base == nullptr) {
             return type;
@@ -38,10 +36,10 @@ struct Type {
         return base->getSupportedType();
     };
 
-    ///@brief Equal operator
+    /// Equal operator
     bool operator==(const Type &other) const { return type == other.type && base == other.base; }
 
-    ///@brief Not equal operator
+    /// Not equal operator
     bool operator!=(const Type &other) const { return !(*this == other); }
 };
 

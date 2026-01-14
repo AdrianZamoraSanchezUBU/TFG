@@ -1,7 +1,6 @@
 /**
  * @file TimeStamp.h
- * @brief Time stamp and commands used for modeling time
- * management in the compiler.
+ * @brief Time stamp and commands used for modeling time management in the compiler.
  *
  * @author Adrián Zamora Sánchez
  * @see Type.h

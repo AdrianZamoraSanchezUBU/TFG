@@ -1,6 +1,6 @@
 /**
  * @file CodegenContext.h
- * @brief Contains the definition of a LLVM IR program package.
+ * @brief Contains the definition of a LLVM IR program components.
  *
  * @author Adrián Zamora Sánchez
  */
@@ -35,7 +35,7 @@ struct CodegenContext {
         llvm::FunctionType *callbackTy = llvm::FunctionType::get(voidTy, false);
         llvm::PointerType *callbackPtrTy = llvm::PointerType::getUnqual(callbackTy);
 
-        // Inserta la función C si no existe
+        // Insert built-in functions
         IRModule->getOrInsertFunction("intToString", llvm::FunctionType::get(i8PtrTy, {i32Ty}, false));
         IRModule->getOrInsertFunction("floatToString", llvm::FunctionType::get(i8PtrTy, {floatTy}, false));
         IRModule->getOrInsertFunction("print", llvm::FunctionType::get(voidTy, {i8PtrTy}, true));
@@ -44,12 +44,12 @@ struct CodegenContext {
         IRModule->getOrInsertFunction("registerEventData",
                                       llvm::FunctionType::get(llvm::Type::getVoidTy(C),
                                                               {
-                                                                  i8PtrTy,                   // id
-                                                                  llvm::Type::getFloatTy(C), // time
-                                                                  i8PtrTy,                   // fn pointer
-                                                                  i32Ty,                     // argCount
-                                                                  i32Ty->getPointerTo(),     // int* argTypes
-                                                                  i32Ty                      // limit
+                                                                  i8PtrTy,               // id
+                                                                  floatTy,               // time
+                                                                  i8PtrTy,               // fn pointer
+                                                                  i32Ty,                 // argCount
+                                                                  i32Ty->getPointerTo(), // int* argTypes
+                                                                  i32Ty                  // limit
                                                               },
                                                               false));
         IRModule->getOrInsertFunction("scheduleEventData",

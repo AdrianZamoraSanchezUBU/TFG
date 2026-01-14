@@ -1,3 +1,4 @@
+
 #include "Event.h"
 #include <ffi.h>
 #include <iostream>
@@ -65,32 +66,34 @@ void Event::setArgsCopy(void **incoming) {
             throw std::runtime_error("scheduleEventData: incoming argv[" + std::to_string(i) + "] is null");
         }
 
+        // Resize to fit the value
         size_t sz = typeSize(argTypes[i]);
         if (sz > ownedArgs[i].bytes.size()) {
             throw std::runtime_error("ArgSlot too small for arg " + std::to_string(i));
         }
 
+        // Data deserialization
         std::memcpy(ownedArgs[i].bytes.data(), incoming[i], sz);
         argv[i] = ownedArgs[i].bytes.data();
     }
 }
 
 void Event::execute() {
-    // libffi preparation
     ffi_cif cif;
     std::vector<ffi_type *> ffiTypes;
     ffiTypes.reserve(argCount);
 
+    // libffi preparation
     for (int i = 0; i < argCount; ++i) {
         ffiTypes[i] = codeToFFI(argTypes[i]);
     }
-
     if (ffi_prep_cif(&cif, FFI_DEFAULT_ABI, argCount, &ffi_type_void, ffiTypes.data()) != FFI_OK) {
         std::cerr << "ffi_prep_cif failed for event " << id << "\n";
         running.store(false);
         return;
     }
 
+    // Loading the call arguments
     while (running.load()) {
         try {
             // Copy argv under mutex

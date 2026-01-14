@@ -7,9 +7,7 @@
 
 #include "antlr4-runtime.h"
 
-/**
- * @brief Custom error listener for the Parser.
- */
+/// Custom error listener for the Parser.
 class ParserErrorListener : public antlr4::BaseErrorListener {
     std::vector<CompilerError> errors;
 
@@ -26,7 +24,7 @@ class ParserErrorListener : public antlr4::BaseErrorListener {
                             token->getText(), msg);
     }
 
-    /// @brief Returns true if a error was found, false in the other case.
+    /// Returns true if a error was found, false in the other case.
     bool hasErrors() const { return !errors.empty(); }
 
     /// Getter for the error list

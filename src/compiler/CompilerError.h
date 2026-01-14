@@ -1,11 +1,24 @@
+/**
+ * @file CompilerError.h
+ * @brief Contains the definition a compiler error.
+ *
+ * Defines two helper structures, the CompilerPhase to model compiler phases and the
+ * SourceLocation, containing data about the error location in the source code.
+ *
+ * @author Adrián Zamora Sánchez
+ */
+
 #pragma once
 #include <string>
 
-/**
- * Enumeration of the compiler phases
- */
+/// Enumeration of the compiler phases
 enum CompilerPhase { LEXER, PARSER, AST_BUILDER, SEMANTIC, IR_GEN, OPTIMIZATION, OBJECT_GEN, EXEC_GEN };
 
+/**
+ * @brief Returns the string of a CompilerPhase.
+ * @param p CompilerPhase object
+ * @return string with for the CompilerPhase parameter
+ */
 inline std::string phaseToString(CompilerPhase p) {
     switch (p) {
     case CompilerPhase::LEXER:
@@ -30,9 +43,7 @@ inline std::string phaseToString(CompilerPhase p) {
     }
 }
 
-/**
- * Structure that contains information about the location of a symbol in the source code.
- */
+/// Structure that contains information about the location of a symbol in the source code.
 struct SourceLocation {
     int line;
     int column;
@@ -41,9 +52,7 @@ struct SourceLocation {
     SourceLocation(int l, int c) : line(l), column(c){};
 };
 
-/**
- * Information of a compiler error.
- */
+/// Information of a compiler error.
 struct CompilerError {
     CompilerPhase phase;
     SourceLocation location;

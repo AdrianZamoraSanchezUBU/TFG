@@ -1,3 +1,9 @@
+/**
+ * @file Event.h
+ * @brief Contains the definition of the runtime event structure.
+ *
+ * @author Adrián Zamora Sánchez
+ */
 
 #include "math.h"
 #include "spdlog/spdlog.h"
@@ -17,16 +23,17 @@
 class Event {
     using EventFn = void (*)();
 
-    std::string id;
-    std::chrono::milliseconds ticks;
-    int execLimit;
-    int execCounter = 0;
+    std::string id;                  ///< Event ID
+    std::chrono::milliseconds ticks; ///< Miliseconds for periodic execution
+    int execLimit;                   ///< Execution limit
+    int execCounter = 0;             ///< Execution counter
 
-    EventFn fnPtr = nullptr;
+    EventFn fnPtr = nullptr; ///< Compilated function pointer
 
-    int argCount = 0;
-    std::vector<int> argTypes; // type codes at Event.cpp
-    std::vector<void *> argv;  // set at schedule
+    // arg management
+    int argCount = 0;          ///< Number of total arguments
+    std::vector<int> argTypes; ///< Type codes from Event.cpp
+    std::vector<void *> argv;  ///< Set at schedule call by mainLLVM())
 
     struct ArgSlot {
         alignas(16) std::array<std::uint8_t, 16> bytes{};

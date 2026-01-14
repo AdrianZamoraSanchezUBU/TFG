@@ -1,3 +1,10 @@
+/**
+ * @file Runtime.h
+ * @brief Contains the definition of the runtime manager.
+ *
+ * @author Adrián Zamora Sánchez
+ */
+
 #pragma once
 #include "Event.h"
 #include "spdlog/spdlog.h"
@@ -9,9 +16,9 @@
 class Runtime {
     using Fn = void (*)(void *frame);
 
-    std::vector<std::shared_ptr<Event>> events;
-    std::mutex eventsMutex;
-    bool running = true;
+    std::vector<std::shared_ptr<Event>> events; ///< List of events
+    std::mutex eventsMutex;                     ///< Mutex for concurrent operations
+    bool running = true;                        ///< Running flag
     float t;
 
   public:

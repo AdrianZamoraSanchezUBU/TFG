@@ -43,9 +43,7 @@ extern "C" void exitEvent(const char *id) {
     getRuntime()->terminateEvent(std::string(id));
 }
 
-/**
- * Main LLVM caller
- */
+/// Main LLVM caller
 extern "C" int mainLLVM(void);
 int main(int argc, char **argv) {
     spdlog::debug("0");
