@@ -18,13 +18,6 @@ Event::~Event() {
         worker.join();
 }
 
-void Event::setArgs(void **newArgv) {
-    std::lock_guard<std::mutex> lock(argsMutex);
-    for (int i = 0; i < argCount; ++i) {
-        argv[i] = newArgv[i];
-    }
-}
-
 static size_t typeSize(int code) {
     switch (code) {
     case 1:

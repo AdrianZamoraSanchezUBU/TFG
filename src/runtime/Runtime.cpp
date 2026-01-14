@@ -63,7 +63,3 @@ void Runtime::scheduleEvent(std::string id, void **argv) {
         }
     }
 }
-
-void Runtime::stop() {
-    running = false;
-}

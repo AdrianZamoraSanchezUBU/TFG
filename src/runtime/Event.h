@@ -55,13 +55,13 @@ class Event {
      */
     Event(std::string id, float t, EventFn fnPtr, int argCount, const int *argTypes, int limit);
 
-    /// @brief  Default Event destructor, important in thread termination management
+    /// Default Event destructor, important in thread termination management
     ~Event();
 
     /// Executes the event code.
     void execute();
 
-    void setArgs(void **newArgv);
+    /// Copy of argument data for events
     void setArgsCopy(void **incoming);
 
     /**

@@ -73,7 +73,4 @@ class Runtime {
 
     /// Prints the event list data.
     void printEventList();
-
-    /// Stops the infinite loop and shutdowns all the Events.
-    void stop();
 };
