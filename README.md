@@ -5,7 +5,7 @@ En este repositorio se incluye el código fuente del compilador y del runtime, e
 - [Memoria del TFG](doc/Memoria.pdf)
 - [Anexos](doc/Anexos.pdf)
 - [Vídeo de defensa](https://youtu.be/zlXMgQ-jRb8) y la [presentación utilizada durante el video](https://www.canva.com/design/DAG9AOcjeK0/MPaNNu_ftCpNQo9uJOKj9w/view?utm_content=DAG9AOcjeK0&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h05b067fca0)
-- [Vídeo de demostración](https://youtu.be/0ULCn_Cs6-U)
+- [Vídeo de demostración](https://youtu.be/0ULCn_Cs6-U) y [ejemplos utilizados (y muchos más)](tests/input/demo/)
 - [Despliegue y pruebas utilizando Docker](#Despliegue-en-Docker)
 # Dependencias del proyecto
 A continuación se detallan todas las dependencias necesarias para compilar y ejecutar el proyecto.
