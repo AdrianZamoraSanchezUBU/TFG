@@ -18,11 +18,12 @@ Antes de comenzar a utilizar el sistema, el usuario debe contar con los siguient
     \item CPU: Procesador de al menos 1 GHz.
     \item RAM: 1 GB de memoria RAM.
     \item Espacio en disco: 500 MB libres.
+    \item Acceso a internet para descargar la herramienta.
 \end{itemize}
 
 \subsection{Requisitos de software}
 \begin{itemize}
-    \item Sistema operativo Windows, Linux o macOS.
+    \item Sistema operativo Windows o Linux.
     \item Compilador C++ compatible con el estándar C++17.
     \item LLVM instalado en el sistema.
 \end{itemize}
@@ -66,18 +67,18 @@ A continuación se describen las principales opciones disponibles:
     \item \texttt{Tcompiler -h / -{}-help:}  
     Muestra un mensaje de ayuda con la descripción de las opciones disponibles.
 
-    \item \texttt{Tcompiler <archivo fuente>:}  
+    \item \texttt{Tcompiler <archivo\_fuente>:}  
     Compila el archivo fuente especificado y genera un archivo objeto como salida.
 
-    \item \texttt{Tcompiler <archivo fuente> -{}-debug:}  
+    \item \texttt{Tcompiler <archivo\_fuente> -{}-debug:}  
     Activa el modo de depuración, mostrando información adicional como la lista de tokens, la tabla de símbolos y el código LLVM IR generado.
 
-    \item \texttt{Tcompiler <archivo fuente> -{}-visualizeAST:}  
+    \item \texttt{Tcompiler <archivo\_fuente> -{}-visualizeAST:}  
     Genera una representación visual del Árbol de Sintaxis Abstracta (AST) en formato PDF.
 
-    \item \texttt{Tcompiler <archivo fuente> -IR <archivo>:}  
+    \item \texttt{Tcompiler <archivo\_fuente> -IR <archivo\_IR>:}  
     Exporta el código LLVM IR generado al archivo especificado.
 
-    \item \texttt{Tcompiler <archivo fuente> -o <programa a generar>:}  
+    \item \texttt{Tcompiler <archivo\_fuente> -o <nombre\_programa>:}  
     Permite especificar el nombre del archivo objeto o ejecutable generado por el compilador.
 \end{itemize}

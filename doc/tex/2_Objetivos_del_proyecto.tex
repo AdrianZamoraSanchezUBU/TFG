@@ -3,7 +3,7 @@ En este capítulo se presentan los objetivos principales del proyecto, que defin
 
 \begin{itemize}
     \item \textbf{Diseñar un lenguaje de programación}: 
-    Definir nuevo lenguaje de programación, estableciendo sus estructuras básicas, tipos de datos, operadores y reglas gramaticales.
+    Definir un lenguaje de programación de propósito general, estableciendo sus estructuras básicas, tipos de datos, operadores y reglas gramaticales.
 
     \item \textbf{Desarrollar un compilador capaz de reconocer el lenguaje}: 
     Implementar un compilador con un diseño modular y moderno, capaz de analizar y procesar el código fuente del lenguaje, abarcando las fases de análisis léxico, sintáctico, semántico, generación de una representación intermedia (IR por sus siglas en inglés), optimización y finalmente generación de un ejecutable.
@@ -18,14 +18,14 @@ En este capítulo se presentan los objetivos principales del proyecto, que defin
     Desarrollar una utilidad visual que permita representar y explorar estructuras internas del compilador, como el árbol de sintaxis abstracta o la tabla de símbolos, facilitando la comprensión y depuración del lenguaje.
 
     \item \textbf{Generación de IR basada en el ecosistema LLVM}: 
-    Implementar la traducción del lenguaje diseñado a una representación intermedia basada en LLVM IR~\cite{lattner2004llvm}, permitiendo la optimización y posterior generación de código máquina para distintas arquitecturas.
+    Implementar la traducción del lenguaje diseñado a una representación intermedia basada en LLVM IR~\cite{lattner2004llvm}, permitiendo la optimización y posterior generación de código máquina para la arquitectura anfitrión.
 
     \item \textbf{Implementación de una biblioteca estándar}: 
-    Desarrollar una pequeña biblioteca estándar, es decir, un conjunto de funciones básicas que proporcionen utilidades básicas dentro del lenguaje diseñado.
+    Desarrollar una pequeña biblioteca estándar, es decir, un conjunto de funciones estándar que proporcionen utilidades básicas dentro del lenguaje diseñado.
 
     \item \textbf{Proporcionar al menos una funcionalidad específica del lenguaje}: 
-    Se trabajará en la implementación de un sistema de ejecución de código basado en eventos y tiempo. Este será un factor diferenciador y experimental frente a otros lenguajes de propósito general.
+    Se trabajará en la implementación de un sistema de ejecución de código basado en eventos y estructuras temporales. Este será un factor diferenciador y experimental frente a otros lenguajes de propósito general.
     
-    \item \textbf{Proporcionar un runtime personalizado}:
-    Para poder implementar las funcionalidades específicas del lenguaje e indagar en otro aspecto académico de los lenguajes de programación, se implementará un runtime diseñado específicamente para poder ejecutar el código generado.  
+    \item \textbf{Proporcionar un entorno de ejecución personalizado}:
+    Para poder implementar las funcionalidades específicas del lenguaje e indagar en otro aspecto académico de los lenguajes de programación, se implementará un \eng{runtime} diseñado específicamente para poder ejecutar el código generado.  
 \end{itemize}

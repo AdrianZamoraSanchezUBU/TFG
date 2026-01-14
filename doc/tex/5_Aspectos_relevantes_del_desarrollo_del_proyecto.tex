@@ -7,40 +7,41 @@ El comienzo del proyecto parte del objetivo de conseguir una versión MVP (\emph
 
 En fases posteriores del proyecto se trabaja tomando como base este MVP para añadir características adicionales al lenguaje, como las estructuras de control condicionales, bucles, funciones y eventos.
 
-Es importante como paso previo a la creación de un lenguaje, la elección de un nombre para el mismo. Puesto que el objetivo inicial del proyecto implicaba experimentar con estructuras lógicas dependientes del tiempo y teniendo en cuenta la presencia de un tipo temporal en el lenguaje, se ha elegido el nombre «T» para el lenguaje y «Tcompiler» para el compilador, la sencillez de este nombre viene inspirada por el lenguaje C.
+Es importante como paso previo a la creación de un lenguaje, la elección de un nombre para el mismo. Puesto que el objetivo inicial del proyecto implicaba experimentar con estructuras lógicas dependientes del tiempo y teniendo en cuenta la presencia de un tipo temporal en el lenguaje, se ha elegido el nombre «T» para el lenguaje y «TCompiler» para el compilador, la sencillez de este nombre viene inspirada por el lenguaje C.
 
 \section{Antes de compilar} 
 El compilador antes de comenzar el proceso de compilación debe recibir en su ejecución datos que hagan referencia al archivo que se debe compilar, que archivo de salida se quiere generar y de que forma se debe realizar el proceso, permitiendo así al programador ajustar este proceso a sus necesidades.
 
 Dentro del compilador se esperan algunos argumentos de llamada como:
 \begin{itemize}
-    \item \texttt{\textbf{<nombre de la entrada>}}: argumento obligatorio, indica el nombre del fichero \kw{.T} de entrada.
-    \item \texttt{\textbf{-o <nombre archivo>}}: argumento obligatorio que especificar el fichero ejecutable de salida.
+    \item \texttt{\textbf{<nombre\_entrada>}}: argumento obligatorio, indica el nombre del fichero \kw{.T} de entrada.
+    \item \texttt{\textbf{-{}-output / -o <nombre\_archivo>}}: argumento obligatorio que especificar el fichero ejecutable de salida. El nombre por defecto del archivo de salida es \kw{out}.
     \item \texttt{\textbf{-{}-debug}}: permite ver información de la salida de cada una de las fases del compilador. Este argumento también activa el efecto del argumento \code{-{}-visualizeAST};
     \item \texttt{\textbf{-{}-visualizeAST}}: genera un fichero \kw{AST.pfd} con una visualización del AST en el directorio donde se ha ejecutado el compilador.
-    \item \texttt{\textbf{-{}-IR <nombre archivo>}}: genera un fichero \kw{.ll} con el LLVM IR generado por el compilador.
+    \item \texttt{\textbf{-{}-IR <nombre\_archivo>}}: genera un fichero \kw{.ll} con el LLVM IR generado por el compilador. El nombre por defecto del archivo de IR es \kw{ir}.
     \item \texttt{\textbf{-{}-basic}}: excluye la fase de optimización del proceso de compilación.
     \item \texttt{\textbf{-{}-help / -h}}: muestra la ayuda del compilador, indicando como debe ser utilizado y sus diferentes argumentos.
     \item \texttt{\textbf{-{}-version / -v}}: muestra la versión actual del compilador.
 \end{itemize}
 
-Para conocer los datos necesarios para ejecutar los comandos anteriores en el compilador se almacenan flags de compilado que permiten modificar el comportamiento de cada fase.
+Para conocer los datos necesarios para ejecutar las acciones descritas por los comandos anteriores, el compilador almacena flags de compilado que permiten modificar el comportamiento de cada fase.
 
 \section{Proceso de compilación}
-Como el compilador se ha planificado de forma modular, a continuación se recorrerá el proceso de compilación completo, utilizando del contenido del MVP como ejemplo.
+Puesto que el compilador se ha planificado de forma modular, a continuación se recorrerá el proceso de compilación completo, utilizando del contenido del MVP como ejemplo.
 
 \subsection{Análisis léxico}
-El analizador léxico es generado mediante la herramienta ANTLR4, la cual permite definir los lexemas del lenguaje de forma independiente de la producciones gramaticales donde se van a utilizar. En este proyecto, el archivo que contiene esta información se encuentra en \texttt{src/grammar/Tlexer.g4}.
+El analizador léxico es generado mediante la herramienta ANTLR4, la cual permite definir los lexemas del lenguaje de forma independiente de la producciones gramaticales donde se van a utilizar. En este proyecto, el archivo que contiene esta información se encuentra en el archivo \texttt{src/grammar/TLexer.g4}.
 
 En este punto del desarrollo del compilador, por ejemplo, se pueden definir las palabras clave asociadas a los tipos básicos del lenguaje:
 \begin{minted}{ANTLR}
-    TYPE_INT     : 'int'    ;
-    TYPE_FLOAT   : 'float'  ;
-    TYPE_CHAR    : 'char'   ;
-    TYPE_STRING  : 'string' ;
-    TYPE_BOOLEAN : 'bool'   ;
-    TYPE_VOID    : 'void'   ;
-    TYPE_PTR     : 'ptr'    ;
+    TYPE_INT      : 'int'    ;
+    TYPE_FLOAT    : 'float'  ;
+    TYPE_CHAR     : 'char'   ;
+    TYPE_STRING   : 'string' ;
+    TYPE_BOOLEAN  : 'bool'   ;
+    TYPE_VOID     : 'void'   ;
+    TYPE_PTR      : 'ref'    ;
+    TYPE_TIME     : 'time'   ;
 \end{minted}
 
 Se definen los operadores aritméticos y lógicos:
@@ -68,9 +69,9 @@ En esta fase se implementa la gestión de caracteres especiales como espacios en
 De forma similar, se han de ignorar los comentarios, estructuras destinadas a la documentación del código que no deben alterar su comportamiento. En el lenguaje desarrollado se implementan únicamente comentarios de línea, los cuales comienzan con una doble barra inclinada (\texttt{//}) y se extienden hasta el final de la línea. Esta decisión simplifica el análisis léxico y resulta suficiente para cubrir las necesidades básicas de documentación del código en el contexto del proyecto.
 
 \subsection{Análisis sintáctico}
-Una vez obtenido el analizador léxico el siguiente paso es construir un analizador sintáctico capaz de reconocer producciones gramaticales, al igual que en la fase anterior, se realiza con ANTLR4 y se define el archivo \texttt{src/grammar/Tparser.g4}.
+Una vez obtenido el analizador léxico el siguiente paso es construir un analizador sintáctico capaz de reconocer producciones gramaticales, al igual que en la fase anterior, se realiza con ANTLR4 y se define el archivo \texttt{src/grammar/TParser.g4}.
 
-Siguiendo con el ejemplo anterior, se pueden definir las expresiones del lenguaje usando ANTLR4 de la siguiente forma:
+Siguiendo con el ejemplo anterior, se definen las expresiones del lenguaje usando ANTLR4 de la siguiente forma:
 \begin{minted}{ANTLR}
 expr
     : expr op=(MUL|DIV) expr        # arithmeticExpr
@@ -97,7 +98,7 @@ operand
 Cabe destacar el uso de etiquetas (como \code{\# parenExpr}) que facilitan posteriormente acceder a cada tipo de expresión gracias a la separación en contextos que realiza ANTLR4. En este ejemplo en concreto, la etiqueta \code{\# arithmeticExpr} sirve para separar la precedencia, permitiendo empaquetar en el mismo contexto ambas producciones, facilitando el análisis en fases posteriores.
 
 \subsection{Generación del AST}
-Para formar el AST se empleará un \eng{visitor pattern} (patrón de visita), objeto que recibe el nombre de \kw{ASTBuilder}, el cual se encarga de visitar cada contexto generado de forma automática por el parser de ANTLR, dando por resultado una estructura de nodos enlazados, el AST.
+Para formar el AST se empleará un \eng{visitor pattern} (patrón de visita), objeto que recibe el nombre de \kw{ASTBuilder}, el cual se encarga de visitar cada contexto generado durante el análisis sintáctico, dando por resultado una estructura de nodos enlazados, el AST.
 
 Adicionalmente, si la flag \code{-{}-visualizeAST} o \code{-{}-debug} están activadas, el compilador generará una representación visual del árbol de sintaxis abstracta tras su construcción, para conseguir esto se escriben cada nodo en el formato de la biblioteca \eng{forest} de \LaTeX, permitiendo el análisis de la estructura del programa así como las relaciones de sus componentes, los tipos y operaciones.
 
@@ -171,14 +172,16 @@ Para poder comprobar la corrección del uso de tipos, el análisis semántico de
 \end{itemize}
 
 \subsection{Librería estándar}
-Para permitir mayor flexibilidad al programador, todas las funciones de la librería estándar de C son enlazadas con el programa final generado. Adicionalmente, se agregan o adaptan algunas funciones para crear una pequeña librería propia, que demuestra la capacidad del compilador de incluir funciones preinstaladas o \emph{built-in functions}.
+Para permitir mayor flexibilidad al programador, todas las funciones de la librería estándar de C son enlazadas con el programa final generado. Adicionalmente, se agregan o adaptan algunas funciones para crear una pequeña librería propia, que demuestra la capacidad del compilador de incluir funciones preinstaladas o \emph{built-in functions} creadas en C.
 
 \begin{itemize}
-    \item \mintinline{c}|char *toString(int x)|
+    \item \mintinline{c}|char *intToString(int x)|
+    \item \mintinline{c}|char *floatToString(int x)|
+    \item \mintinline{c}|int strLen(string x)|
     \item \mintinline{c}|void print(const char *first, ...)|
 \end{itemize}
 
-La función antes mencionada, \mintinline{c}|char *toString(int x)|, aprovecha internamente funciones estándar de C como \mintinline{c}|int sprintf(char *str, const char *format, ...)| para devolver un \eng{buffer} de tipo \mintinline{c}|char *| sin tener que reinventar este mecanismo y a su vez abstrayendo al programador del uso de estas funciones y el manejo de memoria. 
+La función antes mencionada, \mintinline{c}|char *toString(int x)|, aprovecha funciones de C como \mintinline{c}|int sprintf(char *str, const char *format, ...)| para devolver un \eng{buffer} de tipo \mintinline{c}|char *| sin tener que reinventar este mecanismo y a su vez abstrayendo al programador del uso de estas funciones y cuestiones como el manejo de memoria. 
 
 \subsection{Generación de LLVM IR}
 Para la generación de IR es emplea un \eng{struct} que almacena los datos necesarios para que LLVM pueda generar el IR de forma automática, para ello se inicializan dentro del \kw{CodegenContext} los siguientes tres elementos:
@@ -189,7 +192,7 @@ Para la generación de IR es emplea un \eng{struct} que almacena los datos neces
     \item Un builder de LLVM.
 \end{itemize}
 
-Durante el proceso de generación de código IR, se vuelve a recorrer el AST con un \eng{visitor pattern}, el cual emplea principalmente el \eng{builder} para generar las instrucciones a partir de los datos contenidos en los nodos del AST.
+Durante el proceso de generación de código IR, se vuelve a recorrer el AST con un \eng{visitor pattern}, el cual emplea principalmente el objeto \eng{IRGenerator} para generar las instrucciones a partir de los datos contenidos en los nodos del AST.
 
 Algunas de las consideraciones necesarias para compatibilizar el AST y el generación de IR serían los tipos que se manejan en cada uno, para poder hacer una conversión correcta se implementa una función capaz de transformar:
 \begin{table}[ht]
@@ -331,17 +334,17 @@ Además aporta un entorno de ejecución correcto y personalizado para poder llev
 
 \subsubsection{Gestión de eventos}
 
-Dado que los eventos representan unidades de ejecución independientes que pueden activarse de forma diferida o periódica, su correcta gestión resulta clave para garantizar la estabilidad, el control y la robustez del sistema.
+Dado que los eventos representan \textbf{unidades de ejecución independientes} que pueden activarse de forma diferida o periódica, su correcta gestión resulta clave para garantizar la estabilidad, el control y la robustez del sistema.
 
-Cada evento se ejecuta en un hilo independiente, separado del hilo principal del programa (la función \emph{main}). Esta decisión de diseño permite aislar la ejecución de los eventos del flujo principal, de modo que un fallo o comportamiento inesperado en un evento no compromete la ejecución global del programa. De esta forma, el sistema mejora su tolerancia a errores y evita que una excepción o bloqueo en un evento provoque la finalización del proceso principal.
+Cada evento se ejecuta en un \textbf{hilo} independiente, separado del hilo principal del programa (la función \texttt{main}). Esta decisión de diseño permite aislar la ejecución de los eventos del flujo principal, de modo que un fallo o comportamiento inesperado en un evento no compromete la ejecución global del programa. De esta forma, el sistema mejora su tolerancia a errores y evita que una excepción o bloqueo en un evento provoque la finalización del proceso principal.
 
-La creación, ejecución y finalización de los eventos se encuentra centralizada en el \emph{runtime}, que actúa como gestor de eventos. Aunque los eventos se ejecutan en hilos independientes, el hilo principal mantiene en todo momento el control sobre su estado, pudiendo conocer qué eventos se encuentran activos, cuáles han finalizado y cuáles están pendientes de ejecución. Este enfoque permite combinar concurrencia con supervisión centralizada, evitando la pérdida de control sobre los hilos lanzados dinámicamente.
+La creación, ejecución y finalización de los eventos se encuentra centralizada en el \eng{runtime}, que actúa como gestor de eventos. Aunque los eventos se ejecutan en hilos independientes, el hilo principal mantiene en todo momento el control sobre su estado, pudiendo conocer qué eventos se encuentran activos, cuáles han finalizado y cuáles están pendientes de ejecución. Este enfoque permite combinar concurrencia con supervisión centralizada, evitando la pérdida de control sobre los hilos lanzados dinámicamente.
 
-Los eventos son \emph{autogestionados} una vez lanzados, se encargan de ejecutar su lógica asociada, control de sus limitaciones de ejecución y periodicidad. Esto reduce el acoplamiento entre el código del usuario y la infraestructura interna del runtime, simplificando tanto el modelo de programación como el mantenimiento del sistema.
+Los eventos son \textbf{autogestionados} una vez lanzados, se encargan de ejecutar su lógica asociada, control de sus limitaciones de ejecución y periodicidad. Esto reduce el acoplamiento entre el código del usuario y la infraestructura interna del runtime, simplificando tanto el modelo de programación como el mantenimiento del sistema.
 
 Este modelo de ejecución concurrente controlada permite implementar mecanismos temporales y reactivos de forma segura, manteniendo un equilibrio entre flexibilidad, aislamiento y control. La gestión explícita de los eventos como entidades independientes refuerza la arquitectura del sistema y facilita futuras extensiones relacionadas con planificación, cancelación o monitorización avanzada de eventos.
 
-\paragraph{Paso de parámetros}
+\subsubsection{Paso de parámetros}
 
 Uno de los aspectos más complejos del desarrollo del \emph{runtime} ha sido la implementación del paso de parámetros hacia las funciones asociadas a los eventos. Dado que los eventos se ejecutan dinámicamente y en hilos independientes, resulta necesario disponer de un mecanismo que permita invocar funciones con firmas conocidas únicamente en tiempo de ejecución.
 
@@ -403,6 +406,8 @@ En la siguiente gráfica podemos observar una comparativa entre las tres impleme
 \begin{axis}[
     xlabel={n},
     ylabel={Tiempo (s)},
+    width=0.85\textwidth,
+    height=0.55\textwidth,
     legend pos=north west,
     grid=major
 ]
@@ -440,6 +445,6 @@ En la siguiente gráfica podemos observar una comparativa entre las tres impleme
 \caption{Gráfica comparativa del rendimiento en el cálculo de números primos}
 \end{figure}
 
-Los resultados obtenidos muestran que el código generado por el compilador desarrollado presenta un rendimiento muy cercano al del código C optimizado, con diferencias aproximadas de 7\% a medida que aumenta $n$. En contraste, tanto el programa en C como el generado por el compilador superan ampliamente a Python, siendo los ejecutables compilados un 20x \~ 30x más rápidos que el interpretado.
+Los resultados obtenidos muestran que el código generado por el compilador desarrollado \textbf{presenta un rendimiento muy cercano al del código C optimizado}, con diferencias aproximadas de 7\% a medida que aumenta $n$. En contraste, tanto el programa en C como el generado en T superan ampliamente a Python, siendo los ejecutables compilados un 20x\textasciitilde30x más rápidos que el interpretado.
 
 Estos resultados se explican por el hecho de que tanto el lenguaje desarrollado como C generan código nativo que se ejecuta directamente sobre la arquitectura subyacente, evitando la sobrecarga propia de los lenguajes interpretados. Asimismo, el uso de una representación intermedia eficiente y la delegación de las optimizaciones de bajo nivel en la infraestructura LLVM permiten obtener un rendimiento competitivo pese a tratarse de un compilador desarrollado en el contexto de un Trabajo de Fin de Grado.

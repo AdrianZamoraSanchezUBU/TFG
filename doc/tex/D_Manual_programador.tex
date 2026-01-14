@@ -33,7 +33,7 @@ Se siguen las siguientes convenciones de estilo:
     \item \textit{PascalCase} para nombres de clases.
     \item \textit{camelCase} para métodos y variables.
     \item Uso explícito de \texttt{const} siempre que es posible.
-    \item Preferencia por \texttt{std::unique\_ptr} y \texttt{std::shared\_ptr} para la gestión segura de memoria.
+    \item Preferencia por \texttt{std::unique\_ptr} y \texttt{std::shared\_ptr} para la gestión segura y automática de memoria.
 \end{itemize}
 
 El código está documentado mediante comentarios en formato \textbf{Doxygen}, lo que permite generar documentación automática a partir del código fuente.
@@ -105,10 +105,10 @@ El compilador se ejecuta desde línea de comandos indicando como argumento el ar
   --visualizeAST  Generates a AST visualization -pdf file
   --debug         Shows debug data about all the compiler phases.
   --basic         Skips the optimization phase over the LLVM IR module.
-  -IR             Generates a LLVM IR file. [nargs=0..1] [default: ""]
+  -IR             Generates a LLVM IR file. [nargs=0..1] [default: "ir"]
 \end{verbatim}
 
-Durante el desarrollo, se recomienda ejecutar el compilador en modo \texttt{-{}-debug} para facilitar el análisis del flujo interno del sistema.
+Durante el desarrollo, se recomienda ejecutar el compilador en modo \texttt{-{}-debug} para facilitar el análisis del flujo interno de datos del sistema.
 
 \section{Pruebas del sistema}
 Para garantizar la estabilidad del sistema ante modificaciones o extensiones, el proyecto incluye un conjunto de pruebas unitarias implementadas mediante \textbf{GoogleTest}.

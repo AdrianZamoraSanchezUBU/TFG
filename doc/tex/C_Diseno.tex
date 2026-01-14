@@ -18,7 +18,9 @@ Cada nodo del AST representa una construcción del lenguaje (expresiones, declar
 Esta representación intermedia facilita:
 \begin{itemize}
     \item La realización del análisis semántico.
+    \item El almacenamiento estructurado y organización de los datos.
     \item La detección temprana de errores.
+    \item Separación de responsabilidades de representación y transformación.
     \item La generación de código intermedio de forma estructurada.
 \end{itemize}
 
@@ -65,11 +67,11 @@ Los módulos principales del compilador son:
 \begin{itemize}
     \item Analizador léxico (\textit{lexer}).
     \item Analizador sintáctico (\textit{parser}).
+    \item Constructor del AST
     \item Analizador semántico.
     \item Generador de código intermedio.
     \item Optimizador de código intermedio.
     \item Generador de código ejecutable.
-    \item Sistema de ejecución en tiempo de ejecución (\textit{runtime}).
 \end{itemize}
 
 El siguiente diagrama muestra una ejecución lineal del compilador en ausencia de errores, ilustrando el flujo de datos entre las distintas capas del sistema:
@@ -103,10 +105,10 @@ Este diseño desacopla completamente la gramática del lenguaje de la representa
 \subsection{Análisis semántico y generación de código}
 Tanto el análisis semántico como la generación de código LLVM IR utilizan el patrón \textit{visitor} para recorrer el AST.
 
-Durante el análisis semántico se validan los tipos, la correcta declaración de identificadores y el uso de ámbitos. En la fase de generación de código, el AST se traduce a instrucciones LLVM IR de forma progresiva y estructurada.
+Durante el análisis semántico se validan los tipos, la correcta declaración de identificadores y el uso de ámbitos, generando en este proceso la tabla de símbolos. En la fase de generación de código, la AST se traduce a instrucciones LLVM IR con la ayuda de los datos de la tabla de símbolos, garantizando que se respete la estructura y uso de identificadores del programa fuente.
 
 \subsection{Algoritmo de \textit{scheduling} de eventos}
-El sistema de eventos se gestiona en tiempo de ejecución mediante un mecanismo de planificación basado en hilos. Cada evento se registra con un periodo temporal y una función asociada.
+El sistema de eventos se gestiona en tiempo de ejecución mediante un mecanismo de planificación basado en hilos. Cada evento se registra función la cual será ejecutada según unos parámetros de ejecución, tales como el periodo de ejecución, el limite de ejecuciones y los parámetros de entrada.
 
 El \textit{runtime} se encarga de:
 \begin{itemize}
