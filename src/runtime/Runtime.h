@@ -19,7 +19,6 @@ class Runtime {
     std::vector<std::shared_ptr<Event>> events; ///< List of events
     std::mutex eventsMutex;                     ///< Mutex for concurrent operations
     bool running = true;                        ///< Running flag
-    float t;
 
   public:
     /// Default constructor.
