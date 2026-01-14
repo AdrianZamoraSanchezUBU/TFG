@@ -6,6 +6,7 @@ bool TFG = true;
 
 string myName = "Adrián";
 
-time duracionVideo = 5 min;
+// Que poco 😨
+time duracionVideo = 5 min; 
 
 return entero;
