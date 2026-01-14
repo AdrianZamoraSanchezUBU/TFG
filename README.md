@@ -2,8 +2,8 @@
 Este Trabajo Fin de Grado aborda el diseño e implementación de un lenguaje de programación propio, junto con su compilador y entorno de ejecución, desarrollados con C++, ANTLR, LLVM. El proyecto cubre todas las fases clásicas de un compilador —desde el análisis léxico y sintáctico hasta la generación de código intermedio, optimización y ejecución— incorporando además soporte para eventos temporales y un runtime concurrente.
 
 En este repositorio se incluye el código fuente del compilador y del runtime, ejemplos de programas escritos en el propio lenguaje, la memoria del TFG, así como los materiales de evaluación: 
-- [Memoria del TFG](docs/Memoria.pdf)
-- [Anexos](docs/Anexos.pdf)
+- [Memoria del TFG](doc/Memoria.pdf)
+- [Anexos](doc/Anexos.pdf)
 - [Vídeo de defensa](https://youtu.be/zlXMgQ-jRb8) y la [presentación utilizada durante el video](https://www.canva.com/design/DAG9AOcjeK0/MPaNNu_ftCpNQo9uJOKj9w/view?utm_content=DAG9AOcjeK0&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h05b067fca0)
 - [Vídeo de demostración](https://youtu.be/0ULCn_Cs6-U)
 - [Despliegue y pruebas utilizando Docker](#Despliegue-en-Docker)
